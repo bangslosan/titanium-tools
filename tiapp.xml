@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ti:app xmlns:ti="http://ti.appcelerator.org">
+    <property name="acs-oauth-secret-production" type="string">yStHhjMKsVLWB0ePrfaCRLf2MH3PQpam</property>
+    <property name="acs-oauth-key-production" type="string">ZeQ64PBaB2F0l5TPDPQUheVJfE4V2wtT</property>
+    <property name="acs-api-key-production" type="string">1RqFhGMxPcZW5wmW54AXMJByaoQh0zgx</property>
+    <property name="acs-oauth-secret-development" type="string">8RjRkXSuHFEWoO30D7ArwzDy4R9uyYkt</property>
+    <property name="acs-oauth-key-development" type="string">kble92ka6t0wPmsEVq3p2qj7EZ4Cgb8Q</property>
+    <property name="acs-api-key-development" type="string">ot7SG2G8um8fon6AU8LxdKBBrAzffR6y</property>
+    <deployment-targets>
+        <target device="mobileweb">false</target>
+        <target device="iphone">true</target>
+        <target device="ipad">true</target>
+        <target device="android">false</target>
+        <target device="blackberry">false</target>
+    </deployment-targets>
+    <sdk-version>2.0.2</sdk-version>
+    <id>ru.titanium.tools</id>
+    <name>titanium-tools</name>
+    <version>1.0</version>
+    <publisher>fgengine</publisher>
+    <url>http://</url>
+    <description>not specified</description>
+    <copyright>2012 by fgengine</copyright>
+    <icon>appicon.png</icon>
+    <persistent-wifi>false</persistent-wifi>
+    <prerendered-icon>false</prerendered-icon>
+    <statusbar-style>default</statusbar-style>
+    <statusbar-hidden>false</statusbar-hidden>
+    <fullscreen>false</fullscreen>
+    <navbar-hidden>false</navbar-hidden>
+    <analytics>true</analytics>
+    <guid>c8ed8f09-638a-4512-b3eb-9c2952818c97</guid>
+    <property name="ti.ui.defaultunit">system</property>
+    <iphone>
+        <orientations device="iphone">
+            <orientation>Ti.UI.PORTRAIT</orientation>
+        </orientations>
+        <orientations device="ipad">
+            <orientation>Ti.UI.PORTRAIT</orientation>
+            <orientation>Ti.UI.UPSIDE_PORTRAIT</orientation>
+            <orientation>Ti.UI.LANDSCAPE_LEFT</orientation>
+            <orientation>Ti.UI.LANDSCAPE_RIGHT</orientation>
+        </orientations>
+    </iphone>
+    <android xmlns:android="http://schemas.android.com/apk/res/android"/>
+    <mobileweb>
+        <precache/>
+        <splash>
+            <enabled>true</enabled>
+            <inline-css-images>true</inline-css-images>
+        </splash>
+        <theme>default</theme>
+    </mobileweb>
+    <modules>
+        <module platform="commonjs" version="2.0.5">ti.cloud</module>
+    </modules>
+</ti:app>
