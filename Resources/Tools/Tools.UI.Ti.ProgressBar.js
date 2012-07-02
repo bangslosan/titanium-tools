@@ -186,11 +186,6 @@ Instance.prototype.toString = function()
 	return '[object ToolsProgressBar]';
 }
 
-Instance.prototype.removeFromParent = function()
-{
-    this.parent.remove(this.handle);
-};
-
 Instance.prototype.addEventListener = function(name, callback)
 {
     this.handle.addEventListener(name, callback);

@@ -1,0 +1,28 @@
+{
+	"frame" : {
+		"height" : 14
+	},
+	"background" : {
+		"image" : {
+			"empty" : {
+				"normal" : {
+					"left" : "Images/ProgressBar/Classic/Empty.Left.png",
+					"center" : "Images/ProgressBar/Classic/Empty.Center.png",
+					"right" : "Images/ProgressBar/Classic/Empty.Right.png"
+				}
+			},
+			"full" : {
+				"normal" : {
+					"left" : "Images/ProgressBar/Classic/Full.Left.png",
+					"center" : "Images/ProgressBar/Classic/Full.Center.png",
+					"right" : "Images/ProgressBar/Classic/Full.Right.png"
+				}
+			}
+		},
+		"caps" : {
+			"left" : 8,
+			"center" : 18,
+			"right" : 8
+		}
+	}
+}

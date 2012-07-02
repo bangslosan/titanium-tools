@@ -12,9 +12,9 @@ var InstanceStyle = {
 		height : undefined
 	},
 	image : {
-		normal : undefined,
-		select : undefined,
-		disable : undefined
+		normal : '',
+		select : '',
+		disable : ''
 	},
 	state : {
 		disabled : false,
@@ -44,10 +44,7 @@ function convertStyle(style)
 	{
 		state = 'select';
 	}
-	if(style.image[state] != undefined)
-	{
-		result.image = style.image[state];
-	}
+	result.image = style.image[state];
 	return result;
 }
 
@@ -62,13 +59,8 @@ function Instance(params)
 
 Instance.prototype.toString = function()
 {
-	return '[object ToolsImageView]';
+	return '[object ToolsImage]';
 }
-
-Instance.prototype.removeFromParent = function()
-{
-    this.parent.remove(this.handle);
-};
 
 Instance.prototype.addEventListener = function(name, callback)
 {
@@ -129,10 +121,7 @@ Instance.prototype.setSelected = function(state)
 Instance.prototype.refresh = function()
 {
 	var state = this.state();
-	if(this.style.image[state] != undefined)
-	{
-		this.handle.image = this.style.image[state];
-	}
+	this.handle.image = this.style.image[state];
 }
 
 //---------------------------------------------//

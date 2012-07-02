@@ -62,11 +62,6 @@ Instance.prototype.toString = function()
 	return '[object ToolsLineEdit]';
 }
 
-Instance.prototype.removeFromParent = function()
-{
-    this.parent.remove(this.handle);
-};
-
 Instance.prototype.addEventListener = function(name, callback)
 {
     this.handle.addEventListener(name, callback);

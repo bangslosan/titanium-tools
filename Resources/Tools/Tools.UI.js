@@ -1,13 +1,27 @@
 function setPreset(name, preset)
 {
 	var ToolsUIPreset = require('Tools/Tools.UI.Preset');
-	return ToolsUIPreset.set(name, preset);
+	ToolsUIPreset.set(name, preset);
 }
 
 function getPreset(name)
 {
 	var ToolsUIPreset = require('Tools/Tools.UI.Preset');
 	return ToolsUIPreset.get(name);
+}
+
+function loadPresetFromFilename(name, filename)
+{
+	var ToolsUIPreset = require('Tools/Tools.UI.Preset');
+	return ToolsUIPreset.loadFromFilename(name, filename);
+}
+
+//---------------------------------------------//
+
+function loadInterfaceFromFilename(filename, parent, controller)
+{
+	var ToolsUIInterfaceLoader = require('Tools/Tools.UI.InterfaceLoader');
+	return ToolsUIInterfaceLoader.loadFromFilename(filename, parent, controller);
 }
 	
 //---------------------------------------------//
@@ -108,6 +122,8 @@ function currentWindowHandle()
 module.exports = {
 	setPreset : setPreset,
 	getPreset : getPreset,
+	loadPresetFromFilename : loadPresetFromFilename,
+	loadInterfaceFromFilename : loadInterfaceFromFilename,
 	createWindow : createWindow,
 	createView : createView,
 	createNavbar : createNavbar,

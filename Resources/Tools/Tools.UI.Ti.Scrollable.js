@@ -46,9 +46,14 @@ Instance.prototype.toString = function()
 	return '[object ToolsScrollable]';
 }
 
-Instance.prototype.removeFromParent = function()
+Instance.prototype.add = function(view)
 {
-    this.parent.remove(this.handle);
+    this.handle.addView(view);
+};
+
+Instance.prototype.remove = function(view)
+{
+    this.handle.removeView(view);
 };
 
 Instance.prototype.addEventListener = function(name, callback)
@@ -64,16 +69,6 @@ Instance.prototype.removeEventListener = function(name, callback)
 Instance.prototype.fireEvent = function(name, params)
 {
     this.handle.fireEvent(name, params);
-};
-
-Instance.prototype.addView = function(view)
-{
-    this.handle.addView(view);
-};
-
-Instance.prototype.removeView = function(view)
-{
-    this.handle.removeView(view);
 };
 
 Instance.prototype.state = function()
@@ -97,6 +92,10 @@ Instance.prototype.setDisabled = function(state)
 		this.style.state.disabled = state;
 		this.refresh();
 	}
+};
+
+Instance.prototype.refresh = function()
+{
 };
 
 //---------------------------------------------//

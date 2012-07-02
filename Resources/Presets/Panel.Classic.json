@@ -1,0 +1,24 @@
+{
+	"compound" : "COMPOUND_FULL",
+	"background" : {
+		"image" : {
+			"normal" : {
+				"topRight" : "Images/Panel/Classic/Normal.TopRight.png",
+				"topLeft" : "Images/Panel/Classic/Normal.TopLeft.png",
+				"bottomLeft" : "Images/Panel/Classic/Normal.BottomLeft.png",
+				"bottomRight" : "Images/Panel/Classic/Normal.BottomRight.png",
+				"top" : "Images/Panel/Classic/Normal.Top.png",
+				"bottom" : "Images/Panel/Classic/Normal.Bottom.png",
+				"left" : "Images/Panel/Classic/Normal.Left.png",
+				"right" : "Images/Panel/Classic/Normal.Right.png",
+				"center" : "Images/Panel/Classic/Normal.Center.png"
+			}
+		},
+		"caps" : {
+			"top" : 14,
+			"bottom" : 14,
+			"left" : 14,
+			"right" : 14
+		}
+	}
+}

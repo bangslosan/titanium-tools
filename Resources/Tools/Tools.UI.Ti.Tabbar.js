@@ -154,11 +154,6 @@ Instance.prototype.selectTab = function(tab)
 	}
 }
 
-Instance.prototype.removeFromParent = function()
-{
-    this.parent.remove(this.handle);
-};
-
 Instance.prototype.addEventListener = function(name, callback)
 {
     this.handle.addEventListener(name, callback);
@@ -195,6 +190,10 @@ Instance.prototype.setDisabled = function(state)
 		this.style.state.disabled = state;
 		this.refresh();
 	}
+};
+
+Instance.prototype.refresh = function()
+{
 };
 
 //---------------------------------------------//

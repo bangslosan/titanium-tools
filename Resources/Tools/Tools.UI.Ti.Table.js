@@ -46,19 +46,14 @@ Instance.prototype.toString = function()
 	return '[object ToolsTableView]';
 }
 
-Instance.prototype.appendRow = function(row)
+Instance.prototype.add = function(view)
 {
-    this.handle.appendRow(row);
+    this.handle.appendRow(view);
 };
 
-Instance.prototype.removeRow = function(row)
+Instance.prototype.remove = function(view)
 {
-    this.handle.removeRow(row);
-};
-
-Instance.prototype.removeFromParent = function()
-{
-    this.parent.remove(this.handle);
+    this.handle.removeRow(view);
 };
 
 Instance.prototype.addEventListener = function(name, callback)
@@ -97,6 +92,10 @@ Instance.prototype.setDisabled = function(state)
 		this.style.state.disabled = state;
 		this.refresh();
 	}
+};
+
+Instance.prototype.refresh = function()
+{
 };
 
 //---------------------------------------------//

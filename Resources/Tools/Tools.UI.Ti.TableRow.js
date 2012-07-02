@@ -56,11 +56,6 @@ Instance.prototype.remove = function(view)
     this.handle.remove(view);
 };
 
-Instance.prototype.removeFromParent = function()
-{
-    this.parent.remove(this.handle);
-};
-
 Instance.prototype.removeAll = function()
 {
 	if(this.client.children != undefined)
@@ -109,6 +104,10 @@ Instance.prototype.setDisabled = function(state)
 		this.style.state.disabled = state;
 		this.refresh();
 	}
+};
+
+Instance.prototype.refresh = function()
+{
 };
 
 //---------------------------------------------//

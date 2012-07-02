@@ -1,5 +1,8 @@
 var ToolsObject = require('Tools/Tools.Object');
 var ToolsPlatform = require('Tools/Tools.Platform');
+var ToolsString = require('Tools/Tools.String');
+var ToolsJSON = require("Tools/Tools.JSON");
+var ToolsXML = require("Tools/Tools.XML");
 
 //---------------------------------------------//
 
@@ -124,10 +127,54 @@ function merge(params, defaults)
 
 //---------------------------------------------//
 
+function loadFromFilename(name, filename)
+{
+	var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, filename);
+	if(file == undefined)
+	{
+		// ERROR
+		return;
+	}
+	var blob = file.read();
+	if(blob == undefined)
+	{
+		// ERROR
+		return;
+	}
+	var text = blob.text;
+	if(text == undefined)
+	{
+		// ERROR
+		return;
+	}
+	if(ToolsString.isSuffix(filename, '.json') == true)
+	{
+		loadFromJSON(name, ToolsJSON.deserialize(text));
+	}
+	else if(ToolsString.isSuffix(filename, '.xml') == true)
+	{
+		loadFromXML(name, ToolsXML.deserialize(text));
+	}
+}
+
+function loadFromJSON(name, content)
+{
+	set(name, content);
+}
+
+function loadFromXML(name, content)
+{
+}
+
+//---------------------------------------------//
+
 module.exports = {
 	set : set,
 	get : get,
 	remove : remove,
 	select : select,
-	merge : merge
+	merge : merge,
+	loadFromFilename : loadFromFilename,
+	loadFromJSON : loadFromJSON,
+	loadFromXML : loadFromXML
 };

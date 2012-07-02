@@ -58,11 +58,25 @@ function chomp(str)
 	}
 }
 
+function isPrefix(str, prefix)
+{
+    return (str.indexOf(prefix) === 0);
+}
+
+function isSuffix(str, suffix)
+{
+    return (str.match(suffix + '$') == suffix);
+};
+
 //---------------------------------------------//
 
 module.exports = {
 	isInt : isInt,
 	isFloat : isFloat,
 	needsQuoting : needsQuoting,
-	trim : trim
+	trim : trim,
+	padding : padding,
+	chomp : chomp,
+	isPrefix : isPrefix,
+	isSuffix : isSuffix
 };

@@ -318,11 +318,6 @@ Instance.prototype.remove = function(view)
     this.client.remove(view);
 };
 
-Instance.prototype.removeFromParent = function()
-{
-    this.parent.remove(this.handle);
-};
-
 Instance.prototype.removeAll = function()
 {
 	if(this.client.children != undefined)
