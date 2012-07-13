@@ -1,0 +1,31 @@
+Logfile initialized
+[INFO] logfile = /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/build.log
+[DEBUG] /Users/fgengine/Library/Application Support/Titanium/mobilesdk/osx/2.1.0.GA/android/builder.py simulator titanium-tools /Users/fgengine/Android SDK/ /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools ru.titanium.tools 8 WVGA854 /127.0.0.1:52089
+[INFO] Building titanium-tools for Android ... one moment
+[INFO] Titanium SDK version: 2.1.0 (06/28/12 12:16 6e3cab6)
+[DEBUG] Waiting for device to be ready ...
+[TRACE] adb devices returned 1 devices/emulators
+[DEBUG] Device connected... (waited 0 seconds)
+[DEBUG] waited 0.043385 seconds on emulator to get ready
+[DEBUG] ru.titanium.tools installed? True
+[INFO] Fastdev server running, deploying in Fastdev mode
+[INFO] Copying CommonJS modules...
+[INFO] Copying project resources..
+[INFO] Tiapp.xml unchanged, skipping class generation
+[DEBUG] Processing Android resource drawables
+[DEBUG] found drawable-long-land-hdpi splash screen at /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/Resources/android/images/res-long-land-hdpi/default.png
+[DEBUG] found drawable-long-land-ldpi splash screen at /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/Resources/android/images/res-long-land-ldpi/default.png
+[DEBUG] found drawable-long-port-hdpi splash screen at /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/Resources/android/images/res-long-port-hdpi/default.png
+[DEBUG] found drawable-long-port-ldpi splash screen at /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/Resources/android/images/res-long-port-ldpi/default.png
+[DEBUG] found drawable-notlong-land-hdpi splash screen at /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/Resources/android/images/res-notlong-land-hdpi/default.png
+[DEBUG] found drawable-notlong-land-ldpi splash screen at /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/Resources/android/images/res-notlong-land-ldpi/default.png
+[DEBUG] found drawable-notlong-land-mdpi splash screen at /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/Resources/android/images/res-notlong-land-mdpi/default.png
+[DEBUG] found drawable-notlong-port-hdpi splash screen at /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/Resources/android/images/res-notlong-port-hdpi/default.png
+[DEBUG] found drawable-notlong-port-ldpi splash screen at /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/Resources/android/images/res-notlong-port-ldpi/default.png
+[DEBUG] found drawable-notlong-port-mdpi splash screen at /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/Resources/android/images/res-notlong-port-mdpi/default.png
+[INFO] Waiting for SDCard to become available..
+[INFO] Re-launching application ... titanium-tools
+[INFO] Launching application ... titanium-tools
+[TRACE] Launch output: Starting: Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] cmp=ru.titanium.tools/.TitaniumToolsActivity }
+
+[INFO] Forwarding host port 52089 to device for debugging.

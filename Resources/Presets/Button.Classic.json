@@ -23,14 +23,14 @@
 		},
 		"image" : {
 			"normal" : {
-				"left" : "Images/Button/Classic/Normal.Left.png",
-				"center" : "Images/Button/Classic/Normal.Center.png",
-				"right" : "Images/Button/Classic/Normal.Right.png"
+				"left" : "%Resources%/Images/Button/Classic/Normal.Left.png",
+				"center" : "%Resources%/Images/Button/Classic/Normal.Center.png",
+				"right" : "%Resources%/Images/Button/Classic/Normal.Right.png"
 			},
 			"select" : {
-				"left" : "Images/Button/Classic/Select.Left.png",
-				"center" : "Images/Button/Classic/Select.Center.png",
-				"right" : "Images/Button/Classic/Select.Right.png"
+				"left" : "%Resources%/Images/Button/Classic/Select.Left.png",
+				"center" : "%Resources%/Images/Button/Classic/Select.Center.png",
+				"right" : "%Resources%/Images/Button/Classic/Select.Right.png"
 			}
 		},
 		"caps" : {

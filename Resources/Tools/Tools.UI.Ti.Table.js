@@ -71,15 +71,6 @@ Instance.prototype.fireEvent = function(name, params)
     this.handle.fireEvent(name, params);
 };
 
-Instance.prototype.state = function()
-{
-	if(this.style.state.disabled == true)
-	{
-		return 'disable';
-	}
-	return 'normal';
-}
-
 Instance.prototype.isDisabled = function()
 {
 	return this.state.disabled;

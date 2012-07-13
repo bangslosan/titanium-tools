@@ -1,5 +1,5 @@
 var ToolsUIPreset = require('Tools/Tools.UI.Preset');
-var ToolsUITiWindow = require('Tools/Tools.UI.Ti.Window');
+var ToolsUIWindow = require('Tools/Tools.UI.Window');
 
 //---------------------------------------------//
 
@@ -67,6 +67,14 @@ Instance.prototype.toString = function()
 Instance.prototype.open = function()
 {
     this.handle.open();
+    if(this.selectedTab == undefined)
+	{
+		this.selectedTab = this.tabs[0];
+	    if(this.selectedTab != undefined)
+		{
+			this.selectedTab.open();
+		}
+	}
 };
 
 Instance.prototype.close = function()
@@ -76,7 +84,8 @@ Instance.prototype.close = function()
 
 Instance.prototype.createTab = function(params)
 {
-	this.addTab(ToolsUITiWindow.create(params));
+	var tab = ToolsUIWindow.create(params);
+	this.addTab(tab);
 };
 
 Instance.prototype.addTab = function(tab)
@@ -85,12 +94,6 @@ Instance.prototype.addTab = function(tab)
 	tab.tabbar = this;
 	
 	this.tabs.push(tab);
-	
-	if(this.selectedTab == undefined)
-	{
-		this.selectedTab = tab;
-		this.selectedTab.open();
-	}
 };
 
 Instance.prototype.removeTab = function(tab)

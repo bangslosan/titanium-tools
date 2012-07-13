@@ -16,7 +16,8 @@ var InstanceStyle = {
 		color : 'transparent',
 		image : undefined
 	},
-	main : undefined
+	main : undefined,
+	root : false
 };
 
 //---------------------------------------------//
@@ -32,7 +33,8 @@ function convertStyle(style)
 		height : style.frame.height,
 		backgroundRepeat : (style.background.stretched == false),
 		backgroundColor : style.background.color,
-		backgroundImage : style.background.image
+		backgroundImage : style.background.image,
+		exitOnClose : style.root
 	};
 	if(style.main != undefined)
 	{

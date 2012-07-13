@@ -2,11 +2,11 @@ var ToolsUI = require("Tools/Tools.UI");
 
 //---------------------------------------------//
 
-var currentWindow = Ti.UI.currentWindow;
+var win = ToolsUI.currentWindowHandle();
 var controller = {};
 
 //---------------------------------------------//
 
-ToolsUI.loadInterfaceFromFilename('Views/First.json', currentWindow, controller);
+ToolsUI.loadInterfaceFromFilename('Views/Second.json', win, controller);
 
 //---------------------------------------------//

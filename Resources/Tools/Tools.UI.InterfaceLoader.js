@@ -11,6 +11,7 @@ var TOOLS_NAVBAR = 'Tools.Navbar';
 var TOOLS_TABBAR = 'Tools.Tabbar';
 var TOOLS_VIEW = 'Tools.View';
 var TOOLS_BUTTON = 'Tools.Button';
+var TOOLS_LABEL = 'Tools.Label';
 var TOOLS_IMAGE = 'Tools.Image';
 var TOOLS_SCROLL = 'Tools.Scroll';
 var TOOLS_SCROLLABLE = 'Tools.Scrollable';
@@ -71,6 +72,7 @@ function loadFromJSON(content, parent, controller)
 		case TOOLS_NAVBAR: outlet = ToolsUI.createNavbar(style); break;
 		case TOOLS_TABBAR: outlet = ToolsUI.createTabbar(style); break;
 		case TOOLS_VIEW: outlet = ToolsUI.createView(style); break;
+		case TOOLS_LABEL: outlet = ToolsUI.createLabel(style); break;
 		case TOOLS_BUTTON: outlet = ToolsUI.createButton(style); break;
 		case TOOLS_IMAGE: outlet = ToolsUI.createImage(style); break;
 		case TOOLS_SCROLL: outlet = ToolsUI.createScroll(style); break;
@@ -80,11 +82,6 @@ function loadFromJSON(content, parent, controller)
 		case TOOLS_TEXT_EDIT: outlet = ToolsUI.createTextEdit(style); break;
 		case TOOLS_TABLE: outlet = ToolsUI.createTable(style); break;
 		case TOOLS_TABLE_ROW: outlet = ToolsUI.createTableRow(style); break;
-	}
-	if(outlet == undefined)
-	{
-		// ERROR
-		return;
 	}
 	if(content.outlet != undefined)
 	{

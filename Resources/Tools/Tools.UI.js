@@ -112,13 +112,6 @@ function createTableRow(params)
 
 //---------------------------------------------//
 
-function currentWindowHandle()
-{
-	return Ti.UI.currentWindow;
-}
-
-//---------------------------------------------//
-
 module.exports = {
 	setPreset : setPreset,
 	getPreset : getPreset,
@@ -137,6 +130,5 @@ module.exports = {
 	createLineEdit : createLineEdit,
 	createTextEdit : createTextEdit,
 	createTable : createTable,
-	createTableRow : createTableRow,
-	currentWindowHandle : currentWindowHandle
+	createTableRow : createTableRow
 }

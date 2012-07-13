@@ -8,7 +8,7 @@ ToolsUI.loadPresetFromFilename('ProgressBar.Classic', 'Presets/ProgressBar.Class
 
 //---------------------------------------------//
 
-var tabbar = ToolsUI.createTabbar(
+var main = ToolsUI.createWindow(
 	{
 		frame : {
 			top : 0,
@@ -17,34 +17,10 @@ var tabbar = ToolsUI.createTabbar(
 			left : 0
 		},
 		background : {
-			color : '#ffaaff'
-		}
-	},
-	[
-		{
-			frame : {
-				top : 0,
-				right : 0,
-				bottom : 50,
-				left : 0
-			},
-			background : {
-				color : '#888888'
-			},
-			main : 'viewFirst.js'
+			color : '#888888'
 		},
-		{
-			frame : {
-				top : 0,
-				right : 0,
-				bottom : 50,
-				left : 0
-			},
-			background : {
-				color : '#444444'
-			},
-			main : 'viewFirst.js'
-		}
-	]
+		main : 'viewFirst.js',
+		root : true
+	}
 );
-tabbar.open();
+main.open();

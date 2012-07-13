@@ -101,8 +101,21 @@ var responce = function(params)
 		}
 		http = null;
 	};
-	http.getdata.open('GET', params.url, true);
-	http.getdata.send();
+	if(params.method == undefined)
+	{
+		params.method = 'GET';
+	}
+	switch(params.method)
+	{
+		case 'GET':
+			http.getdata.open('GET', params.url);
+			http.getdata.send();
+		break;
+		case 'POST':
+			http.getdata.open('POST', params.url);
+			http.getdata.send(params.data);
+		break;
+	}
 };
 
 //---------------------------------------------//

@@ -10,7 +10,7 @@ function create(params)
 		{
 			if(self.isTouched() == false)
 			{
-				self.setTouched(true)
+				self.setTouched(true);
 			}
 		}
 	);
@@ -19,7 +19,7 @@ function create(params)
 		{
 			if(self.isTouched() == true)
 			{
-				self.setTouched(false)
+				self.setTouched(false);
 			}
 		}
 	);
@@ -28,7 +28,7 @@ function create(params)
 		{
 			if(self.isTouched() == true)
 			{
-				self.setTouched(false)
+				self.setTouched(false);
 			}
 		}
 	);

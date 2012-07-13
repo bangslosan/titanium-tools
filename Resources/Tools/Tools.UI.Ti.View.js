@@ -114,10 +114,6 @@ function convertStyle(style)
 
 //---------------------------------------------//
 
-// 89109616244 - Алик
-
-//---------------------------------------------//
-
 function Instance(params)
 {
 	this.style = ToolsUIPreset.merge(params, InstanceStyle);

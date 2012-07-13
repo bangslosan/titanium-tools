@@ -3,15 +3,15 @@
 	"background" : {
 		"image" : {
 			"normal" : {
-				"topRight" : "Images/Panel/Classic/Normal.TopRight.png",
-				"topLeft" : "Images/Panel/Classic/Normal.TopLeft.png",
-				"bottomLeft" : "Images/Panel/Classic/Normal.BottomLeft.png",
-				"bottomRight" : "Images/Panel/Classic/Normal.BottomRight.png",
-				"top" : "Images/Panel/Classic/Normal.Top.png",
-				"bottom" : "Images/Panel/Classic/Normal.Bottom.png",
-				"left" : "Images/Panel/Classic/Normal.Left.png",
-				"right" : "Images/Panel/Classic/Normal.Right.png",
-				"center" : "Images/Panel/Classic/Normal.Center.png"
+				"topRight" : "%Resources%/Images/Panel/Classic/Normal.TopRight.png",
+				"topLeft" : "%Resources%/Images/Panel/Classic/Normal.TopLeft.png",
+				"bottomLeft" : "%Resources%/Images/Panel/Classic/Normal.BottomLeft.png",
+				"bottomRight" : "%Resources%/Images/Panel/Classic/Normal.BottomRight.png",
+				"top" : "%Resources%/Images/Panel/Classic/Normal.Top.png",
+				"bottom" : "%Resources%/Images/Panel/Classic/Normal.Bottom.png",
+				"left" : "%Resources%/Images/Panel/Classic/Normal.Left.png",
+				"right" : "%Resources%/Images/Panel/Classic/Normal.Right.png",
+				"center" : "%Resources%/Images/Panel/Classic/Normal.Center.png"
 			}
 		},
 		"caps" : {

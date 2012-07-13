@@ -1,1 +1,4 @@
 tmp
+/.settings/
+/build/
+.DS_Store

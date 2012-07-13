@@ -24,7 +24,7 @@
 					"height" : 30
 				},
 				"image" : {
-					"normal" : "%Resources%/Images/Glyph/Icon/High/Key.png"
+					"normal" : "Images/Glyph/Icon/High/Key.png"
 				}
 			}
 		},
