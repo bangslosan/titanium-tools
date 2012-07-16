@@ -153,7 +153,5 @@ module.exports = {
 	get : get,
 	remove : remove,
 	merge : merge,
-	loadFromFilename : loadFromFilename,
-	loadFromJSON : loadFromJSON,
-	loadFromXML : loadFromXML
+	loadFromFilename : loadFromFilename
 };

@@ -24,18 +24,18 @@ function configure(params)
 
 function currentPosition(params)
 {
-	var callback = function(result)
+	var callback = function(event)
 	{
-		if(result != undefined)
+		if(event != undefined)
 		{
-			if(position.success == true)
+			if(event.success == true)
 			{
 				if(params.success != undefined)
 				{
 					params.success(
 						{
-							longitude : result.coords.longitude,
-							latitude : result.coords.latitude
+							longitude : event.coords.longitude,
+							latitude : event.coords.latitude
 						}
 					);
 				}

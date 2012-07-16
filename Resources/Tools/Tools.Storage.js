@@ -1,42 +1,32 @@
-function Instance(name)
+function Storage(name)
 {
-	this.name = 'storage.' + name + '.local';
+	this.name = 'storage.' + name;
 	this.content = undefined;
-	this.reload();
-}
-
-Instance.prototype.toString = function()
-{
-	return '[object ToolsStorage]';
-}
-
-Instance.prototype.reload = function()
-{
-	if(Ti.App.Properties.hasProperty(this.name) == true)
-	{
-		this.content = JSON.parse(Ti.App.Properties.getString(this.name));
-	}
-	else
+	this.reload = function()
 	{
 		this.content = undefined;
-	}
-};
-
-Instance.prototype.clear = function()
-{
-	Ti.App.Properties.removeProperty(this.name);
-};
-
-Instance.prototype.flush = function()
-{
-	Ti.App.Properties.setString(this.name, JSON.stringify(this.content));
-};
+		if(Ti.App.Properties.hasProperty(name) == true)
+		{
+			this.content = JSON.parse(Ti.App.Properties.getString(name));
+		}
+	};
+	this.clear = function()
+	{
+		Ti.App.Properties.removeProperty(name);
+	};
+	this.flush = function()
+	{
+		Ti.App.Properties.setString(name, JSON.stringify(this.content));
+	};
+	this.reload();
+	return this;
+}
 
 //---------------------------------------------//
 
 module.exports = {
 	create : function(params)
 	{
-		return new Instance(params);
+		return new Storage(params);
 	}
 }

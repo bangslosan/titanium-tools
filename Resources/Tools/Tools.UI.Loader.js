@@ -7,36 +7,47 @@ var ToolsUI = require('Tools/Tools.UI');
 
 //---------------------------------------------//
 
-function loadFromFilename(filename, parent, controller)
+function loadFromFilename(filename, parent)
 {
-	
+	var controller = {};
 	var file = ToolsFilesystem.getFile(filename);
-	if(file.exists() == false)
+	if(file.exists() == true)
+	{
+		var blob = file.read();
+		if(ToolsString.isSuffix(filename, '.json') == true)
+		{
+			var content = ToolsJSON.deserialize(blob.text);
+			if(content == undefined)
+			{
+				loadFromJSON(content, parent, controller);
+			}
+			else
+			{
+				// ERROR
+			}
+		}
+		else if(ToolsString.isSuffix(filename, '.xml') == true)
+		{
+			var content = ToolsXML.deserialize(blob.text);
+			if(content != undefined)
+			{
+				loadFromXML(content, parent, controller);
+			}
+			else
+			{
+				// ERROR
+			}
+		}
+		else
+		{
+			// ERROR
+		}
+	}
+	else
 	{
 		// ERROR
-		return;
 	}
-	var blob = file.read();
-	if(ToolsString.isSuffix(filename, '.json') == true)
-	{
-		var content = ToolsJSON.deserialize(blob.text);
-		if(content == undefined)
-		{
-			// ERROR
-			return;
-		}
-		loadFromJSON(content, parent, controller);
-	}
-	else if(ToolsString.isSuffix(filename, '.xml') == true)
-	{
-		var content = ToolsXML.deserialize(blob.text);
-		if(content == undefined)
-		{
-			// ERROR
-			return;
-		}
-		loadFromXML(content, parent, controller);
-	}
+	return controller;
 }
 
 function loadFromJSON(content, parent, controller)
@@ -213,7 +224,5 @@ function loadFromXML(content, parent, controller)
 //---------------------------------------------//
 
 module.exports = {
-	loadFromFilename : loadFromFilename,
-	loadFromJSON : loadFromJSON,
-	loadFromXML : loadFromXML
+	loadFromFilename : loadFromFilename
 }
