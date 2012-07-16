@@ -1,79 +1,23 @@
 {
-	"class" : "Tools.View",
 	"outlet" : "panel",
 	"style" : {
+		"className" : "Ti.UI.View",
 		"preset" : "Panel.Classic",
-		"frame" : {
-			"top" : 2,
-			"bottom" : 2,
-			"left" : 2,
-			"right" : 2
-		},
-		"client" : {
-			"layout" : "vertical"
-		}
+		"top" : 20,
+		"left" : 20,
+		"bottom" : 20,
+		"right" : 20,
+		"layout" : "vertical"
 	},
 	"subviews" : [
 		{
-			"class" : "Tools.Image",
 			"style" : {
-				"frame" : {
-					"top" : 8,
-					"left" : 8,
-					"right" : 8,
-					"height" : 30
-				},
-				"image" : {
-					"normal" : "%Resources%/Images/Glyph/Icon/High/Key.png"
-				}
-			}
-		},
-		{
-			"class" : "Tools.LineEdit",
-			"outlet" : "lineEdit",
-			"style" : {
-				"frame" : {
-					"top" : 8,
-					"left" : 8,
-					"right" : 8,
-					"height" : 30
-				}
-			}
-		},
-		{
-			"class" : "Tools.TextEdit",
-			"outlet" : "textEdit",
-			"style" : {
-				"frame" : {
-					"top" : 4,
-					"left" : 8,
-					"right" : 8,
-					"height" : 90
-				}
-			}
-		},
-		{
-			"class" : "Tools.Button",
-			"outlet" : "button",
-			"style" : {
-				"preset" : "Button.Classic",
-				"frame" : {
-					"top" : 4,
-					"left" : 8,
-					"right" : 8
-				}
-			}
-		},
-		{
-			"class" : "Tools.ProgressBar",
-			"outlet" : "progressBar",
-			"style" : {
-				"preset" : "ProgressBar.Classic",
-				"frame" : {
-					"top" : 4,
-					"left" : 8,
-					"right" : 8
-				}
+				"className" : "Ti.UI.ImageView",
+				"top" : 8,
+				"left" : 8,
+				"right" : 8,
+				"height" : 30,
+				"image" : "%ResourcesPath%/Images/Glyph/Icon/High/Key.png"
 			}
 		}
 	]

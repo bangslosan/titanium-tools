@@ -65,6 +65,15 @@ function clone(object)
 	return object;
 }
 
+function isFunction(object)
+{
+	if(object == undefined)
+	{
+		return false;
+	}
+	(typeof(object) == 'function');
+}
+
 function isObject(object)
 {
 	if(object == undefined)
@@ -89,7 +98,7 @@ function isNumber(object)
 	{
 		return false;
 	}
-	return (object.toString() == '[object Number]');
+	(typeof(object) == 'number');
 }
 
 function isString(object)
@@ -98,7 +107,7 @@ function isString(object)
 	{
 		return false;
 	}
-	return (object.toString() == '[object String]');
+	return (typeof(object) == 'string');
 }
 
 //---------------------------------------------//
@@ -106,6 +115,7 @@ function isString(object)
 module.exports = {
 	combine : combine,
 	clone : clone,
+	isFunction : isFunction,
 	isObject : isObject,
 	isArray : isArray,
 	isNumber : isNumber,

@@ -1,9 +1,8 @@
 var ToolsObject = require('Tools/Tools.Object');
-var ToolsPlatform = require('Tools/Tools.Platform');
 var ToolsString = require('Tools/Tools.String');
 var ToolsJSON = require("Tools/Tools.JSON");
 var ToolsXML = require("Tools/Tools.XML");
-
+			
 //---------------------------------------------//
 
 if(Ti.App.ToolsUIPresets == undefined)
@@ -65,47 +64,7 @@ function remove(name)
 	Ti.App.ToolsUIPresets = list;
 }
 
-function select(params)
-{
-	if(params != undefined)
-	{
-		if(params.platform != undefined)
-		{
-			if(ToolsPlatform.isAndroid == true)
-			{
-				if(params.platform.android != undefined)
-				{
-					return params.platform.android;
-				}
-			}
-			else if(ToolsPlatform.iPhone == true)
-			{
-				if(params.platform.iphone != undefined)
-				{
-					return params.platform.ipad;
-				}
-				else if(params.platform.ios != undefined)
-				{
-					return params.platform.ios;
-				}
-			}
-			else if(ToolsPlatform.iPad == true)
-			{
-				if(params.platform.ipad != undefined)
-				{
-					return params.platform.ipad;
-				}
-				else if(params.platform.ios != undefined)
-				{
-					return params.platform.ios;
-				}
-			}
-			return params.platform.any;
-		}
-		return params;
-	}
-	return {};
-}
+//---------------------------------------------//
 
 function merge(params, defaults)
 {
@@ -117,10 +76,34 @@ function merge(params, defaults)
 			params = ToolsObject.combine(preset, params);
 		}
 	}
-	params = select(params);
 	if(defaults != undefined)
 	{
-		return ToolsObject.combine(select(defaults), params);
+		params = ToolsObject.combine(defaults, params);
+	}
+	return preprocess(params);
+}
+
+function preprocess(params)
+{
+	for(var i in params)
+	{
+		if(ToolsObject.isObject(params[i]) == true)
+		{
+			params[i] = preprocess(params[i]);
+		}
+		else if(ToolsObject.isArray(params[i]) == true)
+		{
+			params[i] = preprocess(params[i]);
+		}
+		else if(ToolsObject.isString(params[i]) == true)
+		{
+			if(ToolsString.isPrefix(params[i], '%ResourcesPath%') == true)
+			{
+				var path = ToolsString.replaceAll(params[i], '%ResourcesPath%', '');
+				var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, path);
+				params[i] = (file.exists() == true) ? file.nativePath : path;
+			}
+		}
 	}
 	return params;
 }
@@ -172,7 +155,6 @@ module.exports = {
 	set : set,
 	get : get,
 	remove : remove,
-	select : select,
 	merge : merge,
 	loadFromFilename : loadFromFilename,
 	loadFromJSON : loadFromJSON,

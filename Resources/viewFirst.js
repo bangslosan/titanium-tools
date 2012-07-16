@@ -1,12 +1,18 @@
 var ToolsUI = require("Tools/Tools.UI");
+var ToolsUIPreset = require("Tools/Tools.UI.Preset");
+var ToolsUILoader = require("Tools/Tools.UI.Loader");
 
 //---------------------------------------------//
 
-var currentWindow = Ti.UI.currentWindow;
+var win = Ti.UI.currentWindow;
 var controller = {};
 
 //---------------------------------------------//
 
-ToolsUI.loadInterfaceFromFilename('Views/First.json', currentWindow, controller);
+ToolsUIPreset.loadFromFilename('Panel.Classic', 'Presets/Panel.Classic.json');
+
+//---------------------------------------------//
+
+ToolsUILoader.loadFromFilename('Views/First.json', win, controller);
 
 //---------------------------------------------//

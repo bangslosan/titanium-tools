@@ -68,6 +68,11 @@ function isSuffix(str, suffix)
     return (str.match(suffix + '$') == suffix);
 };
 
+function replaceAll(str, search, replace)
+{
+  return str.split(search).join(replace);
+}
+
 //---------------------------------------------//
 
 module.exports = {
@@ -78,5 +83,6 @@ module.exports = {
 	padding : padding,
 	chomp : chomp,
 	isPrefix : isPrefix,
-	isSuffix : isSuffix
+	isSuffix : isSuffix,
+	replaceAll : replaceAll
 };

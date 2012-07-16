@@ -1,134 +1,136 @@
-function setPreset(name, preset)
-{
-	var ToolsUIPreset = require('Tools/Tools.UI.Preset');
-	ToolsUIPreset.set(name, preset);
-}
-
-function getPreset(name)
-{
-	var ToolsUIPreset = require('Tools/Tools.UI.Preset');
-	return ToolsUIPreset.get(name);
-}
-
-function loadPresetFromFilename(name, filename)
-{
-	var ToolsUIPreset = require('Tools/Tools.UI.Preset');
-	return ToolsUIPreset.loadFromFilename(name, filename);
-}
-
-//---------------------------------------------//
-
-function loadInterfaceFromFilename(filename, parent, controller)
-{
-	var ToolsUIInterfaceLoader = require('Tools/Tools.UI.InterfaceLoader');
-	return ToolsUIInterfaceLoader.loadFromFilename(filename, parent, controller);
-}
-	
-//---------------------------------------------//
-
-function createWindow(params)
-{
-	var ToolsUIWindow = require('Tools/Tools.UI.Window');
-	return ToolsUIWindow.create(params);
-}
-
-function createView(params)
-{
-	var ToolsUIView = require('Tools/Tools.UI.View');
-	return ToolsUIView.create(params);
-}
-
-function createNavbar(params)
-{
-	var ToolsUINavbar = require('Tools/Tools.UI.Navbar');
-	return ToolsUINavbar.create(params);
-}
-
-function createTabbar(params, tabs)
-{
-	var ToolsUITabbar = require('Tools/Tools.UI.Tabbar');
-	return ToolsUITabbar.create(params, tabs);
-}
-
-function createLabel(params)
-{
-	var ToolsUILabel = require('Tools/Tools.UI.Label');
-	return ToolsUILabel.create(params);
-}
-
-function createImage(params)
-{
-	var ToolsUIImage = require('Tools/Tools.UI.Image');
-	return ToolsUIImage.create(params);
-}
-
-function createButton(params)
-{
-	var ToolsUIButton = require('Tools/Tools.UI.Button');
-	return ToolsUIButton.create(params);
-}
-
-function createScroll(params)
-{
-	var ToolsUIScroll = require('Tools/Tools.UI.Scroll');
-	return ToolsUIScroll.create(params);
-}
-
-function createScrollable(params)
-{
-	var ToolsUIScrollable = require('Tools/Tools.UI.Scrollable');
-	return ToolsUIScrollable.create(params);
-}
-
-function createProgressBar(params)
-{
-	var ToolsUIProgressBar = require('Tools/Tools.UI.ProgressBar');
-	return ToolsUIProgressBar.create(params);
-}
-
-function createLineEdit(params)
-{
-	var ToolsUILineEdit = require('Tools/Tools.UI.LineEdit');
-	return ToolsUILineEdit.create(params);
-}
-
-function createTextEdit(params)
-{
-	var ToolsUITextEdit = require('Tools/Tools.UI.TextEdit');
-	return ToolsUITextEdit.create(params);
-}
-
-function createTable(params)
-{
-	var ToolsUITable = require('Tools/Tools.UI.Table');
-	return ToolsUITable.create(params);
-}
-
-function createTableRow(params)
-{
-	var ToolsUITableRow = require('Tools/Tools.UI.TableRow');
-	return ToolsUITableRow.create(params);
-}
+var ToolsUIPreset = require('Tools/Tools.UI.Preset');
 
 //---------------------------------------------//
 
 module.exports = {
-	setPreset : setPreset,
-	getPreset : getPreset,
-	loadPresetFromFilename : loadPresetFromFilename,
-	loadInterfaceFromFilename : loadInterfaceFromFilename,
-	createWindow : createWindow,
-	createView : createView,
-	createNavbar : createNavbar,
-	createTabbar : createTabbar,
-	createLabel : createLabel,
-	createImage : createImage,
-	createButton : createButton,
-	createScroll : createScroll,
-	createScrollable : createScrollable,
-	createProgressBar : createProgressBar,
-	createLineEdit : createLineEdit,
-	createTextEdit : createTextEdit,
-	createTable : createTable,
-	createTableRow : createTableRow
+	createWindow : function(params)
+	{
+		return Ti.UI.createWindow(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.Window'
+				} 
+			)
+		);
+	},
+	createView : function(params)
+	{
+		return Ti.UI.createView(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.Window'
+				} 
+			)
+		);
+	},
+	createScrollView : function(params)
+	{
+		return Ti.UI.createScrollView(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.ScrollView'
+				} 
+			)
+		);
+	},
+	createScrollableView : function(params)
+	{
+		return Ti.UI.createScrollableView(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.ScrollableView'
+				} 
+			)
+		);
+	},
+	createLabel : function(params)
+	{
+		return Ti.UI.createLabel(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.Label'
+				} 
+			)
+		);
+	},
+	createImageView : function(params)
+	{
+		return Ti.UI.createImageView(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.ImageView'
+				} 
+			)
+		);
+	},
+	createButton : function(params)
+	{
+		return Ti.UI.createButton(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.Button'
+				} 
+			)
+		);
+	},
+	createProgressBar : function(params)
+	{
+		return Ti.UI.createProgressBar(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.ProgressBar'
+				} 
+			)
+		);
+	},
+	createTextField : function(params)
+	{
+		return Ti.UI.createTextField(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.TextField'
+				} 
+			)
+		);
+	},
+	createTextArea : function(params)
+	{
+		return Ti.UI.createTextArea(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.TextArea'
+				} 
+			)
+		);
+	},
+	createTableView : function(params)
+	{
+		return Ti.UI.createTableView(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.TableView'
+				} 
+			)
+		);
+	},
+	createTableViewSection : function(params)
+	{
+		return Ti.UI.createTableViewSection(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.TableViewSection'
+				} 
+			)
+		);
+	},
+	createTableViewRow : function(params)
+	{
+		return Ti.UI.createTableViewRow(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.TableViewRow'
+				} 
+			)
+		);
+	}
 }

@@ -1,24 +1,4 @@
 {
-	"compound" : "COMPOUND_FULL",
-	"background" : {
-		"image" : {
-			"normal" : {
-				"topRight" : "%Resources%/Images/Panel/Classic/Normal.TopRight.png",
-				"topLeft" : "%Resources%/Images/Panel/Classic/Normal.TopLeft.png",
-				"bottomLeft" : "%Resources%/Images/Panel/Classic/Normal.BottomLeft.png",
-				"bottomRight" : "%Resources%/Images/Panel/Classic/Normal.BottomRight.png",
-				"top" : "%Resources%/Images/Panel/Classic/Normal.Top.png",
-				"bottom" : "%Resources%/Images/Panel/Classic/Normal.Bottom.png",
-				"left" : "%Resources%/Images/Panel/Classic/Normal.Left.png",
-				"right" : "%Resources%/Images/Panel/Classic/Normal.Right.png",
-				"center" : "%Resources%/Images/Panel/Classic/Normal.Center.png"
-			}
-		},
-		"caps" : {
-			"top" : 14,
-			"bottom" : 14,
-			"left" : 14,
-			"right" : 14
-		}
-	}
+	"height" : 64,
+	"backgroundColor" : "#ff0000"
 }
