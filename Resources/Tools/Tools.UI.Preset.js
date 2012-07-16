@@ -1,3 +1,4 @@
+var ToolsFilesystem = require('Tools/Tools.Filesystem');
 var ToolsObject = require('Tools/Tools.Object');
 var ToolsString = require('Tools/Tools.String');
 var ToolsJSON = require("Tools/Tools.JSON");
@@ -97,12 +98,7 @@ function preprocess(params)
 		}
 		else if(ToolsObject.isString(params[i]) == true)
 		{
-			if(ToolsString.isPrefix(params[i], '%ResourcesPath%') == true)
-			{
-				var path = ToolsString.replaceAll(params[i], '%ResourcesPath%', '');
-				var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, path);
-				params[i] = (file.exists() == true) ? file.nativePath : path;
-			}
+			params[i] = ToolsFilesystem.preprocessPath(params[i]);
 		}
 	}
 	return params;
@@ -112,31 +108,32 @@ function preprocess(params)
 
 function loadFromFilename(name, filename)
 {
-	var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, filename);
-	if(file == undefined)
+	var file = ToolsFilesystem.getFile(filename);
+	if(file.exists() == false)
 	{
 		// ERROR
 		return;
 	}
 	var blob = file.read();
-	if(blob == undefined)
-	{
-		// ERROR
-		return;
-	}
-	var text = blob.text;
-	if(text == undefined)
-	{
-		// ERROR
-		return;
-	}
 	if(ToolsString.isSuffix(filename, '.json') == true)
 	{
-		loadFromJSON(name, ToolsJSON.deserialize(text));
+		var content = ToolsJSON.deserialize(blob.text);
+		if(content == undefined)
+		{
+			// ERROR
+			return;
+		}
+		loadFromJSON(name, content);
 	}
 	else if(ToolsString.isSuffix(filename, '.xml') == true)
 	{
-		loadFromXML(name, ToolsXML.deserialize(text));
+		var content = ToolsXML.deserialize(blob.text);
+		if(content == undefined)
+		{
+			// ERROR
+			return;
+		}
+		loadFromXML(name, content);
 	}
 }
 

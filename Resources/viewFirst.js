@@ -9,10 +9,10 @@ var controller = {};
 
 //---------------------------------------------//
 
-ToolsUIPreset.loadFromFilename('Panel.Classic', 'Presets/Panel.Classic.json');
+ToolsUIPreset.loadFromFilename('Panel.Classic', '%ResourcesPath%Presets/Panel.Classic.json');
 
 //---------------------------------------------//
 
-ToolsUILoader.loadFromFilename('Views/First.json', win, controller);
+ToolsUILoader.loadFromFilename('%ResourcesPath%Views/First.json', win, controller);
 
 //---------------------------------------------//

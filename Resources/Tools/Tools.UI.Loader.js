@@ -1,3 +1,4 @@
+var ToolsFilesystem = require('Tools/Tools.Filesystem');
 var ToolsObject = require('Tools/Tools.Object');
 var ToolsString = require('Tools/Tools.String');
 var ToolsJSON = require("Tools/Tools.JSON");
@@ -8,31 +9,33 @@ var ToolsUI = require('Tools/Tools.UI');
 
 function loadFromFilename(filename, parent, controller)
 {
-	var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, filename);
-	if(file == undefined)
+	
+	var file = ToolsFilesystem.getFile(filename);
+	if(file.exists() == false)
 	{
 		// ERROR
 		return;
 	}
 	var blob = file.read();
-	if(blob == undefined)
-	{
-		// ERROR
-		return;
-	}
-	var text = blob.text;
-	if(text == undefined)
-	{
-		// ERROR
-		return;
-	}
 	if(ToolsString.isSuffix(filename, '.json') == true)
 	{
-		loadFromJSON(ToolsJSON.deserialize(text), parent, controller);
+		var content = ToolsJSON.deserialize(blob.text);
+		if(content == undefined)
+		{
+			// ERROR
+			return;
+		}
+		loadFromJSON(content, parent, controller);
 	}
 	else if(ToolsString.isSuffix(filename, '.xml') == true)
 	{
-		loadFromXML(ToolsXML.deserialize(text), parent, controller);
+		var content = ToolsXML.deserialize(blob.text);
+		if(content == undefined)
+		{
+			// ERROR
+			return;
+		}
+		loadFromXML(content, parent, controller);
 	}
 }
 

@@ -6,12 +6,12 @@ Logfile initialized
 [DEBUG] Waiting for device to be ready ...
 [TRACE] adb devices returned 1 devices/emulators
 [DEBUG] Device connected... (waited 0 seconds)
-[DEBUG] waited 0.039362 seconds on emulator to get ready
+[DEBUG] waited 0.020038 seconds on emulator to get ready
 [DEBUG] ru.titanium.tools installed? True
 [INFO] Fastdev server running, deploying in Fastdev mode
 [INFO] Copying CommonJS modules...
 [INFO] Copying project resources..
-[TRACE] COPYING MODIFIED FILE: /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/Resources/Tools/Tools.UI.Preset.js => /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/build/android/bin/assets/Resources/Tools/Tools.UI.Preset.js
+[TRACE] COPYING MODIFIED FILE: /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/Resources/Tools/Tools.Filesystem.js => /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/build/android/bin/assets/Resources/Tools/Tools.Filesystem.js
 [INFO] Tiapp.xml unchanged, skipping class generation
 [DEBUG] Processing Android resource drawables
 [DEBUG] found drawable-long-land-hdpi splash screen at /Users/fgengine/Dropbox/Titanium/HintSolutions/titanium-tools/Resources/android/images/res-long-land-hdpi/default.png
