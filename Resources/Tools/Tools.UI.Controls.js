@@ -27,6 +27,26 @@ module.exports = {
 			)
 		);
 	},
+	createTabGroup : function(params)
+	{
+		return Ti.UI.createTabGroup(
+			Tools.UI.Preset.merge(params,
+				{
+					className : 'Ti.UI.TabGroup'
+				} 
+			)
+		);
+	},
+	createTab : function(params)
+	{
+		return Ti.UI.createTab(
+			Tools.UI.Preset.merge(params,
+				{
+					className : 'Ti.UI.Tab'
+				} 
+			)
+		);
+	},
 	createScrollView : function(params)
 	{
 		return Ti.UI.createScrollView(
