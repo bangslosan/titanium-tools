@@ -1,0 +1,14 @@
+[
+	{
+		"name" : "Window.Classic",
+		"style" : {
+			"backgroundColor" : "#fafafa"
+		}
+	},
+	{
+		"name" : "Panel.Classic",
+		"style" : {
+			"backgroundColor" : "transparent"
+		}
+	}
+]
