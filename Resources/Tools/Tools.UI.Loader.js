@@ -1,4 +1,5 @@
 var ToolsFilesystem = require('Tools/Tools.Filesystem');
+var ToolsPlatform = require('Tools/Tools.Platform');
 var ToolsObject = require('Tools/Tools.Object');
 var ToolsString = require('Tools/Tools.String');
 var ToolsJSON = require("Tools/Tools.JSON");
@@ -10,6 +11,14 @@ var ToolsUI = require('Tools/Tools.UI');
 function loadFromFilename(filename, parent)
 {
 	var controller = {};
+	if(ToolsObject.isObject(filename) == true)
+	{
+		filename = ToolsPlatform.appropriate(filename);
+		if(filename == undefined)
+		{
+			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
+		}
+	}
 	var file = ToolsFilesystem.getFile(filename);
 	if(file.exists() == true)
 	{
