@@ -89,7 +89,7 @@ function isArray(object)
 	{
 		return false;
 	}
-	return (object.toString() == '[object Array]');
+	return (Object.prototype.toString.call(object) === '[object Array]');
 }
 
 function isNumber(object)
@@ -98,7 +98,7 @@ function isNumber(object)
 	{
 		return false;
 	}
-	(typeof(object) == 'number');
+	return (typeof(object) == 'number');
 }
 
 function isString(object)

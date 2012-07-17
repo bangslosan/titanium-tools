@@ -180,7 +180,7 @@ function preprocessArgument(arg)
 
 //---------------------------------------------//
 
-function loadFromFilename(name, filename)
+function loadFromFilename(filename)
 {
 	if(Tools.Object.isObject(filename) == true)
 	{
@@ -196,11 +196,35 @@ function loadFromFilename(name, filename)
 		var blob = file.read();
 		if(Tools.String.isSuffix(filename, '.json') == true)
 		{
-			loadFromJSON(name, Tools.JSON.deserialize(blob.text));
+			var content = Tools.JSON.deserialize(blob.text);
+			if(Tools.Object.isObject(content) == true)
+			{
+				loadFromJSON(content);
+			}
+			else if(Tools.Object.isArray(content) == true)
+			{
+				var count = content.length;
+				for(var i = 0; i < count; i++)
+				{
+					loadFromJSON(content[i]);
+				}
+			}
 		}
 		else if(Tools.String.isSuffix(filename, '.xml') == true)
 		{
-			loadFromXML(name, Tools.XML.deserialize(blob.text));
+			var content = Tools.XML.deserialize(blob.text);
+			if(Tools.Object.isObject(content) == true)
+			{
+				loadFromXML(content);
+			}
+			else if(Tools.Object.isArray(content) == true)
+			{
+				var count = content.length;
+				for(var i = 0; i < count; i++)
+				{
+					loadFromXML(content[i]);
+				}
+			}
 		}
 		else
 		{
@@ -213,12 +237,12 @@ function loadFromFilename(name, filename)
 	}
 }
 
-function loadFromJSON(name, content)
+function loadFromJSON(content)
 {
-	set(name, content);
+	set(content.name, content.style);
 }
 
-function loadFromXML(name, content)
+function loadFromXML(content)
 {
 }
 

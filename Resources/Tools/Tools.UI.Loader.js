@@ -29,11 +29,35 @@ function loadFromFilename(filename, parent)
 		var blob = file.read();
 		if(Tools.String.isSuffix(filename, '.json') == true)
 		{
-			loadFromJSON(Tools.JSON.deserialize(blob.text), parent, controller);
+			var content = Tools.JSON.deserialize(blob.text);
+			if(Tools.Object.isObject(content) == true)
+			{
+				loadFromJSON(content, parent, controller);
+			}
+			else if(Tools.Object.isArray(content) == true)
+			{
+				var count = content.length;
+				for(var i = 0; i < count; i++)
+				{
+					loadFromJSON(content[i], parent, controller);
+				}
+			}
 		}
 		else if(ToolsString.isSuffix(filename, '.xml') == true)
 		{
-			loadFromXML(Tools.XML.deserialize(blob.text), parent, controller);
+			var content = Tools.XML.deserialize(blob.text);
+			if(Tools.Object.isObject(content) == true)
+			{
+				loadFromXML(content, parent, controller);
+			}
+			else if(Tools.Object.isArray(content) == true)
+			{
+				var count = content.length;
+				for(var i = 0; i < count; i++)
+				{
+					loadFromXML(content[i], parent, controller);
+				}
+			}
 		}
 		else
 		{
