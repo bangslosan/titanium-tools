@@ -44,19 +44,19 @@ function loadFromJSON(content, parent, controller)
 	var outlet = undefined;
 	switch(content.style.className)
 	{
-		case 'Ti.UI.Window', 'Titanium.UI.Window': outlet = ToolsUI.createWindow(content.style); break;
-		case 'Ti.UI.View', 'Titanium.UI.View': outlet = ToolsUI.createView(content.style); break;
-		case 'Ti.UI.ScrollView', 'Titanium.UI.ScrollView': outlet = ToolsUI.createScrollView(content.style); break;
-		case 'Ti.UI.ScrollableView', 'Titanium.UI.ScrollableView': outlet = ToolsUI.createScrollableView(content.style); break;
-		case 'Ti.UI.Label', 'Titanium.UI.Label': outlet = ToolsUI.createLabel(content.style); break;
-		case 'Ti.UI.Button', 'Titanium.UI.Button': outlet = ToolsUI.createButton(content.style); break;
-		case 'Ti.UI.ImageView', 'Titanium.UI.ImageView': outlet = ToolsUI.createImageView(content.style); break;
-		case 'Ti.UI.ProgressBar', 'Titanium.UI.ProgressBar': outlet = ToolsUI.createProgressBar(content.style); break;
-		case 'Ti.UI.TextField', 'Titanium.UI.TextField': outlet = ToolsUI.createTextField(content.style); break;
-		case 'Ti.UI.TextArea', 'Titanium.UI.TextArea': outlet = ToolsUI.createTextArea(content.style); break;
-		case 'Ti.UI.TableView', 'Titanium.UI.TableView': outlet = ToolsUI.createTableView(content.style); break;
-		case 'Ti.UI.TableViewSection', 'Titanium.UI.TableViewSection': outlet = ToolsUI.createTableViewSection(content.style); break;
-		case 'Ti.UI.TableViewRow', 'Titanium.UI.TableViewRow': outlet = ToolsUI.createTableViewRow(content.style); break;
+		case 'Ti.UI.Window': outlet = ToolsUI.createWindow(content.style); break;
+		case 'Ti.UI.View': outlet = ToolsUI.createView(content.style); break;
+		case 'Ti.UI.ScrollView': outlet = ToolsUI.createScrollView(content.style); break;
+		case 'Ti.UI.ScrollableView': outlet = ToolsUI.createScrollableView(content.style); break;
+		case 'Ti.UI.Label': outlet = ToolsUI.createLabel(content.style); break;
+		case 'Ti.UI.Button': outlet = ToolsUI.createButton(content.style); break;
+		case 'Ti.UI.ImageView': outlet = ToolsUI.createImageView(content.style); break;
+		case 'Ti.UI.ProgressBar': outlet = ToolsUI.createProgressBar(content.style); break;
+		case 'Ti.UI.TextField': outlet = ToolsUI.createTextField(content.style); break;
+		case 'Ti.UI.TextArea': outlet = ToolsUI.createTextArea(content.style); break;
+		case 'Ti.UI.TableView': outlet = ToolsUI.createTableView(content.style); break;
+		case 'Ti.UI.TableViewSection': outlet = ToolsUI.createTableViewSection(content.style); break;
+		case 'Ti.UI.TableViewRow': outlet = ToolsUI.createTableViewRow(content.style); break;
 		default:
 			// ERROR
 		return;
@@ -67,19 +67,19 @@ function loadFromJSON(content, parent, controller)
 	}
 	switch(outlet.className)
 	{
-		case 'Ti.UI.Window', 'Titanium.UI.Window':
-		case 'Ti.UI.View', 'Titanium.UI.View':
-		case 'Ti.UI.ScrollView', 'Titanium.UI.ScrollView':
-		case 'Ti.UI.ScrollableView', 'Titanium.UI.ScrollableView':
-		case 'Ti.UI.Label', 'Titanium.UI.Label':
-		case 'Ti.UI.Button', 'Titanium.UI.Button':
-		case 'Ti.UI.ImageView', 'Titanium.UI.ImageView':
-		case 'Ti.UI.ProgressBar', 'Titanium.UI.ProgressBar':
-		case 'Ti.UI.TextField', 'Titanium.UI.TextField':
-		case 'Ti.UI.TextArea', 'Titanium.UI.TextArea':
+		case 'Ti.UI.Window':
+		case 'Ti.UI.View':
+		case 'Ti.UI.ScrollView':
+		case 'Ti.UI.ScrollableView':
+		case 'Ti.UI.Label':
+		case 'Ti.UI.Button':
+		case 'Ti.UI.ImageView':
+		case 'Ti.UI.ProgressBar':
+		case 'Ti.UI.TextField':
+		case 'Ti.UI.TextArea':
 			switch(parent.className)
 			{
-				case 'Ti.UI.ScrollableView', 'Titanium.UI.ScrollableView': parent.addView(outlet); break;
+				case 'Ti.UI.ScrollableView': parent.addView(outlet); break;
 				default: parent.add(outlet); break;
 			}
 			if(content.subviews != undefined)
@@ -91,7 +91,7 @@ function loadFromJSON(content, parent, controller)
 				}
 			}
 		break;
-		case 'Ti.UI.TableView', 'Titanium.UI.TableView':
+		case 'Ti.UI.TableView':
 			parent.add(outlet);
 			if(content.sections != undefined)
 			{
@@ -110,7 +110,7 @@ function loadFromJSON(content, parent, controller)
 				}
 			}
 		break;
-		case 'Ti.UI.TableViewSection', 'Titanium.UI.TableViewSection':
+		case 'Ti.UI.TableViewSection':
 			parent.add(outlet);
 			if(content.rows != undefined)
 			{
@@ -121,15 +121,11 @@ function loadFromJSON(content, parent, controller)
 				}
 			}
 		break;
-		case 'Ti.UI.TableViewRow', 'Titanium.UI.TableViewRow':
+		case 'Ti.UI.TableViewRow':
 			switch(parent.className)
 			{
-				case 'Ti.UI.TableView', 'Titanium.UI.TableView':
-					parent.appendRow(outlet);
-				break;
-				default:
-					parent.add(outlet);
-				break;
+				case 'Ti.UI.TableView': parent.appendRow(outlet); break;
+				default: parent.add(outlet); break;
 			}
 			if(content.subviews != undefined)
 			{
