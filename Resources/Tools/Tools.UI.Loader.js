@@ -57,9 +57,10 @@ function loadFromJSON(content, parent, controller)
 		case 'Ti.UI.View': outlet = ToolsUI.createView(content.style); break;
 		case 'Ti.UI.ScrollView': outlet = ToolsUI.createScrollView(content.style); break;
 		case 'Ti.UI.ScrollableView': outlet = ToolsUI.createScrollableView(content.style); break;
-		case 'Ti.UI.Label': outlet = ToolsUI.createLabel(content.style); break;
-		case 'Ti.UI.Button': outlet = ToolsUI.createButton(content.style); break;
 		case 'Ti.UI.ImageView': outlet = ToolsUI.createImageView(content.style); break;
+		case 'Ti.UI.Button': outlet = ToolsUI.createButton(content.style); break;
+		case 'Ti.UI.Label': outlet = ToolsUI.createLabel(content.style); break;
+		case 'Ti.UI.Switch': outlet = ToolsUI.createSwitch(content.style); break;
 		case 'Ti.UI.ProgressBar': outlet = ToolsUI.createProgressBar(content.style); break;
 		case 'Ti.UI.TextField': outlet = ToolsUI.createTextField(content.style); break;
 		case 'Ti.UI.TextArea': outlet = ToolsUI.createTextArea(content.style); break;
@@ -80,9 +81,10 @@ function loadFromJSON(content, parent, controller)
 		case 'Ti.UI.View':
 		case 'Ti.UI.ScrollView':
 		case 'Ti.UI.ScrollableView':
-		case 'Ti.UI.Label':
-		case 'Ti.UI.Button':
 		case 'Ti.UI.ImageView':
+		case 'Ti.UI.Button':
+		case 'Ti.UI.Label':
+		case 'Ti.UI.Switch':
 		case 'Ti.UI.ProgressBar':
 		case 'Ti.UI.TextField':
 		case 'Ti.UI.TextArea':

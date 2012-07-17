@@ -43,16 +43,6 @@ module.exports = {
 			)
 		);
 	},
-	createLabel : function(params)
-	{
-		return Ti.UI.createLabel(
-			ToolsUIPreset.merge(params,
-				{
-					className : 'Ti.UI.Label'
-				} 
-			)
-		);
-	},
 	createImageView : function(params)
 	{
 		return Ti.UI.createImageView(
@@ -69,6 +59,26 @@ module.exports = {
 			ToolsUIPreset.merge(params,
 				{
 					className : 'Ti.UI.Button'
+				} 
+			)
+		);
+	},
+	createLabel : function(params)
+	{
+		return Ti.UI.createLabel(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.Label'
+				} 
+			)
+		);
+	},
+	createSwitch : function(params)
+	{
+		return Ti.UI.createSwitch(
+			ToolsUIPreset.merge(params,
+				{
+					className : 'Ti.UI.Switch'
 				} 
 			)
 		);
