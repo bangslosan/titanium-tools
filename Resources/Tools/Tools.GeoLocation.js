@@ -1,4 +1,6 @@
-var ToolsHTTP = require('Tools/Tools.HTTP');
+var Tools = {
+	HTTP : require("Tools/Tools.HTTP")
+}
 
 //---------------------------------------------//
 
@@ -70,7 +72,7 @@ function currentPosition(params)
 
 function currentLocation(params)
 {
-	ToolsHTTP.responce(
+	Tools.HTTP.responce(
 		{
 			url : 'http://maps.googleapis.com/maps/api/geocode/json?latlng=' + params.position.latitude + ',' + params.position.longitude + '&language=ru&sensor=false',
 			header : [
@@ -137,7 +139,7 @@ function currentLocation(params)
 
 function paveRoute(params)
 {
-	ToolsHTTP.responce(
+	Tools.HTTP.responce(
 		{
 			url : 'http://maps.google.com/?saddr=' + params.a.latitude + ',' + params.a.longitude + '&daddr=' + params.b.latitude + ',' + params.b.longitude + '&output=kml&doflg=ptk&hl=en&dirflg=w',
 			success : function(result)

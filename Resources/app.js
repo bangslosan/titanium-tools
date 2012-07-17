@@ -1,8 +1,8 @@
-var ToolsUI = require('Tools/Tools.UI');
+var Tools = require('Tools/Tools');
 
 //---------------------------------------------//
 
-var main = ToolsUI.createWindow(
+var main = Tools.UI.Controls.createWindow(
 	{
 		backgroundColor : '#888888',
 		backgroundImage : '%ResourcesPath%Images/Backgrounds/Dark.png',

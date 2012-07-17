@@ -1,35 +1,39 @@
-var ToolsFilesystem = require('Tools/Tools.Filesystem');
-var ToolsPlatform = require('Tools/Tools.Platform');
-var ToolsObject = require('Tools/Tools.Object');
-var ToolsString = require('Tools/Tools.String');
-var ToolsJSON = require("Tools/Tools.JSON");
-var ToolsXML = require("Tools/Tools.XML");
-var ToolsUI = require('Tools/Tools.UI');
+var Tools = {
+	Object : require("Tools/Tools.Object"),
+	String : require("Tools/Tools.String"),
+	Filesystem : require("Tools/Tools.Filesystem"),
+	Platform : require("Tools/Tools.Platform"),
+	JSON : require("Tools/Tools.JSON"),
+	XML : require("Tools/Tools.XML"),
+	UI : {
+		Controls : require("Tools/Tools.UI.Controls")
+	}
+}
 
 //---------------------------------------------//
 
 function loadFromFilename(filename, parent)
 {
 	var controller = {};
-	if(ToolsObject.isObject(filename) == true)
+	if(Tools.Object.isObject(filename) == true)
 	{
-		filename = ToolsPlatform.appropriate(filename);
+		filename = Tools.Platform.appropriate(filename);
 		if(filename == undefined)
 		{
 			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
 		}
 	}
-	var file = ToolsFilesystem.getFile(filename);
+	var file = Tools.Filesystem.getFile(filename);
 	if(file.exists() == true)
 	{
 		var blob = file.read();
-		if(ToolsString.isSuffix(filename, '.json') == true)
+		if(Tools.String.isSuffix(filename, '.json') == true)
 		{
-			loadFromJSON(ToolsJSON.deserialize(blob.text), parent, controller);
+			loadFromJSON(Tools.JSON.deserialize(blob.text), parent, controller);
 		}
 		else if(ToolsString.isSuffix(filename, '.xml') == true)
 		{
-			loadFromXML(ToolsXML.deserialize(blob.text), parent, controller);
+			loadFromXML(Tools.XML.deserialize(blob.text), parent, controller);
 		}
 		else
 		{
@@ -53,20 +57,20 @@ function loadFromJSON(content, parent, controller)
 	var outlet = undefined;
 	switch(content.style.className)
 	{
-		case 'Ti.UI.Window': outlet = ToolsUI.createWindow(content.style); break;
-		case 'Ti.UI.View': outlet = ToolsUI.createView(content.style); break;
-		case 'Ti.UI.ScrollView': outlet = ToolsUI.createScrollView(content.style); break;
-		case 'Ti.UI.ScrollableView': outlet = ToolsUI.createScrollableView(content.style); break;
-		case 'Ti.UI.ImageView': outlet = ToolsUI.createImageView(content.style); break;
-		case 'Ti.UI.Button': outlet = ToolsUI.createButton(content.style); break;
-		case 'Ti.UI.Label': outlet = ToolsUI.createLabel(content.style); break;
-		case 'Ti.UI.Switch': outlet = ToolsUI.createSwitch(content.style); break;
-		case 'Ti.UI.ProgressBar': outlet = ToolsUI.createProgressBar(content.style); break;
-		case 'Ti.UI.TextField': outlet = ToolsUI.createTextField(content.style); break;
-		case 'Ti.UI.TextArea': outlet = ToolsUI.createTextArea(content.style); break;
-		case 'Ti.UI.TableView': outlet = ToolsUI.createTableView(content.style); break;
-		case 'Ti.UI.TableViewSection': outlet = ToolsUI.createTableViewSection(content.style); break;
-		case 'Ti.UI.TableViewRow': outlet = ToolsUI.createTableViewRow(content.style); break;
+		case 'Ti.UI.Window': outlet = Tools.UI.Controls.createWindow(content.style); break;
+		case 'Ti.UI.View': outlet = Tools.UI.Controls.createView(content.style); break;
+		case 'Ti.UI.ScrollView': outlet = Tools.UI.Controls.createScrollView(content.style); break;
+		case 'Ti.UI.ScrollableView': outlet = Tools.UI.Controls.createScrollableView(content.style); break;
+		case 'Ti.UI.ImageView': outlet = Tools.UI.Controls.createImageView(content.style); break;
+		case 'Ti.UI.Button': outlet = Tools.UI.Controls.createButton(content.style); break;
+		case 'Ti.UI.Label': outlet = Tools.UI.Controls.createLabel(content.style); break;
+		case 'Ti.UI.Switch': outlet = Tools.UI.Controls.createSwitch(content.style); break;
+		case 'Ti.UI.ProgressBar': outlet = Tools.UI.Controls.createProgressBar(content.style); break;
+		case 'Ti.UI.TextField': outlet = Tools.UI.Controls.createTextField(content.style); break;
+		case 'Ti.UI.TextArea': outlet = Tools.UI.Controls.createTextArea(content.style); break;
+		case 'Ti.UI.TableView': outlet = Tools.UI.Controls.createTableView(content.style); break;
+		case 'Ti.UI.TableViewSection': outlet = Tools.UI.Controls.createTableViewSection(content.style); break;
+		case 'Ti.UI.TableViewRow': outlet = Tools.UI.Controls.createTableViewRow(content.style); break;
 		default:
 			// ERROR
 		return;

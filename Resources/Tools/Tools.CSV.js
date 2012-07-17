@@ -1,5 +1,7 @@
-var ToolsObject = require('Tools/Tools.Object');
-var ToolsString = require('Tools/Tools.String');
+var Tools = {
+	Object : require("Tools/Tools.Object"),
+	String : require("Tools/Tools.String")
+}
 
 //---------------------------------------------//
 
@@ -12,10 +14,10 @@ function save(csv)
 		for(var j = 0; j < row.length; ++j)
 		{
 			var cur = row[j];
-			if(ToolsObject.isString(cur) == true)
+			if(Tools.Object.isString(cur) == true)
 			{
 				cur = cur.replace(/"/g, '""');
-				if((ToolsString.needsQuoting(cur) == true) || (ToolsString.isInt(cur) == true) || (ToolsString.isFloat(cur) == true))
+				if((Tools.String.needsQuoting(cur) == true) || (Tools.String.isInt(cur) == true) || (Tools.String.isFloat(cur) == true))
 				{
 					cur = '"' + cur + '"';
 				}
@@ -24,7 +26,7 @@ function save(csv)
 					cur = '""';
 				}
 			}
-			else if(ToolsObject.isNumber(cur) == true)
+			else if(Tools.Object.isNumber(cur) == true)
 			{
 				cur = cur.toString(10);
 			}
@@ -61,13 +63,13 @@ function load(str, trim)
 			}
 			else if(trim === true)
 			{
-				field = ToolsString.trim(field);
+				field = Tools.String.trim(field);
 			}
-			if(ToolsString.isInt(field) == true)
+			if(Tools.String.isInt(field) == true)
 			{
 				field = parseInt(field, 10);
 			}
-			else if(ToolsString.isFloat(field) == true)
+			else if(Tools.String.isFloat(field) == true)
 			{
 				field = parseFloat(field, 10);
 			}
@@ -75,7 +77,7 @@ function load(str, trim)
 		return field;
 	};
 	
-	str = ToolsString.chomp(str);
+	str = Tools.String.chomp(str);
 	for(var i = 0; i < str.length; ++i)
 	{
 		var cur = str.charAt(i);

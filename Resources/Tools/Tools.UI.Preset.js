@@ -1,10 +1,12 @@
-var ToolsFilesystem = require('Tools/Tools.Filesystem');
-var ToolsPlatform = require('Tools/Tools.Platform');
-var ToolsObject = require('Tools/Tools.Object');
-var ToolsString = require('Tools/Tools.String');
-var ToolsJSON = require("Tools/Tools.JSON");
-var ToolsXML = require("Tools/Tools.XML");
-			
+var Tools = {
+	Object : require("Tools/Tools.Object"),
+	String : require("Tools/Tools.String"),
+	Filesystem : require("Tools/Tools.Filesystem"),
+	Platform : require("Tools/Tools.Platform"),
+	JSON : require("Tools/Tools.JSON"),
+	XML : require("Tools/Tools.XML")
+}
+
 //---------------------------------------------//
 
 if(Ti.App.ToolsUIPresets == undefined)
@@ -73,12 +75,12 @@ function merge(params, defaults)
 		var preset = get(params.preset);
 		if(preset != undefined)
 		{
-			params = ToolsObject.combine(preset, params);
+			params = Tools.Object.combine(preset, params);
 		}
 	}
 	if(defaults != undefined)
 	{
-		params = ToolsObject.combine(defaults, params);
+		params = Tools.Object.combine(defaults, params);
 	}
 	return preprocess(params);
 }
@@ -87,15 +89,15 @@ function preprocess(params)
 {
 	for(var i in params)
 	{
-		if(ToolsObject.isObject(params[i]) == true)
+		if(Tools.Object.isObject(params[i]) == true)
 		{
 			params[i] = preprocess(params[i]);
 		}
-		else if(ToolsObject.isArray(params[i]) == true)
+		else if(Tools.Object.isArray(params[i]) == true)
 		{
 			params[i] = preprocess(params[i]);
 		}
-		else if(ToolsObject.isString(params[i]) == true)
+		else if(Tools.Object.isString(params[i]) == true)
 		{
 			params[i] = preprocessArgument(params[i]);
 		}
@@ -173,32 +175,32 @@ function preprocessArgument(arg)
 		case 'Ti.UI.UNKNOWN': return Ti.UI.UNKNOWN;
 		case 'Ti.UI.UPSIDE_PORTRAIT': return Ti.UI.UPSIDE_PORTRAIT;
 	}
-	return ToolsFilesystem.preprocessPath(arg);
+	return Tools.Filesystem.preprocessPath(arg);
 }
 
 //---------------------------------------------//
 
 function loadFromFilename(name, filename)
 {
-	if(ToolsObject.isObject(filename) == true)
+	if(Tools.Object.isObject(filename) == true)
 	{
-		filename = ToolsPlatform.appropriate(filename);
+		filename = Tools.Platform.appropriate(filename);
 		if(filename == undefined)
 		{
 			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
 		}
 	}
-	var file = ToolsFilesystem.getFile(filename);
+	var file = Tools.Filesystem.getFile(filename);
 	if(file.exists() == true)
 	{
 		var blob = file.read();
-		if(ToolsString.isSuffix(filename, '.json') == true)
+		if(Tools.String.isSuffix(filename, '.json') == true)
 		{
-			loadFromJSON(name, ToolsJSON.deserialize(blob.text));
+			loadFromJSON(name, Tools.JSON.deserialize(blob.text));
 		}
-		else if(ToolsString.isSuffix(filename, '.xml') == true)
+		else if(Tools.String.isSuffix(filename, '.xml') == true)
 		{
-			loadFromXML(name, ToolsXML.deserialize(blob.text));
+			loadFromXML(name, Tools.XML.deserialize(blob.text));
 		}
 		else
 		{

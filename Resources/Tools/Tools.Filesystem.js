@@ -1,12 +1,14 @@
-var ToolsString = require('Tools/Tools.String');
+var Tools = {
+	String : require("Tools/Tools.String")
+}
 
 //---------------------------------------------//
 
 function preprocessPath(path)
 {
-	if(ToolsString.isPrefix(path, '%ResourcesPath%') == true)
+	if(Tools.String.isPrefix(path, '%ResourcesPath%') == true)
 	{
-		path = ToolsString.replaceAll(path, '%ResourcesPath%', '');
+		path = Tools.String.replaceAll(path, '%ResourcesPath%', '');
 		var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, path);
 		if(file.exists() == true)
 		{

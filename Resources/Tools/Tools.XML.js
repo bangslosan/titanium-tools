@@ -1,4 +1,6 @@
-var ToolsString = require("Tools/Tools.String");
+var Tools = {
+	String : require("Tools/Tools.String")
+}
 
 //---------------------------------------------//
 
@@ -21,7 +23,7 @@ var deserializeNode = function(node)
 {
 	var result = {
 		name : node.nodeName,
-		value : ToolsString.trim(node.nodeValue),
+		value : Tools.String.trim(node.nodeValue),
 		attributes : [],
 		child : []
 	};
@@ -53,7 +55,7 @@ var deserializeNode = function(node)
 		switch(child.nodeType)
 		{
 			case child.TEXT_NODE:
-				result.value += ToolsString.trim(child.nodeValue);
+				result.value += Tools.String.trim(child.nodeValue);
 			break;
 			default:
 				result.child.push(deserializeNode(child));
