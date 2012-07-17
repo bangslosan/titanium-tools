@@ -16,36 +16,20 @@ function loadFromFilename(filename, parent)
 		var blob = file.read();
 		if(ToolsString.isSuffix(filename, '.json') == true)
 		{
-			var content = ToolsJSON.deserialize(blob.text);
-			if(content == undefined)
-			{
-				loadFromJSON(content, parent, controller);
-			}
-			else
-			{
-				// ERROR
-			}
+			loadFromJSON(ToolsJSON.deserialize(blob.text), parent, controller);
 		}
 		else if(ToolsString.isSuffix(filename, '.xml') == true)
 		{
-			var content = ToolsXML.deserialize(blob.text);
-			if(content != undefined)
-			{
-				loadFromXML(content, parent, controller);
-			}
-			else
-			{
-				// ERROR
-			}
+			loadFromXML(ToolsXML.deserialize(blob.text), parent, controller);
 		}
 		else
 		{
-			// ERROR
+			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
 		}
 	}
 	else
 	{
-		// ERROR
+		throw new Error(L('TI_TOOLS_THROW_NOT_FOUND') + '\n' + filename);
 	}
 	return controller;
 }

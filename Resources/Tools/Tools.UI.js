@@ -18,7 +18,7 @@ module.exports = {
 		return Ti.UI.createView(
 			ToolsUIPreset.merge(params,
 				{
-					className : 'Ti.UI.Window'
+					className : 'Ti.UI.View'
 				} 
 			)
 		);

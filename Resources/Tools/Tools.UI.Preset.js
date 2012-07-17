@@ -109,31 +109,25 @@ function preprocess(params)
 function loadFromFilename(name, filename)
 {
 	var file = ToolsFilesystem.getFile(filename);
-	if(file.exists() == false)
+	if(file.exists() == true)
 	{
-		// ERROR
-		return;
-	}
-	var blob = file.read();
-	if(ToolsString.isSuffix(filename, '.json') == true)
-	{
-		var content = ToolsJSON.deserialize(blob.text);
-		if(content == undefined)
+		var blob = file.read();
+		if(ToolsString.isSuffix(filename, '.json') == true)
 		{
-			// ERROR
-			return;
+			loadFromJSON(name, ToolsJSON.deserialize(blob.text));
 		}
-		loadFromJSON(name, content);
-	}
-	else if(ToolsString.isSuffix(filename, '.xml') == true)
-	{
-		var content = ToolsXML.deserialize(blob.text);
-		if(content == undefined)
+		else if(ToolsString.isSuffix(filename, '.xml') == true)
 		{
-			// ERROR
-			return;
+			loadFromXML(name, ToolsXML.deserialize(blob.text));
 		}
-		loadFromXML(name, content);
+		else
+		{
+			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
+		}
+	}
+	else
+	{
+		throw new Error(L('TI_TOOLS_THROW_NOT_FOUND') + '\n' + filename);
 	}
 }
 

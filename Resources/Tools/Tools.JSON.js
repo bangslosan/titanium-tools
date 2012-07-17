@@ -1,27 +1,11 @@
 var serialize = function(node)
 {
-	var result = '';
-	try
-	{
-		result = JSON.stringify(node);
-	}
-	catch(error)
-	{
-	}
-	return result;
+	return JSON.stringify(node);
 }
 
 var deserialize = function(string)
 {
-	var result = undefined;
-	try
-	{
-		result = JSON.parse(string);
-	}
-	catch(error)
-	{
-	}
-	return result;
+	return JSON.parse(string);
 }
 
 //---------------------------------------------//

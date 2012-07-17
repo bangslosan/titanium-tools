@@ -9,19 +9,12 @@ var serialize = function(node)
 
 var deserialize = function(string)
 {
-	var result = undefined;
-	try
+	var xml = Ti.XML.parseString(string);
+	if(xml != undefined)
 	{
-		var xml = Ti.XML.parseString(string);
-		if(xml != undefined)
-		{
-			result = deserializeNode(xml);
-		}
+		return deserializeNode(xml);
 	}
-	catch(error)
-	{
-	}
-	return result;
+	return undefined;
 }
 
 var deserializeNode = function(node)
