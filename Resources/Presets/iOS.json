@@ -2,13 +2,19 @@
 	{
 		"name" : "Window.Classic",
 		"style" : {
-			"backgroundColor" : "#000000"
+			"backgroundColor" : "#fafafa"
 		}
 	},
 	{
-		"name" : "Panel.Classic",
+		"name" : "View.Classic",
 		"style" : {
-			"backgroundColor" : "#000000"
+			"backgroundColor" : "transparent"
+		}
+	},
+	{
+		"name" : "ImageView.Classic",
+		"style" : {
+			"backgroundColor" : "transparent"
 		}
 	}
 ]

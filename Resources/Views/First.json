@@ -2,7 +2,7 @@
 	"outlet" : "panel",
 	"style" : {
 		"className" : "Ti.UI.View",
-		"preset" : "Panel.Classic",
+		"preset" : "View.Classic",
 		"top" : 20,
 		"left" : 20,
 		"bottom" : 20,
@@ -13,6 +13,7 @@
 		{
 			"style" : {
 				"className" : "Ti.UI.ImageView",
+				"preset" : "ImageView.Classic",
 				"top" : 8,
 				"left" : 8,
 				"right" : 8,

@@ -6,7 +6,13 @@
 		}
 	},
 	{
-		"name" : "Panel.Classic",
+		"name" : "View.Classic",
+		"style" : {
+			"backgroundColor" : "transparent"
+		}
+	},
+	{
+		"name" : "ImageView.Classic",
 		"style" : {
 			"backgroundColor" : "transparent"
 		}

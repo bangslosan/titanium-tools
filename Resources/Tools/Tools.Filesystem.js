@@ -1,20 +1,37 @@
 var Tools = {
-	String : require("Tools/Tools.String")
+	String : require("Tools/Tools.String"),
+	Platform : require("Tools/Tools.Platform")
+}
+
+//---------------------------------------------//
+
+if(Ti.App.ToolsFilesystemPath == undefined)
+{
+	var resources = Tools.Platform.appropriate(
+		{
+			android : 'file:///android_asset/Resources/',
+			ios : Ti.Filesystem.resourcesDirectory + Ti.Filesystem.separator
+		}
+	);
+	Ti.App.ToolsFilesystemPath = {
+		resources : resources
+	};
 }
 
 //---------------------------------------------//
 
 function preprocessPath(path)
 {
-	if(Tools.String.isPrefix(path, '%ResourcesPath%') == true)
-	{
-		path = Tools.String.replaceAll(path, '%ResourcesPath%', '');
-		var file = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, path);
-		if(file.exists() == true)
+	path = path.replace(/%([A-Za-z_]*)%/g,
+		function(str, p1, p2, offset, s)
 		{
-			path = file.nativePath;
+			switch(p1)
+			{
+				case 'ResourcesPath': return Ti.App.ToolsFilesystemPath.resources; 
+			}
+			return p1;
 		}
-	}
+	);
 	return path;
 }
 
