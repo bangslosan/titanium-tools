@@ -166,5 +166,17 @@ module.exports = {
 				} 
 			)
 		);
+	},
+	Facebook : {
+		createLoginButton : function(params)
+		{
+			return Ti.Facebook.createLoginButton(
+				Tools.UI.Preset.merge(params,
+					{
+						className : 'Ti.Facebook.LoginButton'
+					} 
+				)
+			);
+		}
 	}
 }
