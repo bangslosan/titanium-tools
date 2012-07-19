@@ -8,7 +8,7 @@ var Tools = {
 	UI : {
 		Controls : require("Tools/Tools.UI.Controls")
 	}
-}
+};
 
 //---------------------------------------------//
 
@@ -355,4 +355,4 @@ function loadFromXML(content, parent, controller)
 
 module.exports = {
 	loadFromFilename : loadFromFilename
-}
+};

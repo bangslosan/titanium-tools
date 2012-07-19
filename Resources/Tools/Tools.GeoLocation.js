@@ -1,6 +1,6 @@
 var Tools = {
 	HTTP : require("Tools/Tools.HTTP")
-}
+};
 
 //---------------------------------------------//
 
@@ -22,11 +22,6 @@ function configure(params)
 	{
 		Ti.Geolocation.distanceFilter = params.distanceFilter;
 	}
-	Ti.Geolocation.addEventListener('location',
-		function(event)
-		{
-		}
-	);
 }
 
 function currentPosition(params)
@@ -67,6 +62,7 @@ function currentPosition(params)
 	
 	if(Ti.Geolocation.locationServicesEnabled == true)
 	{
+		Ti.Geolocation.addEventListener('location', callback);
 		Ti.Geolocation.getCurrentPosition(callback);
 	}
 	else
@@ -128,14 +124,14 @@ function currentLocation(params)
 				}
 				if(params.failure != undefined)
 				{
-					params.failure();
+					params.failure(0);
 				}
 			},
-			failure : function(result)
+			failure : function(status)
 			{
 				if(params.failure != undefined)
 				{
-					params.failure();
+					params.failure(status);
 				}
 			}
 		}
@@ -188,14 +184,14 @@ function paveRoute(params)
 				}
 				if(params.failure != undefined)
 				{
-					params.failure();
+					params.failure(0);
 				}
 			},
-			failure : function(result)
+			failure : function(status)
 			{
 				if(params.failure != undefined)
 				{
-					params.failure();
+					params.failure(status);
 				}
 			}
 		}
@@ -224,4 +220,4 @@ module.exports = {
 	currentLocation : currentLocation,
 	paveRoute : paveRoute,
 	distance : distance
-}
+};

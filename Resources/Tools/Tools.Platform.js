@@ -50,4 +50,4 @@ module.exports = {
 	isIPad : isIPad,
 	isIOS : isIOS,
 	appropriate : appropriate
-}
+};

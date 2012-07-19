@@ -15,4 +15,4 @@ module.exports = {
 		Loader : require("Tools/Tools.UI.Loader"),
 		Preset : require("Tools/Tools.UI.Preset")
 	}
-}
+};

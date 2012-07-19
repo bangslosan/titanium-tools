@@ -5,7 +5,7 @@ var Tools = {
 	Platform : require("Tools/Tools.Platform"),
 	JSON : require("Tools/Tools.JSON"),
 	XML : require("Tools/Tools.XML")
-}
+};
 
 //---------------------------------------------//
 

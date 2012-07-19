@@ -2,7 +2,7 @@ var Tools = {
 	UI : {
 		Preset : require("Tools/Tools.UI.Preset")
 	}
-}
+};
 
 //---------------------------------------------//
 
@@ -200,4 +200,4 @@ module.exports = {
 			)
 		);
 	}
-}
+};

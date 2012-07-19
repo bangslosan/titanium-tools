@@ -7,4 +7,4 @@ function format(date, mask)
 
 module.exports = {
 	format : format
-}
+};

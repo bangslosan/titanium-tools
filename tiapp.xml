@@ -15,7 +15,7 @@
         <target device="blackberry">false</target>
     </deployment-targets>
     <sdk-version>2.1.0.GA</sdk-version>
-    <id>ru.titanium.tools</id>
+    <id>ru.titanium.TiTools</id>
     <name>titanium-tools</name>
     <version>1.0</version>
     <publisher>fgengine</publisher>

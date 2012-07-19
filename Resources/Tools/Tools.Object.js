@@ -120,4 +120,4 @@ module.exports = {
 	isArray : isArray,
 	isNumber : isNumber,
 	isString : isString
-}
+};

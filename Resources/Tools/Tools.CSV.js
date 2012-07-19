@@ -1,7 +1,7 @@
 var Tools = {
 	Object : require("Tools/Tools.Object"),
 	String : require("Tools/Tools.String")
-}
+};
 
 //---------------------------------------------//
 

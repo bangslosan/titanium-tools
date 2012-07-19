@@ -15,4 +15,4 @@ function sleep(time)
 
 module.exports = {
 	sleep : sleep
-}
+};

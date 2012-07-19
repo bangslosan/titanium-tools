@@ -1,7 +1,7 @@
 var Tools = {
 	String : require("Tools/Tools.String"),
 	Platform : require("Tools/Tools.Platform")
-}
+};
 
 //---------------------------------------------//
 
@@ -47,4 +47,4 @@ function getFile(path)
 module.exports = {
 	preprocessPath : preprocessPath,
 	getFile : getFile
-}
+};

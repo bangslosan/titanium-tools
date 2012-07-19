@@ -1,6 +1,6 @@
 var Tools = {
 	String : require("Tools/Tools.String")
-}
+};
 
 //---------------------------------------------//
 
