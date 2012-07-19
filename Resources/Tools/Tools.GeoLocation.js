@@ -22,6 +22,11 @@ function configure(params)
 	{
 		Ti.Geolocation.distanceFilter = params.distanceFilter;
 	}
+	Ti.Geolocation.addEventListener('location',
+		function(event)
+		{
+		}
+	);
 }
 
 function currentPosition(params)
@@ -72,7 +77,7 @@ function currentPosition(params)
 
 function currentLocation(params)
 {
-	Tools.HTTP.responce(
+	Tools.HTTP.response(
 		{
 			url : 'http://maps.googleapis.com/maps/api/geocode/json?latlng=' + params.position.latitude + ',' + params.position.longitude + '&language=ru&sensor=false',
 			header : [
@@ -139,7 +144,7 @@ function currentLocation(params)
 
 function paveRoute(params)
 {
-	Tools.HTTP.responce(
+	Tools.HTTP.response(
 		{
 			url : 'http://maps.google.com/?saddr=' + params.a.latitude + ',' + params.a.longitude + '&daddr=' + params.b.latitude + ',' + params.b.longitude + '&output=kml&doflg=ptk&hl=en&dirflg=w',
 			success : function(result)

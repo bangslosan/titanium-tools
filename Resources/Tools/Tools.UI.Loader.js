@@ -76,6 +76,14 @@ function loadFromJSON(content, parent, controller)
 	var outlet = undefined;
 	switch(content.style.className)
 	{
+		case 'Ti.UI.ActivityIndicator':
+			outlet = Tools.UI.Controls.createWindow(content.style);
+			if(parent != undefined)
+			{
+				parent.add(outlet);
+				outlet.parent = parent;
+			}
+		break;
 		case 'Ti.UI.Window':
 			outlet = Tools.UI.Controls.createWindow(content.style);
 			if(parent != undefined)
@@ -315,6 +323,14 @@ function loadFromJSON(content, parent, controller)
 		break;
 		case 'Ti.Facebook.LoginButton':
 			outlet = Tools.UI.Controls.Facebook.createLoginButton(content.style);
+			if(parent != undefined)
+			{
+				parent.add(outlet);
+				outlet.parent = parent;
+			}
+		break;
+		case 'Ti.PaintView':
+			outlet = Tools.UI.Controls.createPaintView(content.style);
 			if(parent != undefined)
 			{
 				parent.add(outlet);

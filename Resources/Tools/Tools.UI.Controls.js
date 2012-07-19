@@ -7,6 +7,16 @@ var Tools = {
 //---------------------------------------------//
 
 module.exports = {
+	createActivityIndicator : function(params)
+	{
+		return Ti.UI.createActivityIndicator(
+			Tools.UI.Preset.merge(params,
+				{
+					className : 'Ti.UI.ActivityIndicator'
+				} 
+			)
+		);
+	},
 	createWindow : function(params)
 	{
 		return Ti.UI.createWindow(
@@ -178,5 +188,16 @@ module.exports = {
 				)
 			);
 		}
+	},
+	createPaintView : function(params)
+	{
+		var TiPaint = require('ti.paint');
+		return TiPaint.createPaintView(
+			Tools.UI.Preset.merge(params,
+				{
+					className : 'Ti.PaintView'
+				} 
+			)
+		);
 	}
 }

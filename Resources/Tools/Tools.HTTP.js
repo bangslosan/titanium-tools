@@ -3,7 +3,7 @@ var online = function()
 	return Ti.Network.online;
 }
 
-var responce = function(params)
+var response = function(params)
 {
 	var http = Ti.Network.createHTTPClient(
 		{
@@ -122,5 +122,5 @@ var responce = function(params)
 		
 module.exports = {
 	online : online,
-	responce : responce
+	response : response
 }
