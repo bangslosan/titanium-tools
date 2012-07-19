@@ -3,13 +3,13 @@ var online = function()
 	return Ti.Network.online;
 }
 
-var response = function()
+var response = function(params)
 {
 	var http = Ti.Network.createHTTPClient(
 		{
 			enableKeepAlive : false,
 			timeout : 30000,
-			onload : function(event)
+			onload : function()
 			{
 				if(params.success != undefined)
 				{
@@ -17,7 +17,7 @@ var response = function()
 				}
 				http = null;
 			},
-			onerror : function(event)
+			onerror : function()
 			{
 				if(params.failure != undefined)
 				{
