@@ -148,60 +148,71 @@ function preprocessArgument(arg)
 
 //---------------------------------------------//
 
-function loadFromFilename(filename)
+function loadFromFilename(params)
 {
-	if(Tools.Object.isObject(filename) == true)
+	if(Tools.Object.isArray(params) == false)
 	{
-		filename = Tools.Platform.appropriate(filename);
-		if(filename == undefined)
-		{
-			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
-		}
+		params = [
+			params
+		];
 	}
-	var file = Tools.Filesystem.getFile(filename);
-	if(file.exists() == true)
+	var count = params.length;
+	for(var i = 0; i < count; i++)
 	{
-		var blob = file.read();
-		if(Tools.String.isSuffix(filename, '.json') == true)
+		var item = params[i];
+		if(Tools.Object.isObject(item) == true)
 		{
-			var content = Tools.JSON.deserialize(blob.text);
-			if(Tools.Object.isObject(content) == true)
+			item = Tools.Platform.appropriate(item);
+			if(item == undefined)
 			{
-				loadFromJSON(content);
-			}
-			else if(Tools.Object.isArray(content) == true)
-			{
-				var count = content.length;
-				for(var i = 0; i < count; i++)
-				{
-					loadFromJSON(content[i]);
-				}
+				throw new Error(L('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
 			}
 		}
-		else if(Tools.String.isSuffix(filename, '.xml') == true)
+		var file = Tools.Filesystem.getFile(item);
+		if(file.exists() == true)
 		{
-			var content = Tools.XML.deserialize(blob.text);
-			if(Tools.Object.isObject(content) == true)
+			var blob = file.read();
+			if(Tools.String.isSuffix(item, '.json') == true)
 			{
-				loadFromXML(content);
-			}
-			else if(Tools.Object.isArray(content) == true)
-			{
-				var count = content.length;
-				for(var i = 0; i < count; i++)
+				var content = Tools.JSON.deserialize(blob.text);
+				if(Tools.Object.isObject(content) == true)
 				{
-					loadFromXML(content[i]);
+					loadFromJSON(content);
 				}
+				else if(Tools.Object.isArray(content) == true)
+				{
+					var count = content.length;
+					for(var i = 0; i < count; i++)
+					{
+						loadFromJSON(content[i]);
+					}
+				}
+			}
+			else if(Tools.String.isSuffix(item, '.xml') == true)
+			{
+				var content = Tools.XML.deserialize(blob.text);
+				if(Tools.Object.isObject(content) == true)
+				{
+					loadFromXML(content);
+				}
+				else if(Tools.Object.isArray(content) == true)
+				{
+					var count = content.length;
+					for(var i = 0; i < count; i++)
+					{
+						loadFromXML(content[i]);
+					}
+				}
+			}
+			else
+			{
+				throw new Error(L('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + params);
 			}
 		}
 		else
 		{
-			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
+			throw new Error(L('TI_TOOLS_THROW_NOT_FOUND') + '\n' + params);
 		}
-	}
-	else
-	{
-		throw new Error(L('TI_TOOLS_THROW_NOT_FOUND') + '\n' + filename);
 	}
 }
 
