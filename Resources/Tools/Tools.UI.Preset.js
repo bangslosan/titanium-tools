@@ -116,6 +116,51 @@ function preprocess(params)
 			params[i] = preprocessArgument(params[i]);
 		}
 	}
+	if(params.margin != undefined)
+	{
+		if(Tools.Object.isString(params.margin) == true)
+		{
+			var margins = params.margin.split(' ');
+			if(margins.length > 0)
+			{
+				switch(margins.length)
+				{
+					case 2:
+						params.top = Number(margins[0]);
+						params.right = Number(margins[1]);
+						params.bottom = Number(margins[0]);
+						params.left = Number(margins[1]);
+					break;
+					case 3:
+						params.top = Number(margins[0]);
+						params.right = Number(margins[1]);
+						params.bottom = Number(margins[2]);
+						params.left = Number(margins[1]);
+					break;
+					case 4:
+						params.top = Number(margins[0]);
+						params.right = Number(margins[1]);
+						params.bottom = Number(margins[2]);
+						params.left = Number(margins[3]);
+					break;
+					default:
+						params.top = Number(margins[0]);
+						params.right = Number(margins[0]);
+						params.bottom = Number(margins[0]);
+						params.left = Number(margins[0]);
+					break;
+				}
+			}
+		}
+		else if(Tools.Object.isNumber(params.margin) == true)
+		{
+			params.top = params.margin;
+			params.right = params.margin;
+			params.bottom = params.margin;
+			params.left = params.margin;
+		}
+		delete params.margin;
+	}
 	return params;
 }
 

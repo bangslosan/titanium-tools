@@ -6,6 +6,11 @@ var win = Ti.UI.currentWindow;
 
 //---------------------------------------------//
 
-var controller = Tools.UI.Loader.loadFromFilename('%ResourcesPath%Views/First.json', win);
+var controller = Tools.UI.Loader.loadFromFilename(
+	{
+		any : '%ResourcesPath%Views/First.json'
+	},
+	win
+);
 
 //---------------------------------------------//

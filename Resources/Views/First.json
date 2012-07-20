@@ -3,21 +3,16 @@
 	"style" : {
 		"className" : "Ti.UI.View",
 		"preset" : "View.Classic",
-		"top" : 20,
-		"left" : 20,
-		"bottom" : 20,
-		"right" : 20,
-		"layout" : "vertical"
+		"layout" : "vertical",
+		"margin" : 20
 	},
 	"subviews" : [
 		{
 			"style" : {
 				"className" : "Ti.UI.ImageView",
 				"preset" : "ImageView.Classic",
-				"top" : 8,
-				"left" : 8,
-				"right" : 8,
-				"height" : 30,
+				"margin" : 8,
+				"height" : 100,
 				"image" : "%ResourcesPath%Images/Glyph/Icon/High/Key.png"
 			}
 		}
