@@ -81,6 +81,7 @@ function loadFromJSON(content, parent, controller)
 			if(parent != undefined)
 			{
 				parent.add(outlet);
+				outlet.hide();
 				outlet.parent = parent;
 			}
 		break;

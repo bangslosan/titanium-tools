@@ -9,44 +9,54 @@ var Tools = {
 
 //---------------------------------------------//
 
-if(Ti.App.ToolsUIPreset == undefined)
+function set(name, style)
 {
-	Ti.App.ToolsUIPreset = [];
-}
-
-//---------------------------------------------//
-
-function set(name, params)
-{
-	var founded = false;
 	var list = Ti.App.ToolsUIPreset;
-	for(var i = 0; i < list.length; i++)
+	if(list != undefined)
 	{
-		if(list[i].name == name)
+		var founded = false;
+		var count = list.length;
+		for(var i = 0; i < count; i++)
 		{
-			throw new Error(L('TI_TOOLS_THROW_OVERRIDE_PRESET') + '\n' + name);
+			if(list[i].name == name)
+			{
+				throw new Error(L('TI_TOOLS_THROW_OVERRIDE_PRESET') + '\n' + name);
+			}
+		}
+		if(founded == false)
+		{
+			list.push(
+				{
+					name : name,
+					style : style
+				}
+			);
+			Ti.App.ToolsUIPreset = list;
 		}
 	}
-	if(founded == false)
+	else
 	{
-		list.push(
+		Ti.App.ToolsUIPreset = [
 			{
 				name : name,
-				params : params
+				style : style
 			}
-		);
+		];
 	}
-	Ti.App.ToolsUIPreset = list;
 }
 
 function get(name)
 {
 	var list = Ti.App.ToolsUIPreset;
-	for(var i = 0; i < list.length; i++)
+	if(list != undefined)
 	{
-		if(list[i].name == name)
+		var count = list.length;
+		for(var i = 0; i < count; i++)
 		{
-			return list[i].params;
+			if(list[i].name == name)
+			{
+				return list[i].style;
+			}
 		}
 	}
 	return undefined;
@@ -55,15 +65,19 @@ function get(name)
 function remove(name)
 {
 	var list = Ti.App.ToolsUIPreset;
-	for(var i = 0; i < list.length; i++)
+	if(list != undefined)
 	{
-		if(list[i].name == name)
+		var count = list.length;
+		for(var i = 0; i < count; i++)
 		{
-			list.splice(i, 1);
-			break;
+			if(list[i].name == name)
+			{
+				list.splice(i, 1);
+				break;
+			}
 		}
+		Ti.App.ToolsUIPreset = list;
 	}
-	Ti.App.ToolsUIPreset = list;
 }
 
 //---------------------------------------------//
