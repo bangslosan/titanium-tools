@@ -10,7 +10,10 @@
 		{
 			"style" : {
 				"className" : "Ti.UI.ImageView",
-				"preset" : "ImageView.Classic",
+				"preset" : [
+					"ImageView.Classic",
+					"View.Classic"
+				],
 				"margin" : 8,
 				"height" : 100,
 				"image" : "%ResourcesPath%Images/Glyph/Icon/High/Key.png"

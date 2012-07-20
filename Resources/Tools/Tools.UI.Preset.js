@@ -84,13 +84,20 @@ function remove(name)
 
 function merge(params, defaults)
 {
-	if(params.preset != undefined)
+	if(Tools.Object.isArray(params.preset) == true)
 	{
-		var preset = get(params.preset);
-		if(preset != undefined)
+		var count = params.preset.length;
+		for(var i = 0; i < count; i++)
 		{
-			params = Tools.Object.combine(preset, params);
+			if(Tools.Object.isString(params.preset[i]) == true)
+			{
+				params = Tools.Object.combine(get(params.preset[i]), params);
+			}
 		}
+	}
+	else if(Tools.Object.isString(params.preset) == true)
+	{
+		params = Tools.Object.combine(get(params.preset), params);
 	}
 	if(defaults != undefined)
 	{
