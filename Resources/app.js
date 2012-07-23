@@ -3,10 +3,12 @@ var Tools = require('Tools/Tools');
 //---------------------------------------------//
 
 Tools.UI.Preset.loadFromFilename(
-	{
-		android : '%ResourcesPath%Presets/Android.json',
-		ios : '%ResourcesPath%Presets/iOS.json'
-	}
+	[
+		{
+			android : '%ResourcesPath%Presets/Android.json',
+			ios : '%ResourcesPath%Presets/iOS.json'
+		}
+	]
 );
 
 //---------------------------------------------//

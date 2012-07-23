@@ -15,8 +15,7 @@ function set(name, style)
 	if(list != undefined)
 	{
 		var founded = false;
-		var count = list.length;
-		for(var i = 0; i < count; i++)
+		for(var i = 0; i < list.length; i++)
 		{
 			if(list[i].name == name)
 			{
@@ -50,8 +49,7 @@ function get(name)
 	var list = Ti.App.ToolsUIPreset;
 	if(list != undefined)
 	{
-		var count = list.length;
-		for(var i = 0; i < count; i++)
+		for(var i = 0; i < list.length; i++)
 		{
 			if(list[i].name == name)
 			{
@@ -67,8 +65,7 @@ function remove(name)
 	var list = Ti.App.ToolsUIPreset;
 	if(list != undefined)
 	{
-		var count = list.length;
-		for(var i = 0; i < count; i++)
+		for(var i = 0; i < list.length; i++)
 		{
 			if(list[i].name == name)
 			{
@@ -86,18 +83,25 @@ function merge(params, defaults)
 {
 	if(Tools.Object.isArray(params.preset) == true)
 	{
-		var count = params.preset.length;
-		for(var i = 0; i < count; i++)
+		for(var i = 0; i < params.preset.length; i++)
 		{
 			if(Tools.Object.isString(params.preset[i]) == true)
 			{
-				params = Tools.Object.combine(get(params.preset[i]), params);
+				var preset = get(params.preset[i]);
+				if(preset != undefined)
+				{
+					params = Tools.Object.combine(preset, params);
+				}
 			}
 		}
 	}
 	else if(Tools.Object.isString(params.preset) == true)
 	{
-		params = Tools.Object.combine(get(params.preset), params);
+		var preset = get(params.preset);
+		if(preset != undefined)
+		{
+			params = Tools.Object.combine(preset, params);
+		}
 	}
 	if(defaults != undefined)
 	{
@@ -208,62 +212,66 @@ function loadFromFilename(params)
 			params
 		];
 	}
-	var count = params.length;
-	for(var i = 0; i < count; i++)
+	for(var i = 0; i < params.length; i++)
 	{
-		var item = params[i];
-		if(Tools.Object.isObject(item) == true)
+		var item = undefined;
+		if(Tools.Object.isObject(params[i]) == true)
 		{
-			item = Tools.Platform.appropriate(item);
+			item = Tools.Platform.appropriate(params[i]);
 			if(item == undefined)
 			{
 				throw new Error(L('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
 			}
 		}
-		var file = Tools.Filesystem.getFile(item);
-		if(file.exists() == true)
+		else if(Tools.Object.isString(params[i]) == true)
 		{
-			var blob = file.read();
-			if(Tools.String.isSuffix(item, '.json') == true)
+			item = params[i];
+		}
+		if(item != undefined)
+		{
+			var file = Tools.Filesystem.getFile(item);
+			if(file.exists() == true)
 			{
-				var content = Tools.JSON.deserialize(blob.text);
-				if(Tools.Object.isObject(content) == true)
+				var blob = file.read();
+				if(Tools.String.isSuffix(item, '.json') == true)
 				{
-					loadFromJSON(content);
-				}
-				else if(Tools.Object.isArray(content) == true)
-				{
-					var count = content.length;
-					for(var i = 0; i < count; i++)
+					var content = Tools.JSON.deserialize(blob.text);
+					if(Tools.Object.isObject(content) == true)
 					{
-						loadFromJSON(content[i]);
+						loadFromJSON(content);
+					}
+					else if(Tools.Object.isArray(content) == true)
+					{
+						for(var j = 0; j < content.length; j++)
+						{
+							loadFromJSON(content[j]);
+						}
 					}
 				}
-			}
-			else if(Tools.String.isSuffix(item, '.xml') == true)
-			{
-				var content = Tools.XML.deserialize(blob.text);
-				if(Tools.Object.isObject(content) == true)
+				else if(Tools.String.isSuffix(item, '.xml') == true)
 				{
-					loadFromXML(content);
-				}
-				else if(Tools.Object.isArray(content) == true)
-				{
-					var count = content.length;
-					for(var i = 0; i < count; i++)
+					var content = Tools.XML.deserialize(blob.text);
+					if(Tools.Object.isObject(content) == true)
 					{
-						loadFromXML(content[i]);
+						loadFromXML(content);
 					}
+					else if(Tools.Object.isArray(content) == true)
+					{
+						for(var j = 0; j < content.length; j++)
+						{
+							loadFromXML(content[j]);
+						}
+					}
+				}
+				else
+				{
+					throw new Error(L('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + params);
 				}
 			}
 			else
 			{
-				throw new Error(L('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + params);
+				throw new Error(L('TI_TOOLS_THROW_NOT_FOUND') + '\n' + params);
 			}
-		}
-		else
-		{
-			throw new Error(L('TI_TOOLS_THROW_NOT_FOUND') + '\n' + params);
 		}
 	}
 }

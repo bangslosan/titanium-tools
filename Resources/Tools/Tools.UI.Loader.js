@@ -36,8 +36,7 @@ function loadFromFilename(filename, parent)
 			}
 			else if(Tools.Object.isArray(content) == true)
 			{
-				var count = content.length;
-				for(var i = 0; i < count; i++)
+				for(var i = 0; i < content.length; i++)
 				{
 					loadFromJSON(content[i], parent, controller);
 				}
@@ -52,8 +51,7 @@ function loadFromFilename(filename, parent)
 			}
 			else if(Tools.Object.isArray(content) == true)
 			{
-				var count = content.length;
-				for(var i = 0; i < count; i++)
+				for(var i = 0; i < content.length; i++)
 				{
 					loadFromXML(content[i], parent, controller);
 				}
@@ -102,8 +100,7 @@ function loadFromJSON(content, parent, controller)
 			outlet = Tools.UI.Controls.createTabGroup(content.style);
 			if(content.tabs != undefined)
 			{
-				var count = content.tabs.length;
-				for(var i = 0; i < count; i++)
+				for(var i = 0; i < content.tabs.length; i++)
 				{
 					loadFromJSON(content.tabs[i], outlet, controller);
 				}
@@ -144,8 +141,7 @@ function loadFromJSON(content, parent, controller)
 			}
 			if(content.subviews != undefined)
 			{
-				var count = content.subviews.length;
-				for(var i = 0; i < count; i++)
+				for(var i = 0; i < content.subviews.length; i++)
 				{
 					loadFromJSON(content.subviews[i], outlet, controller);
 				}
@@ -169,8 +165,7 @@ function loadFromJSON(content, parent, controller)
 			}
 			if(content.subviews != undefined)
 			{
-				var count = content.subviews.length;
-				for(var i = 0; i < count; i++)
+				for(var i = 0; i < content.subviews.length; i++)
 				{
 					loadFromJSON(content.subviews[i], outlet, controller);
 				}
@@ -185,8 +180,7 @@ function loadFromJSON(content, parent, controller)
 			}
 			if(content.subviews != undefined)
 			{
-				var count = content.subviews.length;
-				for(var i = 0; i < count; i++)
+				for(var i = 0; i < content.subviews.length; i++)
 				{
 					loadFromJSON(content.subviews[i], outlet, controller);
 				}
@@ -257,16 +251,14 @@ function loadFromJSON(content, parent, controller)
 			}
 			if(content.sections != undefined)
 			{
-				var count = content.sections.length;
-				for(var i = 0; i < count; i++)
+				for(var i = 0; i < content.sections.length; i++)
 				{
 					loadFromJSON(content.sections[i], outlet, controller);
 				}
 			}
 			else if(content.rows != undefined)
 			{
-				var count = content.rows.length;
-				for(var i = 0; i < count; i++)
+				for(var i = 0; i < content.rows.length; i++)
 				{
 					loadFromJSON(content.rows[i], outlet, controller);
 				}
@@ -288,8 +280,7 @@ function loadFromJSON(content, parent, controller)
 			}
 			if(content.rows != undefined)
 			{
-				var count = content.rows.length;
-				for(var i = 0; i < count; i++)
+				for(var i = 0; i < content.rows.length; i++)
 				{
 					loadFromJSON(content.rows[i], outlet, controller);
 				}
@@ -315,8 +306,7 @@ function loadFromJSON(content, parent, controller)
 			}
 			if(content.subviews != undefined)
 			{
-				var count = content.subviews.length;
-				for(var i = 0; i < count; i++)
+				for(var i = 0; i < content.subviews.length; i++)
 				{
 					loadFromJSON(content.subviews[i], outlet, controller);
 				}
