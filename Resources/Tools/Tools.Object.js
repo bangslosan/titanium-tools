@@ -1,10 +1,25 @@
+//---------------------------------------------//
+
+if(Ti.App.ToolsUnigueID == undefined)
+{
+	Ti.App.ToolsUnigueID = 0;
+}
+
+//---------------------------------------------//
+
+function unigueID()
+{
+	Ti.App.ToolsUnigueID = Ti.App.ToolsUnigueID + 1;
+	return Ti.App.ToolsUnigueID;
+}
+
 function combine(objectA, objectB)
 {
 	if(objectB != undefined)
-    {
-        for(var i in objectB)
-        {
-        	if(isObject(objectB[i]) == true)
+	{
+		for(var i in objectB)
+		{
+			if(isObject(objectB[i]) == true)
 			{
 				if(objectA[i] == undefined)
 				{
@@ -24,9 +39,9 @@ function combine(objectA, objectB)
 			{
 				objectA[i] = objectB[i];
 			}
-        }
-    }
-    return objectA;
+		}
+	}
+	return objectA;
 };
 
 function clone(object)
@@ -67,10 +82,6 @@ function clone(object)
 
 function isFunction(object)
 {
-	if(object == undefined)
-	{
-		return false;
-	}
 	(typeof(object) == 'function');
 }
 
@@ -85,34 +96,23 @@ function isObject(object)
 
 function isArray(object)
 {
-	if(object == undefined)
-	{
-		return false;
-	}
 	return (Object.prototype.toString.call(object) === '[object Array]');
 }
 
 function isNumber(object)
 {
-	if(object == undefined)
-	{
-		return false;
-	}
 	return (typeof(object) == 'number');
 }
 
 function isString(object)
 {
-	if(object == undefined)
-	{
-		return false;
-	}
 	return (typeof(object) == 'string');
 }
 
 //---------------------------------------------//
 
 module.exports = {
+	unigueID : unigueID,
 	combine : combine,
 	clone : clone,
 	isFunction : isFunction,

@@ -12,17 +12,41 @@ var Tools = {
 
 //---------------------------------------------//
 
-function loadFromFilename(filename, parent)
+function load(params, parent)
 {
 	var controller = {};
-	if(Tools.Object.isObject(filename) == true)
+	loadFromController(params, parent, controller);
+	return controller;
+}
+
+//---------------------------------------------//
+
+function loadFromController(params, parent, controller)
+{
+	if(Tools.Object.isObject(params) == true)
 	{
-		filename = Tools.Platform.appropriate(filename);
-		if(filename == undefined)
+		var current = Tools.Platform.appropriate(params);
+		if(current == undefined)
 		{
 			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
 		}
+		loadFromController(current, parent, controller);
 	}
+	else if(Tools.Object.isArray(params) == true)
+	{
+		for(var i = 0; i < params.length; i++)
+		{
+			loadFromController(params[i], parent, controller);
+		}
+	}
+	else if(Tools.Object.isString(params) == true)
+	{
+		loadFromFilename(params, parent, controller);
+	}
+}
+
+function loadFromFilename(filename, parent, controller)
+{
 	var file = Tools.Filesystem.getFile(filename);
 	if(file.exists() == true)
 	{
@@ -75,7 +99,7 @@ function loadFromJSON(content, parent, controller)
 	switch(content.style.className)
 	{
 		case 'Ti.UI.ActivityIndicator':
-			outlet = Tools.UI.Controls.createWindow(content.style);
+			outlet = Tools.UI.Controls.createActivityIndicator(content.style);
 			if(parent != undefined)
 			{
 				parent.add(outlet);
@@ -89,10 +113,24 @@ function loadFromJSON(content, parent, controller)
 			{
 				switch(parent.className)
 				{
+					case 'Ti.UI.Ext.Tab':
+						parent.push(outlet);
+						outlet.parent = parent;
+					break;
 					case 'Ti.UI.Tab':
 						parent.window = outlet;
 						outlet.parent = parent;
 					break;
+				}
+			}
+		break;
+		case 'Ti.UI.Ext.TabGroup':
+			outlet = Tools.UI.Controls.createTabGroupExt(content.style);
+			if(content.tabs != undefined)
+			{
+				for(var i = 0; i < content.tabs.length; i++)
+				{
+					loadFromJSON(content.tabs[i], outlet, controller);
 				}
 			}
 		break;
@@ -104,6 +142,23 @@ function loadFromJSON(content, parent, controller)
 				{
 					loadFromJSON(content.tabs[i], outlet, controller);
 				}
+			}
+		break;
+		case 'Ti.UI.Ext.Tab':
+			outlet = Tools.UI.Controls.createTabExt(content.style);
+			if(parent != undefined)
+			{
+				switch(parent.className)
+				{
+					case 'Ti.UI.Ext.TabGroup':
+						parent.addTab(outlet);
+						outlet.parent = parent;
+					break;
+				}
+			}
+			if(content.root != undefined)
+			{
+				loadFromJSON(content.root, outlet, controller);
 			}
 		break;
 		case 'Ti.UI.Tab':
@@ -345,5 +400,5 @@ function loadFromXML(content, parent, controller)
 //---------------------------------------------//
 
 module.exports = {
-	loadFromFilename : loadFromFilename
+	load : load
 };

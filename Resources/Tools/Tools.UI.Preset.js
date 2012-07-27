@@ -180,10 +180,10 @@ function preprocessArgument(arg)
 	arg = arg.replace(/LANG\(([A-Za-z0-9_\.]*)\)/g,
 		function(str, p1, p2, offset, s)
 		{
-			var replaced = L(p1);
-			if(replaced != undefined)
+			var temp = Ti.Locale.getString(p1);
+			if(temp != undefined)
 			{
-				return replaced;
+				return temp;
 			}
 			return p1;
 		}
@@ -191,10 +191,10 @@ function preprocessArgument(arg)
 	arg = arg.replace(/EVAL\(([A-Za-z0-9_\.]*)\)/g,
 		function(str, p1, p2, offset, s)
 		{
-			var replaced = eval(p1);
-			if(replaced != undefined)
+			var temp = eval(p1);
+			if(temp != undefined)
 			{
-				return replaced;
+				return temp;
 			}
 			return p1;
 		}
@@ -204,75 +204,74 @@ function preprocessArgument(arg)
 
 //---------------------------------------------//
 
-function loadFromFilename(params)
+function load(params)
 {
-	if(Tools.Object.isArray(params) == false)
+	if(Tools.Object.isObject(params) == true)
 	{
-		params = [
-			params
-		];
+		var current = Tools.Platform.appropriate(params);
+		if(current == undefined)
+		{
+			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
+		}
+		load(current);
 	}
-	for(var i = 0; i < params.length; i++)
+	else if(Tools.Object.isArray(params) == true)
 	{
-		var item = undefined;
-		if(Tools.Object.isObject(params[i]) == true)
+		for(var i = 0; i < params.length; i++)
 		{
-			item = Tools.Platform.appropriate(params[i]);
-			if(item == undefined)
+			load(params[i]);
+		}
+	}
+	else if(Tools.Object.isString(params) == true)
+	{
+		loadFromFilename(params);
+	}
+}
+
+function loadFromFilename(filename)
+{
+	var file = Tools.Filesystem.getFile(filename);
+	if(file.exists() == true)
+	{
+		var blob = file.read();
+		if(Tools.String.isSuffix(filename, '.json') == true)
+		{
+			var content = Tools.JSON.deserialize(blob.text);
+			if(Tools.Object.isObject(content) == true)
 			{
-				throw new Error(L('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
+				loadFromJSON(content);
 			}
-		}
-		else if(Tools.Object.isString(params[i]) == true)
-		{
-			item = params[i];
-		}
-		if(item != undefined)
-		{
-			var file = Tools.Filesystem.getFile(item);
-			if(file.exists() == true)
+			else if(Tools.Object.isArray(content) == true)
 			{
-				var blob = file.read();
-				if(Tools.String.isSuffix(item, '.json') == true)
+				for(var j = 0; j < content.length; j++)
 				{
-					var content = Tools.JSON.deserialize(blob.text);
-					if(Tools.Object.isObject(content) == true)
-					{
-						loadFromJSON(content);
-					}
-					else if(Tools.Object.isArray(content) == true)
-					{
-						for(var j = 0; j < content.length; j++)
-						{
-							loadFromJSON(content[j]);
-						}
-					}
-				}
-				else if(Tools.String.isSuffix(item, '.xml') == true)
-				{
-					var content = Tools.XML.deserialize(blob.text);
-					if(Tools.Object.isObject(content) == true)
-					{
-						loadFromXML(content);
-					}
-					else if(Tools.Object.isArray(content) == true)
-					{
-						for(var j = 0; j < content.length; j++)
-						{
-							loadFromXML(content[j]);
-						}
-					}
-				}
-				else
-				{
-					throw new Error(L('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + params);
+					loadFromJSON(content[j]);
 				}
 			}
-			else
+		}
+		else if(Tools.String.isSuffix(filename, '.xml') == true)
+		{
+			var content = Tools.XML.deserialize(blob.text);
+			if(Tools.Object.isObject(content) == true)
 			{
-				throw new Error(L('TI_TOOLS_THROW_NOT_FOUND') + '\n' + params);
+				loadFromXML(content);
+			}
+			else if(Tools.Object.isArray(content) == true)
+			{
+				for(var j = 0; j < content.length; j++)
+				{
+					loadFromXML(content[j]);
+				}
 			}
 		}
+		else
+		{
+			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
+		}
+	}
+	else
+	{
+		throw new Error(L('TI_TOOLS_THROW_NOT_FOUND') + '\n' + filename);
 	}
 }
 
@@ -292,5 +291,5 @@ module.exports = {
 	get : get,
 	remove : remove,
 	merge : merge,
-	loadFromFilename : loadFromFilename
+	load : load
 };

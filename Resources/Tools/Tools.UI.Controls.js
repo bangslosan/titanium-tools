@@ -1,5 +1,10 @@
 var Tools = {
+	Object : require("Tools/Tools.Object"),
 	UI : {
+		Ext : {
+			TabGroup : require("Tools/Tools.UI.Ext.TabGroup"),
+			Tab : require("Tools/Tools.UI.Ext.Tab")
+		},
 		Preset : require("Tools/Tools.UI.Preset")
 	}
 };
@@ -12,6 +17,7 @@ module.exports = {
 		return Ti.UI.createActivityIndicator(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.ActivityIndicator'
 				} 
 			)
@@ -22,6 +28,7 @@ module.exports = {
 		return Ti.UI.createWindow(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.Window'
 				} 
 			)
@@ -32,6 +39,7 @@ module.exports = {
 		return Ti.UI.createView(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.View'
 				} 
 			)
@@ -42,26 +50,37 @@ module.exports = {
 		return Ti.UI.createTabGroup(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.TabGroup'
 				} 
 			)
 		);
+	},
+	createTabGroupExt : function(params)
+	{
+		return Tools.UI.Ext.TabGroup.create(Tools.UI.Preset.merge(params));
 	},
 	createTab : function(params)
 	{
 		return Ti.UI.createTab(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.Tab'
 				} 
 			)
 		);
+	},
+	createTabExt : function(params)
+	{
+		return Tools.UI.Ext.Tab.create(Tools.UI.Preset.merge(params));
 	},
 	createScrollView : function(params)
 	{
 		return Ti.UI.createScrollView(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.ScrollView'
 				} 
 			)
@@ -72,6 +91,7 @@ module.exports = {
 		return Ti.UI.createScrollableView(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.ScrollableView'
 				} 
 			)
@@ -82,6 +102,7 @@ module.exports = {
 		return Ti.UI.createImageView(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.ImageView'
 				} 
 			)
@@ -92,6 +113,7 @@ module.exports = {
 		return Ti.UI.createButton(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.Button'
 				} 
 			)
@@ -102,6 +124,7 @@ module.exports = {
 		return Ti.UI.createLabel(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.Label'
 				} 
 			)
@@ -112,7 +135,9 @@ module.exports = {
 		return Ti.UI.createSwitch(
 			Tools.UI.Preset.merge(params,
 				{
-					className : 'Ti.UI.Switch'
+					uid : Tools.Object.unigueID(),
+					className : 'Ti.UI.Switch',
+					value : false
 				} 
 			)
 		);
@@ -122,6 +147,7 @@ module.exports = {
 		return Ti.UI.createProgressBar(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.ProgressBar'
 				} 
 			)
@@ -132,6 +158,7 @@ module.exports = {
 		return Ti.UI.createTextField(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.TextField'
 				} 
 			)
@@ -142,6 +169,7 @@ module.exports = {
 		return Ti.UI.createTextArea(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.TextArea'
 				} 
 			)
@@ -152,6 +180,7 @@ module.exports = {
 		return Ti.UI.createTableView(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.TableView'
 				} 
 			)
@@ -162,8 +191,9 @@ module.exports = {
 		return Ti.UI.createTableViewSection(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.TableViewSection'
-				} 
+				}
 			)
 		);
 	},
@@ -172,8 +202,9 @@ module.exports = {
 		return Ti.UI.createTableViewRow(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.UI.TableViewRow'
-				} 
+				}
 			)
 		);
 	},
@@ -183,8 +214,9 @@ module.exports = {
 			return Ti.Facebook.createLoginButton(
 				Tools.UI.Preset.merge(params,
 					{
+						uid : Tools.Object.unigueID(),
 						className : 'Ti.Facebook.LoginButton'
-					} 
+					}
 				)
 			);
 		}
@@ -195,8 +227,9 @@ module.exports = {
 		return TiPaint.createPaintView(
 			Tools.UI.Preset.merge(params,
 				{
+					uid : Tools.Object.unigueID(),
 					className : 'Ti.PaintView'
-				} 
+				}
 			)
 		);
 	}

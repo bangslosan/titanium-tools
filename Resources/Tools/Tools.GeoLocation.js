@@ -1,5 +1,6 @@
 var Tools = {
-	HTTP : require("Tools/Tools.HTTP")
+	HTTP : require("Tools/Tools.HTTP"),
+	JSON : require("Tools/Tools.JSON")
 };
 
 //---------------------------------------------//
@@ -75,7 +76,8 @@ function currentLocation(params)
 {
 	Tools.HTTP.response(
 		{
-			url : 'http://maps.googleapis.com/maps/api/geocode/json?latlng=' + params.position.latitude + ',' + params.position.longitude + '&language=ru&sensor=false',
+			method : 'GET',
+			url : 'http://maps.googleapis.com/maps/api/geocode/json',
 			header : [
 				{
 					type : 'Content-Type',
@@ -86,11 +88,18 @@ function currentLocation(params)
 					value : 'no-cache, must-revalidate'
 				}
 			],
-			success : function(result)
+			reguest : {
+				args : {
+					latlng : params.position.latitude + ',' + params.position.longitude,
+					sensor : 'false',
+					language : 'ru'
+				}
+			},
+			success : function(responce)
 			{
 				try
 				{
-					json = JSON.parse(result.responseData);
+					json = Tools.JSON.deserialize(responce.responseData);
 					switch(json.status)
 					{
 						case 'OK':
@@ -142,12 +151,23 @@ function paveRoute(params)
 {
 	Tools.HTTP.response(
 		{
-			url : 'http://maps.google.com/?saddr=' + params.a.latitude + ',' + params.a.longitude + '&daddr=' + params.b.latitude + ',' + params.b.longitude + '&output=kml&doflg=ptk&hl=en&dirflg=w',
-			success : function(result)
+			method : 'GET',
+			url : 'http://maps.google.com/',
+			reguest : {
+				args : {
+					saddr : params.a.latitude + ',' + params.a.longitude,
+					daddr : params.b.latitude + ',' + params.b.longitude,
+					output : 'kml',
+					doflg : 'ptk',
+					dirflg : 'w',
+					hl : 'en'
+				}
+			},
+			success : function(responce)
 			{
 				try
 				{
-					var xml = result.responseXML;
+					var xml = responce.responseXML;
 					if(xml != undefined)
 					{
 						var route = {
