@@ -1,8 +1,8 @@
-var Tools = require('Tools/Tools');
+var TiTools = require('TiTools/TiTools');
 
 //---------------------------------------------//
 
-Tools.UI.Preset.loadFromFilename(
+TiTools.UI.Preset.load(
 	[
 		{
 			android : '%ResourcesPath%Presets/Android.json',
@@ -13,7 +13,7 @@ Tools.UI.Preset.loadFromFilename(
 
 //---------------------------------------------//
 
-var main = Tools.UI.Controls.createWindow(
+var main = TiTools.UI.Controls.createWindow(
 	{
 		backgroundColor : '#888888',
 		backgroundImage : '%ResourcesPath%Images/Backgrounds/Dark.png',

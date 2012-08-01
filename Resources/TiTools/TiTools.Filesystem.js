@@ -1,20 +1,19 @@
-var Tools = {
-	String : require("Tools/Tools.String"),
-	Platform : require("Tools/Tools.Platform")
+var TiTools = {
+	Platform : require("TiTools/TiTools.Platform")
 };
 
 //---------------------------------------------//
 
-if(Ti.App.ToolsFilesystemPath == undefined)
+if(Ti.App.TiToolsFilesystemPath == undefined)
 {
-	var resources = Tools.Platform.appropriate(
+	var resourcesPath = TiTools.Platform.appropriate(
 		{
 			android : 'file:///android_asset/Resources/',
 			ios : Ti.Filesystem.resourcesDirectory + Ti.Filesystem.separator
 		}
 	);
-	Ti.App.ToolsFilesystemPath = {
-		resources : resources
+	Ti.App.TiToolsFilesystemPath = {
+		resourcesPath : resourcesPath
 	};
 }
 
@@ -27,7 +26,7 @@ function preprocessPath(path)
 		{
 			switch(p1)
 			{
-				case 'ResourcesPath': return Ti.App.ToolsFilesystemPath.resources; 
+				case 'ResourcesPath': return Ti.App.TiToolsFilesystemPath.resourcesPath; 
 			}
 			return p1;
 		}

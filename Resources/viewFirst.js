@@ -1,4 +1,4 @@
-var Tools = require("Tools/Tools");
+var TiTools = require("TiTools/TiTools");
 
 //---------------------------------------------//
 
@@ -6,7 +6,7 @@ var win = Ti.UI.currentWindow;
 
 //---------------------------------------------//
 
-var controller = Tools.UI.Loader.loadFromFilename(
+var controller = TiTools.UI.Loader.load(
 	{
 		any : '%ResourcesPath%Views/First.json'
 	},

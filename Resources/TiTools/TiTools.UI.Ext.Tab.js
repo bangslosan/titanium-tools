@@ -1,12 +1,12 @@
-var Tools = {
-	Object : require("Tools/Tools.Object")
+var TiTools = {
+	Object : require("TiTools/TiTools.Object")
 };
 
 //---------------------------------------------//
 
 function Tab(params)
 {
-	var mUID = Tools.Object.unigueID();
+	var mUID = TiTools.Object.unigueID();
 	var mClassName = 'Ti.UI.Ext.Tab';
 	var mActiveIndex = -1;
 	var mStack = [];
@@ -33,12 +33,12 @@ function Tab(params)
 					}
 				}
 			}
-		    mStack.push(
-		    	{
-		    		openned : openned,
-		    		handle : view
-		    	}
-		    );
+			mStack.push(
+				{
+					openned : openned,
+					handle : view
+				}
+			);
 			mActiveIndex = mStack.length - 1;
 		}
 	};

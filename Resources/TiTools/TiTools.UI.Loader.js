@@ -1,12 +1,13 @@
-var Tools = {
-	Object : require("Tools/Tools.Object"),
-	String : require("Tools/Tools.String"),
-	Filesystem : require("Tools/Tools.Filesystem"),
-	Platform : require("Tools/Tools.Platform"),
-	JSON : require("Tools/Tools.JSON"),
-	XML : require("Tools/Tools.XML"),
+var TiTools = {
+	Object : require("TiTools/TiTools.Object"),
+	String : require("TiTools/TiTools.String"),
+	Locate : require("TiTools/TiTools.Locate"),
+	Filesystem : require("TiTools/TiTools.Filesystem"),
+	Platform : require("TiTools/TiTools.Platform"),
+	JSON : require("TiTools/TiTools.JSON"),
+	XML : require("TiTools/TiTools.XML"),
 	UI : {
-		Controls : require("Tools/Tools.UI.Controls")
+		Controls : require("TiTools/TiTools.UI.Controls")
 	}
 };
 
@@ -23,23 +24,23 @@ function load(params, parent)
 
 function loadFromController(params, parent, controller)
 {
-	if(Tools.Object.isObject(params) == true)
+	if(TiTools.Object.isObject(params) == true)
 	{
-		var current = Tools.Platform.appropriate(params);
+		var current = TiTools.Platform.appropriate(params);
 		if(current == undefined)
 		{
-			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
+			throw new Error(TiTools.Locate.getString('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
 		}
 		loadFromController(current, parent, controller);
 	}
-	else if(Tools.Object.isArray(params) == true)
+	else if(TiTools.Object.isArray(params) == true)
 	{
 		for(var i = 0; i < params.length; i++)
 		{
 			loadFromController(params[i], parent, controller);
 		}
 	}
-	else if(Tools.Object.isString(params) == true)
+	else if(TiTools.Object.isString(params) == true)
 	{
 		loadFromFilename(params, parent, controller);
 	}
@@ -47,18 +48,18 @@ function loadFromController(params, parent, controller)
 
 function loadFromFilename(filename, parent, controller)
 {
-	var file = Tools.Filesystem.getFile(filename);
+	var file = TiTools.Filesystem.getFile(filename);
 	if(file.exists() == true)
 	{
 		var blob = file.read();
-		if(Tools.String.isSuffix(filename, '.json') == true)
+		if(TiTools.String.isSuffix(filename, '.json') == true)
 		{
-			var content = Tools.JSON.deserialize(blob.text);
-			if(Tools.Object.isObject(content) == true)
+			var content = TiTools.JSON.deserialize(blob.text);
+			if(TiTools.Object.isObject(content) == true)
 			{
 				loadFromJSON(content, parent, controller);
 			}
-			else if(Tools.Object.isArray(content) == true)
+			else if(TiTools.Object.isArray(content) == true)
 			{
 				for(var i = 0; i < content.length; i++)
 				{
@@ -66,29 +67,29 @@ function loadFromFilename(filename, parent, controller)
 				}
 			}
 		}
-		else if(ToolsString.isSuffix(filename, '.xml') == true)
+		else if(TiTools.String.isSuffix(filename, '.xml') == true)
 		{
-			var content = Tools.XML.deserialize(blob.text);
-			if(Tools.Object.isObject(content) == true)
+			var content = TiTools.XML.deserialize(blob.text);
+			if(TiTools.Object.isObject(content) == true)
 			{
-				loadFromXML(content, parent, controller);
+				loadFromXMTiTools.Locate.getString(content, parent, controller);
 			}
-			else if(Tools.Object.isArray(content) == true)
+			else if(TiTools.Object.isArray(content) == true)
 			{
 				for(var i = 0; i < content.length; i++)
 				{
-					loadFromXML(content[i], parent, controller);
+					loadFromXMTiTools.Locate.getString(content[i], parent, controller);
 				}
 			}
 		}
 		else
 		{
-			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
+			throw new Error(TiTools.Locate.getString('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
 		}
 	}
 	else
 	{
-		throw new Error(L('TI_TOOLS_THROW_NOT_FOUND') + '\n' + filename);
+		throw new Error(TiTools.Locate.getString('TI_TOOLS_THROW_NOT_FOUND') + '\n' + filename);
 	}
 	return controller;
 }
@@ -99,7 +100,7 @@ function loadFromJSON(content, parent, controller)
 	switch(content.style.className)
 	{
 		case 'Ti.UI.ActivityIndicator':
-			outlet = Tools.UI.Controls.createActivityIndicator(content.style);
+			outlet = TiTools.UI.Controls.createActivityIndicator(content.style);
 			if(parent != undefined)
 			{
 				parent.add(outlet);
@@ -108,7 +109,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.Window':
-			outlet = Tools.UI.Controls.createWindow(content.style);
+			outlet = TiTools.UI.Controls.createWindow(content.style);
 			if(parent != undefined)
 			{
 				switch(parent.className)
@@ -125,7 +126,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.Ext.TabGroup':
-			outlet = Tools.UI.Controls.createTabGroupExt(content.style);
+			outlet = TiTools.UI.Controls.createTabGroupExt(content.style);
 			if(content.tabs != undefined)
 			{
 				for(var i = 0; i < content.tabs.length; i++)
@@ -135,7 +136,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.TabGroup':
-			outlet = Tools.UI.Controls.createTabGroup(content.style);
+			outlet = TiTools.UI.Controls.createTabGroup(content.style);
 			if(content.tabs != undefined)
 			{
 				for(var i = 0; i < content.tabs.length; i++)
@@ -145,7 +146,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.Ext.Tab':
-			outlet = Tools.UI.Controls.createTabExt(content.style);
+			outlet = TiTools.UI.Controls.createTabExt(content.style);
 			if(parent != undefined)
 			{
 				switch(parent.className)
@@ -162,7 +163,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.Tab':
-			outlet = Tools.UI.Controls.createTab(content.style);
+			outlet = TiTools.UI.Controls.createTab(content.style);
 			if(parent != undefined)
 			{
 				switch(parent.className)
@@ -179,7 +180,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.View':
-			outlet = Tools.UI.Controls.createView(content.style);
+			outlet = TiTools.UI.Controls.createView(content.style);
 			if(parent != undefined)
 			{
 				switch(parent.className)
@@ -203,7 +204,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.ScrollView':
-			outlet = Tools.UI.Controls.createScrollView(content.style);
+			outlet = TiTools.UI.Controls.createScrollView(content.style);
 			if(parent != undefined)
 			{
 				switch(parent.className)
@@ -227,7 +228,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.ScrollableView':
-			outlet = Tools.UI.Controls.createScrollableView(content.style);
+			outlet = TiTools.UI.Controls.createScrollableView(content.style);
 			if(parent != undefined)
 			{
 				parent.add(outlet);
@@ -242,7 +243,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.ImageView':
-			outlet = Tools.UI.Controls.createImageView(content.style);
+			outlet = TiTools.UI.Controls.createImageView(content.style);
 			if(parent != undefined)
 			{
 				parent.add(outlet);
@@ -250,7 +251,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.Button':
-			outlet = Tools.UI.Controls.createButton(content.style);
+			outlet = TiTools.UI.Controls.createButton(content.style);
 			if(parent != undefined)
 			{
 				parent.add(outlet);
@@ -258,7 +259,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.Label':
-			outlet = Tools.UI.Controls.createLabel(content.style);
+			outlet = TiTools.UI.Controls.createLabel(content.style);
 			if(parent != undefined)
 			{
 				parent.add(outlet);
@@ -266,7 +267,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.Switch':
-			outlet = Tools.UI.Controls.createSwitch(content.style);
+			outlet = TiTools.UI.Controls.createSwitch(content.style);
 			if(parent != undefined)
 			{
 				parent.add(outlet);
@@ -274,7 +275,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.ProgressBar':
-			outlet = Tools.UI.Controls.createProgressBar(content.style);
+			outlet = TiTools.UI.Controls.createProgressBar(content.style);
 			if(parent != undefined)
 			{
 				parent.add(outlet);
@@ -282,7 +283,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.TextField':
-			outlet = Tools.UI.Controls.createTextField(content.style);
+			outlet = TiTools.UI.Controls.createTextField(content.style);
 			if(parent != undefined)
 			{
 				parent.add(outlet);
@@ -290,7 +291,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.TextArea':
-			outlet = Tools.UI.Controls.createTextArea(content.style);
+			outlet = TiTools.UI.Controls.createTextArea(content.style);
 			if(parent != undefined)
 			{
 				parent.add(outlet);
@@ -298,7 +299,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.TableView':
-			outlet = Tools.UI.Controls.createTableView(content.style);
+			outlet = TiTools.UI.Controls.createTableView(content.style);
 			if(parent != undefined)
 			{
 				parent.add(outlet);
@@ -320,7 +321,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.TableViewSection':
-			outlet = Tools.UI.Controls.createTableViewSection(content.style);
+			outlet = TiTools.UI.Controls.createTableViewSection(content.style);
 			if(parent != undefined)
 			{
 				switch(parent.className)
@@ -330,7 +331,7 @@ function loadFromJSON(content, parent, controller)
 						outlet.parent = parent;
 					break;
 					default:
-						throw new Error(L('TI_TOOLS_THROW_UNSUPPORTED_PARENT_CLASS'));
+						throw new Error(TiTools.Locate.getString('TI_TOOLS_THROW_UNSUPPORTED_PARENT_CLASS'));
 				}
 			}
 			if(content.rows != undefined)
@@ -342,7 +343,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.UI.TableViewRow':
-			outlet = Tools.UI.Controls.createTableViewRow(content.style);
+			outlet = TiTools.UI.Controls.createTableViewRow(content.style);
 			if(parent != undefined)
 			{
 				switch(parent.className)
@@ -356,7 +357,7 @@ function loadFromJSON(content, parent, controller)
 						outlet.parent = parent;
 					break;
 					default:
-						throw new Error(L('TI_TOOLS_THROW_UNSUPPORTED_PARENT_CLASS'));
+						throw new Error(TiTools.Locate.getString('TI_TOOLS_THROW_UNSUPPORTED_PARENT_CLASS'));
 				}
 			}
 			if(content.subviews != undefined)
@@ -368,7 +369,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.Facebook.LoginButton':
-			outlet = Tools.UI.Controls.Facebook.createLoginButton(content.style);
+			outlet = TiTools.UI.Controls.Facebook.createLoginButton(content.style);
 			if(parent != undefined)
 			{
 				parent.add(outlet);
@@ -376,7 +377,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		case 'Ti.PaintView':
-			outlet = Tools.UI.Controls.createPaintView(content.style);
+			outlet = TiTools.UI.Controls.createPaintView(content.style);
 			if(parent != undefined)
 			{
 				parent.add(outlet);
@@ -384,7 +385,7 @@ function loadFromJSON(content, parent, controller)
 			}
 		break;
 		default:
-			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_CLASS_NAME') + '\n' + content.style.className);
+			throw new Error(TiTools.Locate.getString('TI_TOOLS_THROW_UNKNOWN_CLASS_NAME') + '\n' + content.style.className);
 	}
 	if(content.outlet != undefined)
 	{

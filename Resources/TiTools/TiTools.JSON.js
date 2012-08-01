@@ -1,9 +1,9 @@
-var serialize = function(node)
+function serialize(node)
 {
 	return JSON.stringify(node);
 }
 
-var deserialize = function(string)
+function deserialize(string)
 {
 	return JSON.parse(string);
 }

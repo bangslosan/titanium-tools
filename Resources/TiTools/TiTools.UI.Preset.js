@@ -1,60 +1,53 @@
-var Tools = {
-	Object : require("Tools/Tools.Object"),
-	String : require("Tools/Tools.String"),
-	Filesystem : require("Tools/Tools.Filesystem"),
-	Platform : require("Tools/Tools.Platform"),
-	JSON : require("Tools/Tools.JSON"),
-	XML : require("Tools/Tools.XML")
+var TiTools = {
+	Object : require("TiTools/TiTools.Object"),
+	String : require("TiTools/TiTools.String"),
+	Locate : require("TiTools/TiTools.Locate"),
+	Filesystem : require("TiTools/TiTools.Filesystem"),
+	Platform : require("TiTools/TiTools.Platform"),
+	JSON : require("TiTools/TiTools.JSON"),
+	XML : require("TiTools/TiTools.XML")
 };
+
+//---------------------------------------------//
+
+if(Ti.App.TiToolsPresets == undefined)
+{
+	Ti.App.TiToolsPresets = [];
+}
 
 //---------------------------------------------//
 
 function set(name, style)
 {
-	var list = Ti.App.ToolsUIPreset;
-	if(list != undefined)
+	var founded = false;
+	var list = Ti.App.TiToolsPresets;
+	for(var i = 0; i < list.length; i++)
 	{
-		var founded = false;
-		for(var i = 0; i < list.length; i++)
+		if(list[i].name == name)
 		{
-			if(list[i].name == name)
-			{
-				throw new Error(L('TI_TOOLS_THROW_OVERRIDE_PRESET') + '\n' + name);
-			}
-		}
-		if(founded == false)
-		{
-			list.push(
-				{
-					name : name,
-					style : style
-				}
-			);
-			Ti.App.ToolsUIPreset = list;
+			throw new Error(TiTools.Locate.getString('TI_TOOLS_THROW_OVERRIDE_PRESET') + '\n' + name);
 		}
 	}
-	else
+	if(founded == false)
 	{
-		Ti.App.ToolsUIPreset = [
+		list.push(
 			{
 				name : name,
 				style : style
 			}
-		];
+		);
+		Ti.App.TiToolsPresets = list;
 	}
 }
 
 function get(name)
 {
-	var list = Ti.App.ToolsUIPreset;
-	if(list != undefined)
+	var list = Ti.App.TiToolsPresets;
+	for(var i = 0; i < list.length; i++)
 	{
-		for(var i = 0; i < list.length; i++)
+		if(list[i].name == name)
 		{
-			if(list[i].name == name)
-			{
-				return list[i].style;
-			}
+			return list[i].style;
 		}
 	}
 	return undefined;
@@ -62,50 +55,47 @@ function get(name)
 
 function remove(name)
 {
-	var list = Ti.App.ToolsUIPreset;
-	if(list != undefined)
+	var list = Ti.App.TiToolsPresets;
+	for(var i = 0; i < list.length; i++)
 	{
-		for(var i = 0; i < list.length; i++)
+		if(list[i].name == name)
 		{
-			if(list[i].name == name)
-			{
-				list.splice(i, 1);
-				break;
-			}
+			list.splice(i, 1);
+			break;
 		}
-		Ti.App.ToolsUIPreset = list;
 	}
+	Ti.App.TiToolsPresets = list;
 }
 
 //---------------------------------------------//
 
 function merge(params, defaults)
 {
-	if(Tools.Object.isArray(params.preset) == true)
+	if(TiTools.Object.isArray(params.preset) == true)
 	{
 		for(var i = 0; i < params.preset.length; i++)
 		{
-			if(Tools.Object.isString(params.preset[i]) == true)
+			if(TiTools.Object.isString(params.preset[i]) == true)
 			{
 				var preset = get(params.preset[i]);
 				if(preset != undefined)
 				{
-					params = Tools.Object.combine(preset, params);
+					params = TiTools.Object.combine(preset, params);
 				}
 			}
 		}
 	}
-	else if(Tools.Object.isString(params.preset) == true)
+	else if(TiTools.Object.isString(params.preset) == true)
 	{
 		var preset = get(params.preset);
 		if(preset != undefined)
 		{
-			params = Tools.Object.combine(preset, params);
+			params = TiTools.Object.combine(preset, params);
 		}
 	}
 	if(defaults != undefined)
 	{
-		params = Tools.Object.combine(defaults, params);
+		params = TiTools.Object.combine(defaults, params);
 	}
 	return preprocess(params);
 }
@@ -114,22 +104,22 @@ function preprocess(params)
 {
 	for(var i in params)
 	{
-		if(Tools.Object.isObject(params[i]) == true)
+		if(TiTools.Object.isObject(params[i]) == true)
 		{
 			params[i] = preprocess(params[i]);
 		}
-		else if(Tools.Object.isArray(params[i]) == true)
+		else if(TiTools.Object.isArray(params[i]) == true)
 		{
 			params[i] = preprocess(params[i]);
 		}
-		else if(Tools.Object.isString(params[i]) == true)
+		else if(TiTools.Object.isString(params[i]) == true)
 		{
 			params[i] = preprocessArgument(params[i]);
 		}
 	}
 	if(params.margin != undefined)
 	{
-		if(Tools.Object.isString(params.margin) == true)
+		if(TiTools.Object.isString(params.margin) == true)
 		{
 			var margins = params.margin.split(' ');
 			if(margins.length > 0)
@@ -163,7 +153,7 @@ function preprocess(params)
 				}
 			}
 		}
-		else if(Tools.Object.isNumber(params.margin) == true)
+		else if(TiTools.Object.isNumber(params.margin) == true)
 		{
 			params.top = params.margin;
 			params.right = params.margin;
@@ -180,12 +170,7 @@ function preprocessArgument(arg)
 	arg = arg.replace(/LANG\(([A-Za-z0-9_\.]*)\)/g,
 		function(str, p1, p2, offset, s)
 		{
-			var temp = Ti.Locale.getString(p1);
-			if(temp != undefined)
-			{
-				return temp;
-			}
-			return p1;
+			return TiTools.Locate.getString(p1, p1);
 		}
 	);
 	arg = arg.replace(/EVAL\(([A-Za-z0-9_\.]*)\)/g,
@@ -199,30 +184,30 @@ function preprocessArgument(arg)
 			return p1;
 		}
 	);
-	return Tools.Filesystem.preprocessPath(arg);
+	return TiTools.Filesystem.preprocessPath(arg);
 }
 
 //---------------------------------------------//
 
 function load(params)
 {
-	if(Tools.Object.isObject(params) == true)
-	{
-		var current = Tools.Platform.appropriate(params);
-		if(current == undefined)
-		{
-			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
-		}
-		load(current);
-	}
-	else if(Tools.Object.isArray(params) == true)
+	if(TiTools.Object.isArray(params) == true)
 	{
 		for(var i = 0; i < params.length; i++)
 		{
 			load(params[i]);
 		}
 	}
-	else if(Tools.Object.isString(params) == true)
+	else if(TiTools.Object.isObject(params) == true)
+	{
+		var current = TiTools.Platform.appropriate(params);
+		if(current == undefined)
+		{
+			throw new Error(TiTools.Locate.getString('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
+		}
+		load(current);
+	}
+	else if(TiTools.Object.isString(params) == true)
 	{
 		loadFromFilename(params);
 	}
@@ -230,18 +215,18 @@ function load(params)
 
 function loadFromFilename(filename)
 {
-	var file = Tools.Filesystem.getFile(filename);
+	var file = TiTools.Filesystem.getFile(filename);
 	if(file.exists() == true)
 	{
 		var blob = file.read();
-		if(Tools.String.isSuffix(filename, '.json') == true)
+		if(TiTools.String.isSuffix(filename, '.json') == true)
 		{
-			var content = Tools.JSON.deserialize(blob.text);
-			if(Tools.Object.isObject(content) == true)
+			var content = TiTools.JSON.deserialize(blob.text);
+			if(TiTools.Object.isObject(content) == true)
 			{
 				loadFromJSON(content);
 			}
-			else if(Tools.Object.isArray(content) == true)
+			else if(TiTools.Object.isArray(content) == true)
 			{
 				for(var j = 0; j < content.length; j++)
 				{
@@ -249,29 +234,29 @@ function loadFromFilename(filename)
 				}
 			}
 		}
-		else if(Tools.String.isSuffix(filename, '.xml') == true)
+		else if(TiTools.String.isSuffix(filename, '.xml') == true)
 		{
-			var content = Tools.XML.deserialize(blob.text);
-			if(Tools.Object.isObject(content) == true)
+			var content = TiTools.XML.deserialize(blob.text);
+			if(TiTools.Object.isObject(content) == true)
 			{
-				loadFromXML(content);
+				loadFromXMTiTools.Locate.getString(content);
 			}
-			else if(Tools.Object.isArray(content) == true)
+			else if(TiTools.Object.isArray(content) == true)
 			{
 				for(var j = 0; j < content.length; j++)
 				{
-					loadFromXML(content[j]);
+					loadFromXMTiTools.Locate.getString(content[j]);
 				}
 			}
 		}
 		else
 		{
-			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
+			throw new Error(TiTools.Locate.getString('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
 		}
 	}
 	else
 	{
-		throw new Error(L('TI_TOOLS_THROW_NOT_FOUND') + '\n' + filename);
+		throw new Error(TiTools.Locate.getString('TI_TOOLS_THROW_NOT_FOUND') + '\n' + filename);
 	}
 }
 

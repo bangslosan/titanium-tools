@@ -1,10 +1,9 @@
-var Tools = {
-	HTTP : require("Tools/Tools.HTTP"),
-	JSON : require("Tools/Tools.JSON")
+var TiTools = {
+	HTTP : require("TiTools/TiTools.HTTP"),
+	JSON : require("TiTools/TiTools.JSON")
 };
 
 //---------------------------------------------//
-
 function configure(params)
 {
 	if(params.message != undefined)
@@ -74,21 +73,21 @@ function currentPosition(params)
 
 function currentLocation(params)
 {
-	Tools.HTTP.response(
+	TiTools.HTTP.response(
 		{
-			method : 'GET',
-			url : 'http://maps.googleapis.com/maps/api/geocode/json',
-			header : [
-				{
-					type : 'Content-Type',
-					value : 'application/json; charset=utf-8'
-				},
-				{
-					type : 'Cache-Control',
-					value : 'no-cache, must-revalidate'
-				}
-			],
 			reguest : {
+				method : 'GET',
+				url : 'http://maps.googleapis.com/maps/api/geocode/json',
+				header : [
+					{
+						type : 'Content-Type',
+						value : 'application/json; charset=utf-8'
+					},
+					{
+						type : 'Cache-Control',
+						value : 'no-cache, must-revalidate'
+					}
+				],
 				args : {
 					latlng : params.position.latitude + ',' + params.position.longitude,
 					sensor : 'false',
@@ -99,7 +98,7 @@ function currentLocation(params)
 			{
 				try
 				{
-					json = Tools.JSON.deserialize(responce.responseData);
+					json = TiTools.JSON.deserialize(responce.responseData);
 					switch(json.status)
 					{
 						case 'OK':
@@ -149,11 +148,11 @@ function currentLocation(params)
 
 function paveRoute(params)
 {
-	Tools.HTTP.response(
+	TiTools.HTTP.response(
 		{
-			method : 'GET',
-			url : 'http://maps.google.com/',
 			reguest : {
+				method : 'GET',
+				url : 'http://maps.google.com/',
 				args : {
 					saddr : params.a.latitude + ',' + params.a.longitude,
 					daddr : params.b.latitude + ',' + params.b.longitude,

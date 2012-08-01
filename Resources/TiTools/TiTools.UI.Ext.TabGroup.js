@@ -1,12 +1,12 @@
-var Tools = {
-	Object : require("Tools/Tools.Object")
+var TiTools = {
+	Object : require("TiTools/TiTools.Object")
 };
 
 //---------------------------------------------//
 
 function TabGroup(params)
 {
-	var mUID = Tools.Object.unigueID();
+	var mUID = TiTools.Object.unigueID();
 	var mClassName = 'Ti.UI.Ext.TabGroup';
 	var mIsOpened = false;
 	var mActiveTabIndex = 0;
@@ -71,7 +71,7 @@ function TabGroup(params)
 	};
 	this.getActiveTabIndex = function()
 	{
-	    return mActiveTabIndex;
+		return mActiveTabIndex;
 	};
 	this.setActiveTabIndex = function(value)
 	{
@@ -90,7 +90,7 @@ function TabGroup(params)
 	};
 	this.getTabs = function()
 	{
-	    return mTabs;
+		return mTabs;
 	};
 	
 	Object.defineProperty(

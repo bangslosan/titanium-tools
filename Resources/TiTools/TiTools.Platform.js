@@ -1,3 +1,4 @@
+var isSimulator = ((Ti.Platform.model === 'Simulator') || (Ti.Platform.model.indexOf('sdk') !== -1));
 var isAndroid = (Ti.Platform.osname == 'android');
 var isIPhone = (Ti.Platform.osname == 'iphone');
 var isIPad = (Ti.Platform.osname == 'ipad');
@@ -45,6 +46,7 @@ function appropriate(params)
 //---------------------------------------------//
 
 module.exports = {
+	isSimulator : isSimulator,
 	isAndroid : isAndroid,
 	isIPhone : isIPhone,
 	isIPad : isIPad,

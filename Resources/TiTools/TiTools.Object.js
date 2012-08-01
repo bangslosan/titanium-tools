@@ -1,16 +1,13 @@
-//---------------------------------------------//
-
-if(Ti.App.ToolsUnigueID == undefined)
+if(Ti.App.TiToolsLastUnigueID == undefined)
 {
-	Ti.App.ToolsUnigueID = 0;
+	Ti.App.TiToolsLastUnigueID = 0;
 }
 
 //---------------------------------------------//
 
 function unigueID()
 {
-	Ti.App.ToolsUnigueID = Ti.App.ToolsUnigueID + 1;
-	return Ti.App.ToolsUnigueID;
+	return Ti.App.TiToolsLastUnigueID++;
 }
 
 function combine(objectA, objectB)
@@ -82,7 +79,7 @@ function clone(object)
 
 function isFunction(object)
 {
-	(typeof(object) == 'function');
+	return (typeof(object) == 'function');
 }
 
 function isObject(object)

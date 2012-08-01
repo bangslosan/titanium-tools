@@ -60,12 +60,12 @@ function chomp(str)
 
 function isPrefix(str, prefix)
 {
-    return (str.indexOf(prefix) === 0);
+	return (str.indexOf(prefix) === 0);
 }
 
 function isSuffix(str, suffix)
 {
-    return (str.match(suffix + '$') == suffix);
+	return (str.match(suffix + '$') == suffix);
 };
 
 function replaceAll(str, search, replace)

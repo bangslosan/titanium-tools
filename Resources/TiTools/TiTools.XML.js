@@ -1,15 +1,15 @@
-var Tools = {
-	String : require("Tools/Tools.String")
+var TiTools = {
+	String : require("TiTools/TiTools.String")
 };
 
 //---------------------------------------------//
 
-var serialize = function(node)
+function serialize(node)
 {
 	return '';
 }
 
-var deserialize = function(string)
+function deserialize(string)
 {
 	var xml = Ti.XML.parseString(string);
 	if(xml != undefined)
@@ -19,11 +19,11 @@ var deserialize = function(string)
 	return undefined;
 }
 
-var deserializeNode = function(node)
+function deserializeNode(node)
 {
 	var result = {
 		name : node.nodeName,
-		value : Tools.String.trim(node.nodeValue),
+		value : TiTools.String.trim(node.nodeValue),
 		attributes : [],
 		child : []
 	};
@@ -55,7 +55,7 @@ var deserializeNode = function(node)
 		switch(child.nodeType)
 		{
 			case child.TEXT_NODE:
-				result.value += Tools.String.trim(child.nodeValue);
+				result.value += TiTools.String.trim(child.nodeValue);
 			break;
 			default:
 				result.child.push(deserializeNode(child));

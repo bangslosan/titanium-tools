@@ -1,6 +1,6 @@
-var Tools = {
-	Object : require("Tools/Tools.Object"),
-	String : require("Tools/Tools.String")
+var TiTools = {
+	Object : require("TiTools/TiTools.Object"),
+	String : require("TiTools/TiTools.String")
 };
 
 //---------------------------------------------//
@@ -14,10 +14,10 @@ function save(csv)
 		for(var j = 0; j < row.length; ++j)
 		{
 			var cur = row[j];
-			if(Tools.Object.isString(cur) == true)
+			if(TiTools.Object.isString(cur) == true)
 			{
 				cur = cur.replace(/"/g, '""');
-				if((Tools.String.needsQuoting(cur) == true) || (Tools.String.isInt(cur) == true) || (Tools.String.isFloat(cur) == true))
+				if((TiTools.String.needsQuoting(cur) == true) || (TiTools.String.isInt(cur) == true) || (TiTools.String.isFloat(cur) == true))
 				{
 					cur = '"' + cur + '"';
 				}
@@ -26,7 +26,7 @@ function save(csv)
 					cur = '""';
 				}
 			}
-			else if(Tools.Object.isNumber(cur) == true)
+			else if(TiTools.Object.isNumber(cur) == true)
 			{
 				cur = cur.toString(10);
 			}
@@ -63,13 +63,13 @@ function load(str, trim)
 			}
 			else if(trim === true)
 			{
-				field = Tools.String.trim(field);
+				field = TiTools.String.trim(field);
 			}
-			if(Tools.String.isInt(field) == true)
+			if(TiTools.String.isInt(field) == true)
 			{
 				field = parseInt(field, 10);
 			}
-			else if(Tools.String.isFloat(field) == true)
+			else if(TiTools.String.isFloat(field) == true)
 			{
 				field = parseFloat(field, 10);
 			}
@@ -77,7 +77,7 @@ function load(str, trim)
 		return field;
 	};
 	
-	str = Tools.String.chomp(str);
+	str = TiTools.String.chomp(str);
 	for(var i = 0; i < str.length; ++i)
 	{
 		var cur = str.charAt(i);
