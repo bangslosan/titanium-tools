@@ -63,7 +63,6 @@ function currentPosition(params)
 
 	if(Ti.Geolocation.locationServicesEnabled == true)
 	{
-		Ti.Geolocation.addEventListener('location', currentPositionCallback);
 		Ti.Geolocation.getCurrentPosition(currentPositionCallback);
 	}
 	else
@@ -103,11 +102,12 @@ function currentLocation(params)
 					switch(json.status)
 					{
 						case 'OK':
+							var location = {};
 							if(json.results != undefined)
 							{
 								if(json.results.length > 0)
 								{
-									var location = {
+									location = {
 										address : json.results[0].formatted_address,
 										componet : {}
 									};
@@ -118,22 +118,21 @@ function currentLocation(params)
 											location.componet[json.results[0].address_components[i].types[0]] = json.results[0].address_components[i].long_name;
 										}
 									}
-									if(params.success != undefined)
-									{
-										params.success(location);
-									}
-									return;
 								}
+							}
+							if(params.success != undefined)
+							{
+								params.success(location);
 							}
 						break;
 					}
 				}
 				catch(error)
 				{
-				}
-				if(params.failure != undefined)
-				{
-					params.failure(0);
+					if(params.except != undefined)
+					{
+						params.except(error);
+					}
 				}
 			},
 			failure : function(status)
@@ -167,13 +166,13 @@ function paveRoute(params)
 			{
 				try
 				{
+					var route = {
+						name : params.name,
+						points : []
+					};
 					var xml = response.responseXML;
 					if(xml != undefined)
 					{
-						var route = {
-							name : params.name,
-							points : []
-						};
 						var coords = xml.documentElement.getElementsByTagName('LineString');
 						for(var i = 0; i < coords.length; i++)
 						{
@@ -192,19 +191,18 @@ function paveRoute(params)
 								}
 							}
 						}
-						if(params.success != undefined)
-						{
-							params.success(route);
-						}
-						return;
+					}
+					if(params.success != undefined)
+					{
+						params.success(route);
 					}
 				}
 				catch(error)
 				{
-				}
-				if(params.failure != undefined)
-				{
-					params.failure(0);
+					if(params.except != undefined)
+					{
+						params.except(error);
+					}
 				}
 			},
 			failure : function(status)

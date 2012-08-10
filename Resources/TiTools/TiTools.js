@@ -10,6 +10,7 @@ module.exports = {
 	JSON : require("TiTools/TiTools.JSON"),
 	XML : require("TiTools/TiTools.XML"),
 	Utils : require("TiTools/TiTools.Utils"),
+	GeoLocation : require("TiTools/TiTools.GeoLocation"),
 	UI : {
 		Controls : require("TiTools/TiTools.UI.Controls"),
 		Loader : require("TiTools/TiTools.UI.Loader"),
