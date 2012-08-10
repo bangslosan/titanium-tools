@@ -16,19 +16,19 @@ function combine(objectA, objectB)
 	{
 		for(var i in objectB)
 		{
-			if(isObject(objectB[i]) == true)
-			{
-				if(objectA[i] == undefined)
-				{
-					objectA[i] = {};
-				}
-				objectA[i] = combine(objectA[i], objectB[i]);
-			}
-			else if(isArray(objectB[i]) == true)
+			if(isArray(objectB[i]) == true)
 			{
 				if(objectA[i] == undefined)
 				{
 					objectA[i] = [];
+				}
+				objectA[i] = combine(objectA[i], objectB[i]);
+			}
+			else if(isObject(objectB[i]) == true)
+			{
+				if(objectA[i] == undefined)
+				{
+					objectA[i] = {};
 				}
 				objectA[i] = combine(objectA[i], objectB[i]);
 			}

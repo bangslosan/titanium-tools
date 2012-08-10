@@ -24,30 +24,20 @@ function configure(params)
 	}
 }
 
-function currentPosition(params)
+function currentPositionCallback(data)
 {
-	var callback = function(data)
+	if(data != undefined)
 	{
-		if(data != undefined)
+		if(data.success == true)
 		{
-			if(data.success == true)
+			if(params.success != undefined)
 			{
-				if(params.success != undefined)
-				{
-					params.success(
-						{
-							longitude : data.coords.longitude,
-							latitude : data.coords.latitude
-						}
-					);
-				}
-			}
-			else
-			{
-				if(params.failure != undefined)
-				{
-					params.failure();
-				}
+				params.success(
+					{
+						longitude : data.coords.longitude,
+						latitude : data.coords.latitude
+					}
+				);
 			}
 		}
 		else
@@ -57,17 +47,27 @@ function currentPosition(params)
 				params.failure();
 			}
 		}
-		Ti.Geolocation.removeEventListener('location', callback);
-	};
-	
-	if(Ti.Geolocation.locationServicesEnabled == true)
-	{
-		Ti.Geolocation.addEventListener('location', callback);
-		Ti.Geolocation.getCurrentPosition(callback);
 	}
 	else
 	{
-		callback();
+		if(params.failure != undefined)
+		{
+			params.failure();
+		}
+	}
+	Ti.Geolocation.removeEventListener('location', currentPositionCallback);
+};
+
+function currentPosition(params)
+{
+	if(Ti.Geolocation.locationServicesEnabled == true)
+	{
+		Ti.Geolocation.addEventListener('location', currentPositionCallback);
+		Ti.Geolocation.getCurrentPosition(currentPositionCallback);
+	}
+	else
+	{
+		currentPositionCallback();
 	}
 };
 
@@ -94,11 +94,11 @@ function currentLocation(params)
 					language : 'ru'
 				}
 			},
-			success : function(responce)
+			success : function(response)
 			{
 				try
 				{
-					json = TiTools.JSON.deserialize(responce.responseData);
+					json = TiTools.JSON.deserialize(response.responseData);
 					switch(json.status)
 					{
 						case 'OK':
@@ -162,11 +162,11 @@ function paveRoute(params)
 					hl : 'en'
 				}
 			},
-			success : function(responce)
+			success : function(response)
 			{
 				try
 				{
-					var xml = responce.responseXML;
+					var xml = response.responseXML;
 					if(xml != undefined)
 					{
 						var route = {

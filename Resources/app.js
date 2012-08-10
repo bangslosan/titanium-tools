@@ -15,8 +15,6 @@ TiTools.UI.Preset.load(
 
 var main = TiTools.UI.Controls.createWindow(
 	{
-		backgroundColor : '#888888',
-		backgroundImage : '%ResourcesPath%Images/Backgrounds/Dark.png',
 		url : 'viewFirst.js'
 	}
 );

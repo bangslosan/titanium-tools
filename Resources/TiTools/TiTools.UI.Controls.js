@@ -1,10 +1,6 @@
 var TiTools = {
 	Object : require("TiTools/TiTools.Object"),
 	UI : {
-		Ext : {
-			TabGroup : require("TiTools/TiTools.UI.Ext.TabGroup"),
-			Tab : require("TiTools/TiTools.UI.Ext.Tab")
-		},
 		Preset : require("TiTools/TiTools.UI.Preset")
 	}
 };
@@ -12,6 +8,30 @@ var TiTools = {
 //---------------------------------------------//
 
 module.exports = {
+	createAlertDialog : function(params)
+	{
+		return Ti.UI.createAlertDialog(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.AlertDialog'
+				} 
+			)
+		);
+	},
+	createEmailDialog : function(params)
+	{
+		return Ti.UI.createEmailDialog(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.EmailDialog'
+				} 
+			)
+		);
+	},
 	createActivityIndicator : function(params)
 	{
 		return Ti.UI.createActivityIndicator(
@@ -20,6 +40,30 @@ module.exports = {
 				{
 					uid : TiTools.Object.unigueID(),
 					className : 'Ti.UI.ActivityIndicator'
+				} 
+			)
+		);
+	},
+	createTabGroup : function(params)
+	{
+		return Ti.UI.createTabGroup(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.TabGroup'
+				} 
+			)
+		);
+	},
+	createTab : function(params)
+	{
+		return Ti.UI.createTab(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.Tab'
 				} 
 			)
 		);
@@ -45,46 +89,6 @@ module.exports = {
 					uid : TiTools.Object.unigueID(),
 					className : 'Ti.UI.View'
 				} 
-			)
-		);
-	},
-	createTabGroup : function(params)
-	{
-		return Ti.UI.createTabGroup(
-			TiTools.UI.Preset.merge(
-				params,
-				{
-					uid : TiTools.Object.unigueID(),
-					className : 'Ti.UI.TabGroup'
-				} 
-			)
-		);
-	},
-	createTabGroupExt : function(params)
-	{
-		return TiTools.UI.Ext.TabGroup.create(
-			TiTools.UI.Preset.merge(
-				params
-			)
-		);
-	},
-	createTab : function(params)
-	{
-		return Ti.UI.createTab(
-			TiTools.UI.Preset.merge(
-				params,
-				{
-					uid : TiTools.Object.unigueID(),
-					className : 'Ti.UI.Tab'
-				} 
-			)
-		);
-	},
-	createTabExt : function(params)
-	{
-		return TiTools.UI.Ext.Tab.create(
-			TiTools.UI.Preset.merge(
-				params
 			)
 		);
 	},
@@ -136,6 +140,18 @@ module.exports = {
 			)
 		);
 	},
+	createButtonBar : function(params)
+	{
+		return Ti.UI.createButtonBar(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.ButtonBar'
+				} 
+			)
+		);
+	},
 	createLabel : function(params)
 	{
 		return Ti.UI.createLabel(
@@ -155,8 +171,19 @@ module.exports = {
 				params,
 				{
 					uid : TiTools.Object.unigueID(),
-					className : 'Ti.UI.Switch',
-					value : false
+					className : 'Ti.UI.Switch'
+				} 
+			)
+		);
+	},
+	createSlider : function(params)
+	{
+		return Ti.UI.createSlider(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.Slider'
 				} 
 			)
 		);
@@ -233,19 +260,77 @@ module.exports = {
 			)
 		);
 	},
-	Facebook : {
-		createLoginButton : function(params)
-		{
-			return Ti.Facebook.createLoginButton(
-				TiTools.UI.Preset.merge(
-					params,
-					{
-						uid : TiTools.Object.unigueID(),
-						className : 'Ti.Facebook.LoginButton'
-					}
-				)
-			);
-		}
+	createPicker : function(params)
+	{
+		return Ti.UI.createPicker(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.Picker'
+				} 
+			)
+		);
+	},
+	createPickerColumn : function(params)
+	{
+		return Ti.UI.createPickerColumn(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.PickerColumn'
+				}
+			)
+		);
+	},
+	createPickerRow : function(params)
+	{
+		return Ti.UI.createPickerRow(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.PickerRow'
+				}
+			)
+		);
+	},
+	createWebView : function(params)
+	{
+		return Ti.Map.createWebView(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.WebView'
+				}
+			)
+		);
+	},
+	createGoogleMapView : function(params)
+	{
+		return Ti.Map.createView(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.GoogleMapView'
+				}
+			)
+		);
+	},
+	createFacebookLoginButton : function(params)
+	{
+		return Ti.Facebook.createLoginButton(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.FacebookLoginButton'
+				}
+			)
+		);
 	},
 	createPaintView : function(params)
 	{
