@@ -4,6 +4,7 @@ var TiTools = {
 };
 
 //---------------------------------------------//
+
 function configure(params)
 {
 	if(params.message != undefined)
@@ -24,20 +25,30 @@ function configure(params)
 	}
 }
 
-function currentPositionCallback(data)
+function currentPosition(params)
 {
-	if(data != undefined)
+	function currentPositionCallback(data)
 	{
-		if(data.success == true)
+		if(data != undefined)
 		{
-			if(params.success != undefined)
+			if(data.success == true)
 			{
-				params.success(
-					{
-						longitude : data.coords.longitude,
-						latitude : data.coords.latitude
-					}
-				);
+				if(params.success != undefined)
+				{
+					params.success(
+						{
+							longitude : data.coords.longitude,
+							latitude : data.coords.latitude
+						}
+					);
+				}
+			}
+			else
+			{
+				if(params.failure != undefined)
+				{
+					params.failure();
+				}
 			}
 		}
 		else
@@ -47,19 +58,9 @@ function currentPositionCallback(data)
 				params.failure();
 			}
 		}
-	}
-	else
-	{
-		if(params.failure != undefined)
-		{
-			params.failure();
-		}
-	}
-	Ti.Geolocation.removeEventListener('location', currentPositionCallback);
-};
+		Ti.Geolocation.removeEventListener('location', currentPositionCallback);
+	};
 
-function currentPosition(params)
-{
 	if(Ti.Geolocation.locationServicesEnabled == true)
 	{
 		Ti.Geolocation.addEventListener('location', currentPositionCallback);

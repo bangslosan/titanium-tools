@@ -46,22 +46,22 @@ function clone(object)
 	if(object != undefined)
 	{
 		var result = undefined;
-		if(typeof(object.pop) == 'function')
+		if(isArray(object) == true)
 		{
 			result = [];
 		}
-		else
+		else if(isObject(object) == true)
 		{
-			result = {};
+		result = {};
 		}
-		if(result != undefined)
+		if(result !== undefined)
 		{
 			for(var prop in object)
 			{
-				if(object.hasOwnProperty(prop) == true)
+				if(object[prop] !== undefined)
 				{
 					var field = object[prop];
-					if(typeof(field) == 'object')
+					if(isObject(field) == true)
 					{
 						result[prop] = clone(field);
 					}
