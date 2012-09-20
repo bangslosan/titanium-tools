@@ -1,3 +1,9 @@
+var TiTools = {
+	Locate : require("TiTools/TiTools.Locate")
+};
+
+//---------------------------------------------//
+
 function online()
 {
 	return Ti.Network.online;
@@ -7,11 +13,11 @@ function response(params)
 {
 	if(params == undefined)
 	{
-		throw new String(L('TITOOLS_THROW_BAD_PARAMS'));
+		throw new String(TiTools.Locate.getString('TITOOLS_THROW_BAD_PARAMS'));
 	}
 	if(Ti.App.TiToolsHttpHandle != undefined)
 	{
-		throw new String(L('TITOOLS_THROW_HHTP_SINGLETON'));
+		throw new String(TiTools.Locate.getString('TITOOLS_THROW_HHTP_SINGLETON'));
 	}
 	var handle = Ti.Network.createHTTPClient(
 		{
@@ -90,7 +96,7 @@ function response(params)
 			handle.send(params.reguest.post);
 		break;
 		default:
-			throw String(L('TITOOLS_THROW_UNKNOWN_METHOD'));
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_METHOD'));
 	}
 	Ti.App.TiToolsHttpHandle = handle;
 	return Ti.App.TiToolsHttpHandle;

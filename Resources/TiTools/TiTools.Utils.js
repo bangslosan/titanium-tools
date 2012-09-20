@@ -1,3 +1,9 @@
+var TiTools = {
+	Locate : require("TiTools/TiTools.Locate")
+};
+
+//---------------------------------------------//
+
 function sleep(time)
 {
 	var start = new Date().getTime();
@@ -15,10 +21,10 @@ function callPhone(phone)
 {
 	var alert = Ti.UI.createAlertDialog(
 		{
-			message : L('TITOOLS_ALERT_REQUEST_CALL') + '\n' + phone,
+			message : TiTools.Locate.getString('TITOOLS_ALERT_REQUEST_CALL') + '\n' + phone,
 			buttonNames : [
-				L('TITOOLS_ALERT_CALL'),
-				L('TITOOLS_ALERT_NO')
+				TiTools.Locate.getString('TITOOLS_ALERT_CALL'),
+				TiTools.Locate.getString('TITOOLS_ALERT_NO')
 			],
 			cancel : 1
 		}
@@ -28,7 +34,7 @@ function callPhone(phone)
 		{
 			if(event.index == 0)
 			{
-				Ti.Platform.openURL('tel:' + phone.replace(/([^0-9])+/g, ''));
+				Ti.Platform.openURTiTools.Locate.getString('tel:' + phone.replace(/([^0-9])+/g, ''));
 			}
 		}
 	);

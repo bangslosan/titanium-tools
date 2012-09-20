@@ -2,6 +2,7 @@ var TiTools = {
 	Object : require("TiTools/TiTools.Object"),
 	String : require("TiTools/TiTools.String"),
 	Filesystem : require("TiTools/TiTools.Filesystem"),
+	Locate : require("TiTools/TiTools.Locate"),
 	Platform : require("TiTools/TiTools.Platform"),
 	Locate : require("TiTools/TiTools.Locate"),
 	JSON : require("TiTools/TiTools.JSON"),
@@ -24,7 +25,7 @@ function set(name, prefab)
 	{
 		if(list[i].name == name)
 		{
-			throw String(L('TITOOLS_THROW_OVERRIDE_PREFABS') + '\n' + name);
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_OVERRIDE_PREFABS') + '\n' + name);
 		}
 	}
 	list.push(
@@ -79,7 +80,7 @@ function load(params)
 		var current = TiTools.Platform.appropriate(params);
 		if(current == undefined)
 		{
-			throw String(L('TITOOLS_THROW_UNKNOWN_PLATFORM'));
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_PLATFORM'));
 		}
 		load(current);
 	}
@@ -127,12 +128,12 @@ function loadFromFilename(filename)
 		}
 		else
 		{
-			throw String(L('TITOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
 		}
 	}
 	else
 	{
-		throw String(L('TITOOLS_THROW_NOT_FOUND') + '\n' + filename);
+		throw String(TiTools.Locate.getString('TITOOLS_THROW_NOT_FOUND') + '\n' + filename);
 	}
 }
 

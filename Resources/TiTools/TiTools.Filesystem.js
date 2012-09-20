@@ -1,5 +1,6 @@
 var TiTools = {
-	Platform : require("TiTools/TiTools.Platform")
+	Platform : require("TiTools/TiTools.Platform"),
+	Locate : require("TiTools/TiTools.Locate")
 };
 
 //---------------------------------------------//
@@ -36,7 +37,7 @@ function preprocessPath(path)
 		var file = Ti.Filesystem.getFile(result);
 		if(file.exists() == false)
 		{
-			throw String(L('TITOOLS_THROW_FILE_NOT_FOUND') + ': ' + result);
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_FILE_NOT_FOUND') + ': ' + result);
 		}
 	}
 	return result;
