@@ -99,31 +99,31 @@ function loadFromFilename(filename)
 		if(TiTools.String.isSuffix(filename, '.json') == true)
 		{
 			var content = TiTools.JSON.deserialize(blob.text);
-			if(TiTools.Object.isObject(content) == true)
-			{
-				loadFromJSON(content);
-			}
-			else if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) == true)
 			{
 				for(var j = 0; j < content.length; j++)
 				{
 					loadFromJSON(content[j]);
 				}
 			}
+			else if(TiTools.Object.isObject(content) == true)
+			{
+				loadFromJSON(content);
+			}
 		}
 		else if(TiTools.String.isSuffix(filename, '.xml') == true)
 		{
 			var content = TiTools.XML.deserialize(blob.text);
-			if(TiTools.Object.isObject(content) == true)
-			{
-				loadFromXML(content);
-			}
-			else if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) == true)
 			{
 				for(var j = 0; j < content.length; j++)
 				{
 					loadFromXML(content[j]);
 				}
+			}
+			else if(TiTools.Object.isObject(content) == true)
+			{
+				loadFromXML(content);
 			}
 		}
 		else
@@ -139,6 +139,10 @@ function loadFromFilename(filename)
 
 function loadFromJSON(content)
 {
+	if((TiTools.Object.isString(content.name) == false) || (TiTools.Object.isObject(content.prefab) == false))
+	{
+		throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_PREFAB_FORMAT'));
+	}
 	set(content.name, content.prefab);
 }
 

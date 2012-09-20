@@ -73,7 +73,14 @@ function preloadRemove(name)
 
 function preload(params)
 {
-	if(TiTools.Object.isObject(params) == true)
+	if(TiTools.Object.isArray(params) == true)
+	{
+		for(var i = 0; i < params.length; i++)
+		{
+			preload(params[i]);
+		}
+	}
+	else if(TiTools.Object.isObject(params) == true)
 	{
 		var current = TiTools.Platform.appropriate(params);
 		if(current == undefined)
@@ -81,13 +88,6 @@ function preload(params)
 			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_PLATFORM'));
 		}
 		preload(current);
-	}
-	else if(TiTools.Object.isArray(params) == true)
-	{
-		for(var i = 0; i < params.length; i++)
-		{
-			preload(params[i]);
-		}
 	}
 	else if(TiTools.Object.isString(params) == true)
 	{
@@ -104,16 +104,16 @@ function preloadFromFilename(filename)
 		if(TiTools.String.isSuffix(filename, '.json') == true)
 		{
 			var content = TiTools.JSON.deserialize(blob.text);
-			if(TiTools.Object.isObject(content) == true)
-			{
-				preloadFromJSON(content);
-			}
-			else if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) == true)
 			{
 				for(var i = 0; i < content.length; i++)
 				{
-					preloadFromJSON(content[i]);
+					content[i] = preloadFromJSON(content[i]);
 				}
+			}
+			else if(TiTools.Object.isObject(content) == true)
+			{
+				content = preloadFromJSON(content);
 			}
 			preloadSet(filename, content);
 			return content;
@@ -121,16 +121,16 @@ function preloadFromFilename(filename)
 		else if(TiTools.String.isSuffix(filename, '.xml') == true)
 		{
 			var content = TiTools.XML.deserialize(blob.text);
-			if(TiTools.Object.isObject(content) == true)
-			{
-				preloadFromXML(content);
-			}
-			else if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) == true)
 			{
 				for(var i = 0; i < content.length; i++)
 				{
-					preloadFromXML(content[i]);
+					content[i] = preloadFromXML(content[i]);
 				}
+			}
+			else if(TiTools.Object.isObject(content) == true)
+			{
+				content = preloadFromXML(content);
 			}
 			preloadSet(filename, content);
 			return content;
@@ -151,18 +151,22 @@ function preloadFromJSON(content)
 {
 	if(content.prefab != undefined)
 	{
-		var prefab = content.prefab;
-		if(TiTools.Object.isString(prefab) == true)
+		if(TiTools.Object.isString(content.prefab) == true)
 		{
-			var content = TiTools.UI.Prefab.get(prefab);
-			if(content == undefined)
+			var prefab = TiTools.UI.Prefab.get(content.prefab);
+			if(prefab != undefined)
 			{
-				Ti.API.warn(TiTools.Locate.getString('TITOOLS_WARNING_PREFAB_NOT_FOUND') + ': ' + prefab);
+				content = TiTools.Object.combine(TiTools.Object.clone(content), prefab);
 			}
+			else
+			{
+				Ti.API.warn(TiTools.Locate.getString('TITOOLS_WARNING_PREFAB_NOT_FOUND') + ': ' + content.prefab);
+			}
+			delete content.prefab;
 		}
 		else
 		{
-			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_PREFAB_FORMAT') + ': ' + prefab);
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_PREFAB_FORMAT') + ': ' + content.prefab);
 		}
 	}
 	if(content.style != undefined)
@@ -370,7 +374,14 @@ function load(params, owner)
 
 function loadFromController(params, controller, callback)
 {
-	if(TiTools.Object.isObject(params) == true)
+	if(TiTools.Object.isArray(params) == true)
+	{
+		for(var i = 0; i < params.length; i++)
+		{
+			loadFromController(params[i], controller, callback);
+		}
+	}
+	else if(TiTools.Object.isObject(params) == true)
 	{
 		var current = TiTools.Platform.appropriate(params);
 		if(current == undefined)
@@ -378,13 +389,6 @@ function loadFromController(params, controller, callback)
 			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_PLATFORM'));
 		}
 		loadFromController(current, controller, callback);
-	}
-	else if(TiTools.Object.isArray(params) == true)
-	{
-		for(var i = 0; i < params.length; i++)
-		{
-			loadFromController(params[i], controller, callback);
-		}
 	}
 	else if(TiTools.Object.isString(params) == true)
 	{
@@ -403,30 +407,30 @@ function loadFromFilename(filename, controller, callback)
 	{
 		if(TiTools.String.isSuffix(filename, '.json') == true)
 		{
-			if(TiTools.Object.isObject(content) == true)
-			{
-				loadFromJSON(content, controller, callback);
-			}
-			else if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) == true)
 			{
 				for(var i = 0; i < content.length; i++)
 				{
 					loadFromJSON(content[i], controller, callback);
 				}
 			}
+			else if(TiTools.Object.isObject(content) == true)
+			{
+				loadFromJSON(content, controller, callback);
+			}
 		}
 		else if(TiTools.String.isSuffix(filename, '.xml') == true)
 		{
-			if(TiTools.Object.isObject(content) == true)
-			{
-				loadFromXML(content, controller, callback);
-			}
-			else if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) == true)
 			{
 				for(var i = 0; i < content.length; i++)
 				{
 					loadFromXML(content[i], controller, callback);
 				}
+			}
+			else if(TiTools.Object.isObject(content) == true)
+			{
+				loadFromXML(content, controller, callback);
 			}
 		}
 		else
