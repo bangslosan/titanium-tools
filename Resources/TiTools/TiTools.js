@@ -16,6 +16,7 @@ module.exports = {
 	UI : {
 		Controls : require("TiTools/TiTools.UI.Controls"),
 		Loader : require("TiTools/TiTools.UI.Loader"),
+		Prefab : require("TiTools/TiTools.UI.Prefab"),
 		Preset : require("TiTools/TiTools.UI.Preset")
 	}
 };
