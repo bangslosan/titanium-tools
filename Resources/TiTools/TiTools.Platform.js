@@ -6,6 +6,11 @@ var isIOS = (isIPhone == true) || (isIPad == true);
 
 //---------------------------------------------//
 
+var screenWidth = Ti.Platform.displayCaps.platformWidth;
+var screenHeight = Ti.Platform.displayCaps.platformHeight;
+
+//---------------------------------------------//
+
 function appropriate(params)
 {
 	if(isAndroid == true)
@@ -51,5 +56,7 @@ module.exports = {
 	isIPhone : isIPhone,
 	isIPad : isIPad,
 	isIOS : isIOS,
+	screenWidth : screenWidth,
+	screenHeight : screenHeight,
 	appropriate : appropriate
 };

@@ -24,7 +24,7 @@ function set(name, style)
 	{
 		if(list[i].name == name)
 		{
-			throw new Error(L('TI_TOOLS_THROW_OVERRIDE_PRESET') + '\n' + name);
+			throw String(L('TITOOLS_THROW_OVERRIDE_PRESET') + '\n' + name);
 		}
 	}
 	list.push(
@@ -67,30 +67,42 @@ function remove(name)
 
 function merge(params, defaults)
 {
-	var result = TiTools.Object.clone(params);
-	if(TiTools.Object.isArray(result.preset) == true)
+	var result = undefined;
+	if(params != undefined)
 	{
-		for(var i = 0; i < result.preset.length; i++)
+		result = TiTools.Object.clone(params);
+		if(TiTools.Object.isArray(result.preset) == true)
 		{
-			if(TiTools.Object.isString(result.preset[i]) == true)
+			for(var i = 0; i < result.preset.length; i++)
 			{
-				var preset = get(result.preset[i]);
-				if(preset != undefined)
+				if(TiTools.Object.isString(result.preset[i]) == true)
 				{
-					result = TiTools.Object.combine(TiTools.Object.clone(preset), result);
+					var preset = get(result.preset[i]);
+					if(preset != undefined)
+					{
+						result = TiTools.Object.combine(TiTools.Object.clone(preset), result);
+					}
+					else
+					{
+						Ti.API.warn(L('TITOOLS_WARNING_PRESET_NOT_FOUND') + ': ' + result.preset[i]);
+					}
 				}
 			}
+			delete result.preset;
 		}
-		delete result.preset;
-	}
-	else if(TiTools.Object.isString(result.preset) == true)
-	{
-		var preset = get(result.preset);
-		if(preset != undefined)
+		else if(TiTools.Object.isString(result.preset) == true)
 		{
-			result = TiTools.Object.combine(TiTools.Object.clone(preset), result);
+			var preset = get(result.preset);
+			if(preset != undefined)
+			{
+				result = TiTools.Object.combine(TiTools.Object.clone(preset), result);
+			}
+			else
+			{
+				Ti.API.warn(L('TITOOLS_WARNING_PRESET_NOT_FOUND') + ': ' + result.preset);
+			}
+			delete result.preset;
 		}
-		delete result.preset;
 	}
 	if(defaults != undefined)
 	{
@@ -305,6 +317,32 @@ function preprocessArgument(arg)
 		case 'Ti.UI.iPhone.StatusBar.GREY': return Ti.UI.iPhone.StatusBar.GREY;
 		case 'Ti.UI.iPhone.StatusBar.OPAQUE_BLACK': return Ti.UI.iPhone.StatusBar.OPAQUE_BLACK;
 		case 'Ti.UI.iPhone.StatusBar.TRANSLUCENT_BLACK': return Ti.UI.iPhone.StatusBar.TRANSLUCENT_BLACK;
+		case 'Ti.UI.iPhone.SystemButton.ACTION': return Ti.UI.iPhone.SystemButton.ACTION;
+		case 'Ti.UI.iPhone.SystemButton.ACTIVITY': return Ti.UI.iPhone.SystemButton.ACTIVITY;
+		case 'Ti.UI.iPhone.SystemButton.ADD': return Ti.UI.iPhone.SystemButton.ADD;
+		case 'Ti.UI.iPhone.SystemButton.BOOKMARKS': return Ti.UI.iPhone.SystemButton.BOOKMARKS;
+		case 'Ti.UI.iPhone.SystemButton.CAMERA': return Ti.UI.iPhone.SystemButton.CAMERA;
+		case 'Ti.UI.iPhone.SystemButton.CANCEL': return Ti.UI.iPhone.SystemButton.CANCEL;
+		case 'Ti.UI.iPhone.SystemButton.COMPOSE': return Ti.UI.iPhone.SystemButton.COMPOSE;
+		case 'Ti.UI.iPhone.SystemButton.CONTACT_ADD': return Ti.UI.iPhone.SystemButton.CONTACT_ADD;
+		case 'Ti.UI.iPhone.SystemButton.DISCLOSURE': return Ti.UI.iPhone.SystemButton.DISCLOSURE;
+		case 'Ti.UI.iPhone.SystemButton.DONE': return Ti.UI.iPhone.SystemButton.DONE;
+		case 'Ti.UI.iPhone.SystemButton.EDIT': return Ti.UI.iPhone.SystemButton.EDIT;
+		case 'Ti.UI.iPhone.SystemButton.FAST_FORWARD': return Ti.UI.iPhone.SystemButton.FAST_FORWARD;
+		case 'Ti.UI.iPhone.SystemButton.FIXED_SPACE': return Ti.UI.iPhone.SystemButton.FIXED_SPACE;
+		case 'Ti.UI.iPhone.SystemButton.FLEXIBLE_SPACE': return Ti.UI.iPhone.SystemButton.FLEXIBLE_SPACE;
+		case 'Ti.UI.iPhone.SystemButton.INFO_DARK': return Ti.UI.iPhone.SystemButton.INFO_DARK;
+		case 'Ti.UI.iPhone.SystemButton.INFO_LIGHT': return Ti.UI.iPhone.SystemButton.INFO_LIGHT;
+		case 'Ti.UI.iPhone.SystemButton.ORGANIZE': return Ti.UI.iPhone.SystemButton.ORGANIZE;
+		case 'Ti.UI.iPhone.SystemButton.PAUSE': return Ti.UI.iPhone.SystemButton.PAUSE;
+		case 'Ti.UI.iPhone.SystemButton.PLAY': return Ti.UI.iPhone.SystemButton.PLAY;
+		case 'Ti.UI.iPhone.SystemButton.REFRESH': return Ti.UI.iPhone.SystemButton.REFRESH;
+		case 'Ti.UI.iPhone.SystemButton.REPLY': return Ti.UI.iPhone.SystemButton.REPLY;
+		case 'Ti.UI.iPhone.SystemButton.REWIND': return Ti.UI.iPhone.SystemButton.REWIND;
+		case 'Ti.UI.iPhone.SystemButton.SAVE': return Ti.UI.iPhone.SystemButton.SAVE;
+		case 'Ti.UI.iPhone.SystemButton.SPINNER': return Ti.UI.iPhone.SystemButton.SPINNER;
+		case 'Ti.UI.iPhone.SystemButton.STOP': return Ti.UI.iPhone.SystemButton.STOP;
+		case 'Ti.UI.iPhone.SystemButton.TRASH': return Ti.UI.iPhone.SystemButton.TRASH;
 		case 'Ti.UI.iPhone.SystemButtonStyle.PLAIN': return Ti.UI.iPhone.SystemButtonStyle.PLAIN;
 		case 'Ti.UI.iPhone.SystemButtonStyle.DONE': return Ti.UI.iPhone.SystemButtonStyle.DONE;
 		case 'Ti.UI.iPhone.SystemButtonStyle.BAR': return Ti.UI.iPhone.SystemButtonStyle.BAR;
@@ -386,7 +424,7 @@ function load(params)
 		var current = TiTools.Platform.appropriate(params);
 		if(current == undefined)
 		{
-			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
+			throw String(L('TITOOLS_THROW_UNKNOWN_PLATFORM'));
 		}
 		load(current);
 	}
@@ -434,12 +472,12 @@ function loadFromFilename(filename)
 		}
 		else
 		{
-			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
+			throw String(L('TITOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
 		}
 	}
 	else
 	{
-		throw new Error(L('TI_TOOLS_THROW_NOT_FOUND') + '\n' + filename);
+		throw String(L('TITOOLS_THROW_NOT_FOUND') + '\n' + filename);
 	}
 }
 

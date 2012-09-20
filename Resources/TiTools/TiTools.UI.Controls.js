@@ -188,6 +188,18 @@ module.exports = {
 			)
 		);
 	},
+	createSearchBar : function(params)
+	{
+		return Ti.UI.createSearchBar(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.SearchBar'
+				} 
+			)
+		);
+	},
 	createProgressBar : function(params)
 	{
 		return Ti.UI.createProgressBar(

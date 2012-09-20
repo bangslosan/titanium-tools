@@ -73,147 +73,167 @@ function currentPosition(params)
 
 function currentLocation(params)
 {
-	TiTools.HTTP.response(
-		{
-			reguest : {
-				method : 'GET',
-				url : 'http://maps.googleapis.com/maps/api/geocode/json',
-				header : [
-					{
-						type : 'Content-Type',
-						value : 'application/json; charset=utf-8'
-					},
-					{
-						type : 'Cache-Control',
-						value : 'no-cache, must-revalidate'
-					}
-				],
-				args : {
-					latlng : params.position.latitude + ',' + params.position.longitude,
-					sensor : 'false',
-					language : 'ru'
-				}
-			},
-			success : function(response)
+	try
+	{
+		TiTools.HTTP.response(
 			{
-				try
+				reguest : {
+					method : 'GET',
+					url : 'http://maps.googleapis.com/maps/api/geocode/json',
+					header : [
+						{
+							type : 'Content-Type',
+							value : 'application/json; charset=utf-8'
+						},
+						{
+							type : 'Cache-Control',
+							value : 'no-cache, must-revalidate'
+						}
+					],
+					args : {
+						latlng : params.position.latitude + ',' + params.position.longitude,
+						sensor : 'false',
+						language : 'ru'
+					}
+				},
+				success : function(response)
 				{
-					json = TiTools.JSON.deserialize(response.responseData);
-					switch(json.status)
+					try
 					{
-						case 'OK':
-							var location = {};
-							if(json.results != undefined)
-							{
-								if(json.results.length > 0)
+						json = TiTools.JSON.deserialize(response.responseData);
+						switch(json.status)
+						{
+							case 'OK':
+								var location = {};
+								if(json.results != undefined)
 								{
-									location = {
-										address : json.results[0].formatted_address,
-										componet : {}
-									};
-									for(var i = 0; i < json.results[0].address_components.length; i++)
+									if(json.results.length > 0)
 									{
-										if(json.results[0].address_components[i].types.length > 0)
+										location = {
+											address : json.results[0].formatted_address,
+											componet : {}
+										};
+										for(var i = 0; i < json.results[0].address_components.length; i++)
 										{
-											location.componet[json.results[0].address_components[i].types[0]] = json.results[0].address_components[i].long_name;
+											if(json.results[0].address_components[i].types.length > 0)
+											{
+												location.componet[json.results[0].address_components[i].types[0]] = json.results[0].address_components[i].long_name;
+											}
 										}
 									}
 								}
-							}
-							if(params.success != undefined)
-							{
-								params.success(location);
-							}
-						break;
+								if(params.success != undefined)
+								{
+									params.success(location);
+								}
+							break;
+						}
 					}
-				}
-				catch(error)
-				{
-					if(params.except != undefined)
+					catch(error)
 					{
-						params.except(error);
+						if(params.except != undefined)
+						{
+							params.except(error);
+						}
 					}
-				}
-			},
-			failure : function(status)
-			{
-				if(params.failure != undefined)
+				},
+				failure : function(status)
 				{
-					params.failure(status);
+					if(params.failure != undefined)
+					{
+						params.failure(status);
+					}
 				}
 			}
+		);
+	}
+	catch(error)
+	{
+		if(params.failure != undefined)
+		{
+			params.failure();
 		}
-	);
+	}
 }
 
 function paveRoute(params)
 {
-	TiTools.HTTP.response(
-		{
-			reguest : {
-				method : 'GET',
-				url : 'http://maps.google.com/',
-				args : {
-					saddr : params.a.latitude + ',' + params.a.longitude,
-					daddr : params.b.latitude + ',' + params.b.longitude,
-					output : 'kml',
-					doflg : 'ptk',
-					dirflg : 'w',
-					hl : 'en'
-				}
-			},
-			success : function(response)
+	try
+	{
+		TiTools.HTTP.response(
 			{
-				try
+				reguest : {
+					method : 'GET',
+					url : 'http://maps.google.com/',
+					args : {
+						saddr : params.a.latitude + ',' + params.a.longitude,
+						daddr : params.b.latitude + ',' + params.b.longitude,
+						output : 'kml',
+						doflg : 'ptk',
+						dirflg : 'w',
+						hl : 'en'
+					}
+				},
+				success : function(response)
 				{
-					var route = {
-						name : params.name,
-						points : []
-					};
-					var xml = response.responseXML;
-					if(xml != undefined)
+					try
 					{
-						var coords = xml.documentElement.getElementsByTagName('LineString');
-						for(var i = 0; i < coords.length; i++)
+						var route = {
+							name : params.name,
+							points : []
+						};
+						var xml = response.responseXML;
+						if(xml != undefined)
 						{
-							var lines = coords.item(i).firstChild.text.split(' ');
-							for(var j = 0; j < lines.length; j++)
+							var coords = xml.documentElement.getElementsByTagName('LineString');
+							for(var i = 0; i < coords.length; i++)
 							{
-								var points = lines[j].split(',');
-								if((points[0] != undefined) && (points[1] != undefined))
+								var lines = coords.item(i).firstChild.text.split(' ');
+								for(var j = 0; j < lines.length; j++)
 								{
-									route.points.push(
-										{
-											longitude : points[0],
-											latitude : points[1]
-										}
-									);
+									var points = lines[j].split(',');
+									if((points[0] != undefined) && (points[1] != undefined))
+									{
+										route.points.push(
+											{
+												longitude : points[0],
+												latitude : points[1]
+											}
+										);
+									}
 								}
 							}
 						}
+						if(params.success != undefined)
+						{
+							params.success(route);
+						}
 					}
-					if(params.success != undefined)
+					catch(error)
 					{
-						params.success(route);
+						if(params.except != undefined)
+						{
+							params.except(error);
+						}
 					}
-				}
-				catch(error)
+				},
+				failure : function(status)
 				{
-					if(params.except != undefined)
+					if(params.failure != undefined)
 					{
-						params.except(error);
+						params.failure(status);
 					}
-				}
-			},
-			failure : function(status)
-			{
-				if(params.failure != undefined)
-				{
-					params.failure(status);
 				}
 			}
+		);
+	}
+	catch(error)
+	{
+		if(params.failure != undefined)
+		{
+			params.failure();
 		}
-	);
+	}
 }
 
 function distance(a, b)

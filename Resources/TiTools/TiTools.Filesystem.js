@@ -21,7 +21,7 @@ if(Ti.App.TiToolsFilesystemPath == undefined)
 
 function preprocessPath(path)
 {
-	path = path.replace(/%([A-Za-z_]*)%/g,
+	var result = path.replace(/%([A-Za-z_]*)%/g,
 		function(str, p1, p2, offset, s)
 		{
 			switch(p1)
@@ -31,7 +31,15 @@ function preprocessPath(path)
 			return p1;
 		}
 	);
-	return path;
+	if(result != path)
+	{
+		var file = Ti.Filesystem.getFile(result);
+		if(file.exists() == false)
+		{
+			throw String(L('TITOOLS_THROW_FILE_NOT_FOUND') + ': ' + result);
+		}
+	}
+	return result;
 }
 
 //---------------------------------------------//
