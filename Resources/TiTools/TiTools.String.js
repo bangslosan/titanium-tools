@@ -80,7 +80,7 @@ function isSuffix(str, suffix)
 
 function replaceAll(str, search, replace)
 {
-  return str.split(search).join(replace);
+	return str.split(search).join(replace);
 }
 
 //---------------------------------------------//

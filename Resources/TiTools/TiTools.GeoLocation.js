@@ -5,6 +5,18 @@ var TiTools = {
 
 //---------------------------------------------//
 
+/**
+	@brief
+		Конфигурирование сервиса геолокации
+	@param params : {
+			message : String, // Текст сообщения при запросе у пользователя разрешиния
+			provider : Number, // Метод
+			accuracy : Number, // Точность отределения
+			distanceFilter : Number, // Минимальная чувствительность срабатыния
+		}
+	@return
+		Обьект Ti.Filesystem.File
+**/
 function configure(params)
 {
 	if(params.message != undefined)
@@ -25,44 +37,51 @@ function configure(params)
 	}
 }
 
+//---------------------------------------------//
+
 function currentPosition(params)
 {
-	function currentPositionCallback(data)
+	function currentPositionCallback(event)
 	{
-		if(data != undefined)
+		try
 		{
-			if(data.success == true)
+			if(event.success == true)
 			{
 				if(params.success != undefined)
 				{
 					params.success(
 						{
-							longitude : data.coords.longitude,
-							latitude : data.coords.latitude
+							longitude : event.coords.longitude,
+							latitude : event.coords.latitude
 						}
 					);
 				}
 			}
-			else
+			else if(event.error != undefined)
 			{
 				if(params.failure != undefined)
 				{
-					params.failure();
+					params.failure(
+						{
+							code : event.code,
+							message : event.error
+						}
+					);
 				}
 			}
 		}
-		else
+		catch(error)
 		{
-			if(params.failure != undefined)
+			if(params.except != undefined)
 			{
-				params.failure();
+				params.except(error);
 			}
 		}
 		Ti.Geolocation.removeEventListener('location', currentPositionCallback);
 	};
-
 	if(Ti.Geolocation.locationServicesEnabled == true)
 	{
+		Ti.Geolocation.addEventListener('location', currentPositionCallback);
 		Ti.Geolocation.getCurrentPosition(currentPositionCallback);
 	}
 	else
@@ -70,6 +89,8 @@ function currentPosition(params)
 		currentPositionCallback();
 	}
 };
+
+//---------------------------------------------//
 
 function currentLocation(params)
 {
@@ -156,6 +177,8 @@ function currentLocation(params)
 	}
 }
 
+//---------------------------------------------//
+
 function paveRoute(params)
 {
 	try
@@ -235,6 +258,8 @@ function paveRoute(params)
 		}
 	}
 }
+
+//---------------------------------------------//
 
 function distance(a, b)
 {

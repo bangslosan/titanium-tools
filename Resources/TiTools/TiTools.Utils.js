@@ -34,7 +34,11 @@ function callPhone(phone)
 		{
 			if(event.index == 0)
 			{
-				Ti.Platform.openURTiTools.Locate.getString('tel:' + phone.replace(/([^0-9])+/g, ''));
+				var number = phone.replace(/([^0-9])+/g, '');
+				if(number.length > 0)
+				{
+					Ti.Platform.openURL('tel:' + number);
+				}
 			}
 		}
 	);

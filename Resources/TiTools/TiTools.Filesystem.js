@@ -20,6 +20,15 @@ if(Ti.App.TiToolsFilesystemPath == undefined)
 
 //---------------------------------------------//
 
+/**
+	@brief
+		Замена предопределенных путей на абсолютный путь.
+		Если файла не сужествует до сработает исключение
+	@param path
+		Путь до файла
+	@return
+		Абсолютный путь до файла
+**/
 function preprocessPath(path)
 {
 	var result = path.replace(/%([A-Za-z_]*)%/g,
@@ -34,10 +43,13 @@ function preprocessPath(path)
 	);
 	if(result != path)
 	{
-		var file = Ti.Filesystem.getFile(result);
-		if(file.exists() == false)
+		if(TiTools.Platform.isSimulator == true)
 		{
-			throw String(TiTools.Locate.getString('TITOOLS_THROW_FILE_NOT_FOUND') + ': ' + result);
+			var file = Ti.Filesystem.getFile(result);
+			if(file.exists() == false)
+			{
+				throw String(TiTools.Locate.getString('TITOOLS_THROW_FILE_NOT_FOUND') + ': ' + result);
+			}
 		}
 	}
 	return result;
@@ -45,6 +57,15 @@ function preprocessPath(path)
 
 //---------------------------------------------//
 
+/**
+	@brief
+		Получение указателя на файл.
+		Если файла не сужествует до сработает исключение
+	@param path
+		Путь до файла
+	@return
+		Обьект Ti.Filesystem.File
+**/
 function getFile(path)
 {
 	return Ti.Filesystem.getFile(preprocessPath(path));

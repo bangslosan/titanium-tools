@@ -5,7 +5,15 @@ var TiTools = {
 
 //---------------------------------------------//
 
-function save(csv)
+/**
+	@brief
+		Серилизация обьекта в строку
+	@param csv
+		Двумерный массив обьектов
+	@return
+		Форматированную строку в формате CSV
+**/
+function serialize(csv)
 {
 	var out = "";
 	for(var i = 0; i < csv.length; ++i)
@@ -45,7 +53,19 @@ function save(csv)
 	return out;
 }
 
-function load(str, trim)
+//---------------------------------------------//
+
+/**
+	@brief
+		Десерилизация строки в обьект
+	@param str
+		Форматированная строка в формате CSV
+	@param trim
+		Требуется ли нормализовывать значения в ячейках
+	@return
+		Двумерный массив обьектов
+**/
+function deserialize(str, trim)
 {
 	var inQuote = false;
 	var fieldQuoted = false;
@@ -53,7 +73,7 @@ function load(str, trim)
 	var row = [];
 	var out = [];
 	
-	function loadField(field)
+	function deserializeField(field)
 	{
 		if(fieldQuoted !== true)
 		{
@@ -83,7 +103,7 @@ function load(str, trim)
 		var cur = str.charAt(i);
 		if((inQuote === false) && ((cur === ',') || (cur === '\n')))
 		{
-			field = loadField(field);
+			field = deserializeField(field);
 			row.push(field);
 			if(cur === '\n')
 			{
@@ -121,7 +141,7 @@ function load(str, trim)
 			}
 		}
 	}
-	field = loadField(field);
+	field = deserializeField(field);
 	row.push(field);
 	out.push(row);
 	return out;
@@ -130,6 +150,6 @@ function load(str, trim)
 //---------------------------------------------//
 
 module.exports = {
-	save : save,
-	load : load
+	serialize : serialize,
+	deserialize : deserialize
 };
