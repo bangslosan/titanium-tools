@@ -81,7 +81,6 @@ function currentPosition(params)
 	};
 	if(Ti.Geolocation.locationServicesEnabled == true)
 	{
-		Ti.Geolocation.addEventListener('location', currentPositionCallback);
 		Ti.Geolocation.getCurrentPosition(currentPositionCallback);
 	}
 	else
@@ -121,7 +120,7 @@ function currentLocation(params)
 				{
 					try
 					{
-						json = TiTools.JSON.deserialize(response.responseData);
+						json = TiTools.JSON.deserialize(response.responseText);
 						switch(json.status)
 						{
 							case 'OK':

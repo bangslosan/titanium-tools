@@ -19,6 +19,14 @@ function response(params)
 	{
 		throw new String(TiTools.Locate.getString('TITOOLS_THROW_HHTP_SINGLETON'));
 	}
+	switch(params.reguest.method)
+	{
+		case 'GET':
+		case 'POST':
+		break;
+		default:
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_METHOD'));
+	}
 	var handle = Ti.Network.createHTTPClient(
 		{
 			timeout : 30000,
@@ -66,17 +74,15 @@ function response(params)
 			var item = params.reguest.args[i];
 			if(item != undefined)
 			{
-				if(count == 0)
-				{
-					url += '?' + i + '=' + item;
-				}
-				else
-				{
-					url += '&' + i + '=' + item;
-				}
+				url += (((count == 0) ? '?' : '&') + i + '=' + item);
 				count++;
 			}
 		}
+	}
+	switch(params.reguest.method)
+	{
+		case 'GET': handle.open('GET', url); break;
+		case 'POST': handle.open('POST', url); break;
 	}
 	if(params.reguest.header != undefined)
 	{
@@ -87,16 +93,8 @@ function response(params)
 	}
 	switch(params.reguest.method)
 	{
-		case 'GET':
-			handle.open('GET', url);
-			handle.send();
-		break;
-		case 'POST':
-			handle.open('POST', url);
-			handle.send(params.reguest.post);
-		break;
-		default:
-			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_METHOD'));
+		case 'GET': handle.send(); break;
+		case 'POST': handle.send(params.reguest.post); break;
 	}
 	Ti.App.TiToolsHttpHandle = handle;
 	return Ti.App.TiToolsHttpHandle;
