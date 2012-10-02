@@ -18,6 +18,10 @@ if(TiTools.Object.isFunction(getStringProc) == false)
 
 function getString(key, defaults)
 {
+	if(defaults == undefined)
+	{
+		defaults = key;
+	}
 	if(TiTools.Object.isFunction(getStringProc) == true)
 	{
 		return getStringProc(key, defaults);

@@ -15,8 +15,7 @@
 					"View.Classic"
 				],
 				"margin" : 8,
-				"height" : 100,
-				"image" : "%ResourcesPath%Images/Glyph/Icon/High/Key.png"
+				"height" : 100
 			}
 		}
 	]

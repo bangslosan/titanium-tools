@@ -2,18 +2,21 @@ var TiTools = {
 	Object : require("TiTools/TiTools.Object"),
 	String : require("TiTools/TiTools.String"),
 	Filesystem : require("TiTools/TiTools.Filesystem"),
+	Locate : require("TiTools/TiTools.Locate"),
 	Platform : require("TiTools/TiTools.Platform"),
 	JSON : require("TiTools/TiTools.JSON"),
 	XML : require("TiTools/TiTools.XML"),
+	Utils : require("TiTools/TiTools.Utils"),
 	UI : {
 		Controls : require("TiTools/TiTools.UI.Controls"),
+		Prefab : require("TiTools/TiTools.UI.Prefab"),
 		Preset : require("TiTools/TiTools.UI.Preset")
 	}
 };
 
 //---------------------------------------------//
 
-if(Ti.App.TiToolsLoaders == undefined)
+if(Ti.App.TiToolsLoaders === undefined)
 {
 	Ti.App.TiToolsLoaders = [];
 }
@@ -27,7 +30,7 @@ function preloadSet(name, cache)
 	{
 		if(list[i].name == name)
 		{
-			throw new Error(L('TI_TOOLS_THROW_OVERRIDE_PRESET') + '\n' + name);
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_OVERRIDE_PRESET') + '\n' + name);
 		}
 	}
 	list.push(
@@ -70,21 +73,21 @@ function preloadRemove(name)
 
 function preload(params)
 {
-	if(TiTools.Object.isObject(params) == true)
-	{
-		var current = TiTools.Platform.appropriate(params);
-		if(current == undefined)
-		{
-			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
-		}
-		preload(current);
-	}
-	else if(TiTools.Object.isArray(params) == true)
+	if(TiTools.Object.isArray(params) == true)
 	{
 		for(var i = 0; i < params.length; i++)
 		{
 			preload(params[i]);
 		}
+	}
+	else if(TiTools.Object.isObject(params) == true)
+	{
+		var current = TiTools.Platform.appropriate(params);
+		if(current == undefined)
+		{
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_PLATFORM'));
+		}
+		preload(current);
 	}
 	else if(TiTools.Object.isString(params) == true)
 	{
@@ -101,16 +104,16 @@ function preloadFromFilename(filename)
 		if(TiTools.String.isSuffix(filename, '.json') == true)
 		{
 			var content = TiTools.JSON.deserialize(blob.text);
-			if(TiTools.Object.isObject(content) == true)
-			{
-				preloadFromJSON(content);
-			}
-			else if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) == true)
 			{
 				for(var i = 0; i < content.length; i++)
 				{
-					preloadFromJSON(content[i]);
+					content[i] = preloadFromJSON(content[i]);
 				}
+			}
+			else if(TiTools.Object.isObject(content) == true)
+			{
+				content = preloadFromJSON(content);
 			}
 			preloadSet(filename, content);
 			return content;
@@ -118,85 +121,106 @@ function preloadFromFilename(filename)
 		else if(TiTools.String.isSuffix(filename, '.xml') == true)
 		{
 			var content = TiTools.XML.deserialize(blob.text);
-			if(TiTools.Object.isObject(content) == true)
-			{
-				preloadFromXML(content);
-			}
-			else if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) == true)
 			{
 				for(var i = 0; i < content.length; i++)
 				{
-					preloadFromXML(content[i]);
+					content[i] = preloadFromXML(content[i]);
 				}
+			}
+			else if(TiTools.Object.isObject(content) == true)
+			{
+				content = preloadFromXML(content);
 			}
 			preloadSet(filename, content);
 			return content;
 		}
 		else
 		{
-			throw String(L('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
 		}
 	}
 	else
 	{
-		throw String(L('TI_TOOLS_THROW_NOT_FOUND') + '\n' + filename);
+		throw String(TiTools.Locate.getString('TITOOLS_THROW_NOT_FOUND') + '\n' + filename);
 	}
 	return undefined;
 }
 
 function preloadFromJSON(content)
 {
+	if(content.prefab != undefined)
+	{
+		if(TiTools.Object.isString(content.prefab) == true)
+		{
+			var prefab = TiTools.UI.Prefab.get(content.prefab);
+			if(prefab != undefined)
+			{
+				content = TiTools.Object.combine(TiTools.Object.clone(content), prefab);
+			}
+			else
+			{
+				Ti.API.warn(TiTools.Locate.getString('TITOOLS_WARNING_PREFAB_NOT_FOUND') + ': ' + content.prefab);
+			}
+			delete content.prefab;
+		}
+		else
+		{
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_PREFAB_FORMAT') + ': ' + content.prefab);
+		}
+	}
 	if(content.style != undefined)
 	{
 		content.style = TiTools.UI.Preset.merge(content.style);
 	}
 	if(content.root != undefined)
 	{
-		preloadFromJSON(content.root);
+		content.root = preloadFromJSON(content.root);
 	}
 	if(content.header != undefined)
 	{
-		preloadFromJSON(content.header);
+		content.header = preloadFromJSON(content.header);
 	}
 	if(content.footer != undefined)
 	{
-		preloadFromJSON(content.footer);
+		content.footer = preloadFromJSON(content.footer);
 	}
 	if(content.tabs != undefined)
 	{
 		for(var i = 0; i < content.tabs.length; i++)
 		{
-			preloadFromJSON(content.tabs[i]);
+			content.tabs[i] = preloadFromJSON(content.tabs[i]);
 		}
 	}
 	if(content.sections != undefined)
 	{
 		for(var i = 0; i < content.sections.length; i++)
 		{
-			preloadFromJSON(content.sections[i]);
+			content.sections[i] = preloadFromJSON(content.sections[i]);
 		}
 	}
 	if(content.columns != undefined)
 	{
 		for(var i = 0; i < content.columns.length; i++)
 		{
-			preloadFromJSON(content.columns[i]);
+			content.columns[i] = preloadFromJSON(content.columns[i]);
 		}
 	}
 	if(content.rows != undefined)
 	{
 		for(var i = 0; i < content.rows.length; i++)
 		{
-			preloadFromJSON(content.rows[i]);
+			content.rows[i] = preloadFromJSON(content.rows[i]);
 		}
 	}
 	if(content.subviews != undefined)
 	{
 		for(var i = 0; i < content.subviews.length; i++)
 		{
-			preloadFromJSON(content.subviews[i]);
+			content.subviews[i] = preloadFromJSON(content.subviews[i]);
 		}
 	}
+	return content;
 }
 
 function preloadFromXML(content)
@@ -209,103 +233,138 @@ function load(params, owner)
 {
 	var controller = {};
 	var callback = undefined;
-	switch(owner.className)
+	if(owner != undefined)
 	{
-		case 'Ti.UI.TabGroup':
-			callback = function(child)
-			{
-				switch(child.className)
+		switch(owner.className)
+		{
+			case 'Ti.UI.TabGroup':
+			case 'TiUITabGroupProxy':
+				callback = function(child)
 				{
-					case 'Ti.UI.Tab':
-						child.parent = owner;
-						owner.addTab(child);
-					break;
-					default:
-						child.parent = owner;
-						owner.add(child);
-					break;
-				}
-			};
-		break;
-		case 'Ti.UI.Tab':
-			callback = function(child)
-			{
-				switch(child.className)
+					switch(child.className)
+					{
+						case 'Ti.UI.Tab':
+						case 'TiUITabProxy':
+							child.superview = owner;
+							owner.addTab(child);
+						break;
+						default:
+							child.superview = owner;
+							owner.add(child);
+						break;
+					}
+				};
+			break;
+			case 'Ti.UI.Tab':
+			case 'TiUITabProxy':
+				callback = function(child)
 				{
-					case 'Ti.UI.Window':
-						child.parent = owner;
-						child.window = owner;
-					break;
-					default:
-						child.parent = owner;
-						owner.add(child);
-					break;
-				}
-			};
-		break;
-		case 'Ti.UI.Window':
-			callback = function(child)
-			{
-				switch(child.className)
+					switch(child.className)
+					{
+						case 'Ti.UI.Window':
+						case 'TiUIWindowProxy':
+							child.superview = owner;
+							child.window = owner;
+						break;
+						default:
+							child.superview = owner;
+							owner.add(child);
+						break;
+					}
+				};
+			break;
+			case 'Ti.UI.Window':
+			case 'TiUIWindowProxy':
+				callback = function(child)
 				{
-					case 'Ti.UI.TabGroup':
-					break;
-					default:
-						child.parent = owner;
-						owner.add(child);
-					break;
-				}
-			};
-		break;
-		case 'Ti.UI.ScrollableView':
-			callback = function(child)
-			{
-				child.parent = owner;
-				child.addView(owner);
-			};
-		break;
-		case 'Ti.UI.TableView':
-			callback = function(child)
-			{
-				switch(child.className)
+					switch(child.className)
+					{
+						case 'Ti.UI.TabGroup':
+						case 'TiUITabGroupProxy':
+						break;
+						default:
+							child.superview = owner;
+							owner.add(child);
+						break;
+					}
+				};
+			break;
+			case 'Ti.UI.ScrollableView':
+			case 'TiUIScrollableViewProxy':
+				callback = function(child)
 				{
-					case 'Ti.UI.TableViewSection':
-						child.parent = owner;
-						
-						var sections = owner.data;
-						sections.push(child);
-						owner.data = sections;
-					break;
-					case 'Ti.UI.TableViewRow':
-						child.parent = owner;
-						owner.appendRow(child);
-					break;
-					default:
-						throw String(L('TI_TOOLS_THROW_UNSUPPORTED_CLASS_NAME'));
-				}
-			};
-		break;
-		case 'Ti.UI.TableViewSection':
-			callback = function(child)
-			{
-				switch(child.className)
+					child.superview = owner;
+					owner.addView(child);
+				};
+			break;
+			case 'Ti.UI.TableView':
+			case 'TiUITableViewProxy':
+				callback = function(child)
 				{
-					case 'Ti.UI.TableViewRow':
-						child.parent = owner;
-						owner.add(child);
-					break;
-					default:
-						throw String(L('TI_TOOLS_THROW_UNSUPPORTED_CLASS_NAME'));
-				}
-			};
-		break;
-		default:
-			callback = function(child)
-			{
-				child.parent = owner;
-				owner.add(child);
-			};
-		break;
+					switch(child.className)
+					{
+						case 'Ti.UI.SearchBar':
+						case 'TiUISearchBarProxy':
+							child.superview = owner;
+							owner.search = child;
+						break;
+						case 'Ti.UI.TableViewSection':
+						case 'TiUITableViewSectionProxy':
+							child.superview = owner;
+							var sections = owner.data;
+							sections.push(child);
+							owner.data = sections;
+						break;
+						case 'Ti.UI.TableViewRow':
+						case 'TiUITableViewRowProxy':
+							child.superview = owner;
+							owner.appendRow(child);
+						break;
+						default:
+							throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
+					}
+				};
+			break;
+			case 'Ti.UI.TableViewSection':
+			case 'TiUITableViewSectionProxy':
+				callback = function(child)
+				{
+					switch(child.className)
+					{
+						case 'Ti.UI.TableViewRow':
+						case 'TiUITableViewRowProxy':
+							child.superview = owner;
+							owner.add(child);
+						break;
+						default:
+							throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
+					}
+				};
+			break;
+			case 'Ti.UI.PickerColumn':
+			case 'TiUIPickerColumnProxy':
+				callback = function(child)
+				{
+					switch(child.className)
+					{
+						case 'Ti.UI.PickerRow':
+						case 'TiUIPickerRowProxy':
+							child.superview = owner;
+							owner.addRow(child);
+						break;
+						default:
+							throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
+					}
+				};
+			break;
+			default:
+				callback = function(child)
+				{
+					child.superview = owner;
+					owner.add(child);
+				};
+			break;
+		}
 	}
 	loadFromController(params, controller, callback);
 	return controller;
@@ -315,21 +374,21 @@ function load(params, owner)
 
 function loadFromController(params, controller, callback)
 {
-	if(TiTools.Object.isObject(params) == true)
-	{
-		var current = TiTools.Platform.appropriate(params);
-		if(current == undefined)
-		{
-			throw new Error(L('TI_TOOLS_THROW_UNKNOWN_PLATFORM'));
-		}
-		loadFromController(current, controller, callback);
-	}
-	else if(TiTools.Object.isArray(params) == true)
+	if(TiTools.Object.isArray(params) == true)
 	{
 		for(var i = 0; i < params.length; i++)
 		{
 			loadFromController(params[i], controller, callback);
 		}
+	}
+	else if(TiTools.Object.isObject(params) == true)
+	{
+		var current = TiTools.Platform.appropriate(params);
+		if(current == undefined)
+		{
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_PLATFORM'));
+		}
+		loadFromController(current, controller, callback);
 	}
 	else if(TiTools.Object.isString(params) == true)
 	{
@@ -348,35 +407,35 @@ function loadFromFilename(filename, controller, callback)
 	{
 		if(TiTools.String.isSuffix(filename, '.json') == true)
 		{
-			if(TiTools.Object.isObject(content) == true)
-			{
-				loadFromJSON(content, controller, callback);
-			}
-			else if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) == true)
 			{
 				for(var i = 0; i < content.length; i++)
 				{
 					loadFromJSON(content[i], controller, callback);
 				}
 			}
+			else if(TiTools.Object.isObject(content) == true)
+			{
+				loadFromJSON(content, controller, callback);
+			}
 		}
 		else if(TiTools.String.isSuffix(filename, '.xml') == true)
 		{
-			if(TiTools.Object.isObject(content) == true)
-			{
-				loadFromXML(content, controller, callback);
-			}
-			else if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) == true)
 			{
 				for(var i = 0; i < content.length; i++)
 				{
 					loadFromXML(content[i], controller, callback);
 				}
 			}
+			else if(TiTools.Object.isObject(content) == true)
+			{
+				loadFromXML(content, controller, callback);
+			}
 		}
 		else
 		{
-			throw String(L('TI_TOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
 		}
 	}
 	return controller;
@@ -388,21 +447,36 @@ function loadFromJSON(content, controller, callback)
 	switch(content.style.className)
 	{
 		case 'Ti.UI.AlertDialog':
+		case 'TiUIAlertDialogProxy':
 			outlet = TiTools.UI.Controls.createAlertDialog(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.EmailDialog':
+		case 'TiUIEmailDialogProxy':
 			outlet = TiTools.UI.Controls.createEmailDialog(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.ActivityIndicator':
+		case 'TiUIActivityIndicatorProxy':
 			outlet = TiTools.UI.Controls.createActivityIndicator(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.TabGroup':
+		case 'TiUITabGroupProxy':
 			outlet = TiTools.UI.Controls.createTabGroup(content.style);
-			callback(outlet);
-			
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 			if(content.tabs != undefined)
 			{
 				for(var i = 0; i < content.tabs.length; i++)
@@ -415,11 +489,12 @@ function loadFromJSON(content, controller, callback)
 							switch(child.className)
 							{
 								case 'Ti.UI.Tab':
-									child.parent = outlet;
+								case 'TiUITabProxy':
+									child.superview = outlet;
 									outlet.addTab(child);
 								break;
 								default:
-									throw String(L('TI_TOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
+									throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
 							}
 						}
 					);
@@ -434,7 +509,7 @@ function loadFromJSON(content, controller, callback)
 						controller,
 						function(child)
 						{
-							child.parent = outlet;
+							child.superview = outlet;
 							outlet.add(child);
 						}
 					);
@@ -442,9 +517,12 @@ function loadFromJSON(content, controller, callback)
 			}
 		break;
 		case 'Ti.UI.Tab':
+		case 'TiUITabProxy':
 			outlet = TiTools.UI.Controls.createTab(content.style);
-			callback(outlet);
-			
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 			if(content.root != undefined)
 			{
 				loadFromJSON(
@@ -455,11 +533,12 @@ function loadFromJSON(content, controller, callback)
 						switch(child.className)
 						{
 							case 'Ti.UI.Window':
-								child.parent = outlet;
+							case 'TiUIWindowProxy':
+								child.superview = outlet;
 								outlet.window = child;
 							break;
 							default:
-								throw String(L('TI_TOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
+								throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
 						}
 					}
 				);
@@ -473,7 +552,7 @@ function loadFromJSON(content, controller, callback)
 						controller,
 						function(child)
 						{
-							child.parent = outlet;
+							child.superview = outlet;
 							outlet.add(child);
 						}
 					);
@@ -481,13 +560,20 @@ function loadFromJSON(content, controller, callback)
 			}
 		break;
 		case 'Ti.UI.Window':
+		case 'TiUIWindowProxy':
 			outlet = TiTools.UI.Controls.createWindow(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.View':
+		case 'TiUIViewProxy':
 			outlet = TiTools.UI.Controls.createView(content.style);
-			callback(outlet);
-			
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 			if(content.subviews != undefined)
 			{
 				for(var i = 0; i < content.subviews.length; i++)
@@ -497,7 +583,7 @@ function loadFromJSON(content, controller, callback)
 						controller,
 						function(child)
 						{
-							child.parent = outlet;
+							child.superview = outlet;
 							outlet.add(child);
 						}
 					);
@@ -505,9 +591,12 @@ function loadFromJSON(content, controller, callback)
 			}
 		break;
 		case 'Ti.UI.ScrollView':
+		case 'TiUIScrollViewProxy':
 			outlet = TiTools.UI.Controls.createScrollView(content.style);
-			callback(outlet);
-			
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 			if(content.subviews != undefined)
 			{
 				for(var i = 0; i < content.subviews.length; i++)
@@ -517,7 +606,7 @@ function loadFromJSON(content, controller, callback)
 						controller,
 						function(child)
 						{
-							child.parent = outlet;
+							child.superview = outlet;
 							outlet.add(child);
 						}
 					);
@@ -525,9 +614,12 @@ function loadFromJSON(content, controller, callback)
 			}
 		break;
 		case 'Ti.UI.ScrollableView':
+		case 'TiUIScrollableViewProxy':
 			outlet = TiTools.UI.Controls.createScrollableView(content.style);
-			callback(outlet);
-			
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 			if(content.subviews != undefined)
 			{
 				for(var i = 0; i < content.subviews.length; i++)
@@ -537,7 +629,7 @@ function loadFromJSON(content, controller, callback)
 						controller,
 						function(child)
 						{
-							child.parent = outlet;
+							child.superview = outlet;
 							outlet.addView(child);
 						}
 					);
@@ -545,45 +637,92 @@ function loadFromJSON(content, controller, callback)
 			}
 		break;
 		case 'Ti.UI.ImageView':
+		case 'TiUIImageViewProxy':
 			outlet = TiTools.UI.Controls.createImageView(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.Button':
+		case 'TiUIButtonProxy':
 			outlet = TiTools.UI.Controls.createButton(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.ButtonBar':
+		case 'TiUIButtonBarProxy':
 			outlet = TiTools.UI.Controls.createButtonBar(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.Label':
+		case 'TiUILabelProxy':
 			outlet = TiTools.UI.Controls.createLabel(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.Switch':
+		case 'TiUISwitchProxy':
 			outlet = TiTools.UI.Controls.createSwitch(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.Slider':
+		case 'TiUISliderProxy':
 			outlet = TiTools.UI.Controls.createSlider(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
+		break;
+		case 'Ti.UI.SearchBar':
+		case 'TiUISearchBarProxy':
+			outlet = TiTools.UI.Controls.createSearchBar(content.style);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.ProgressBar':
+		case 'TiUIProgressBarProxy':
 			outlet = TiTools.UI.Controls.createProgressBar(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.TextField':
+		case 'TiUITextFieldProxy':
 			outlet = TiTools.UI.Controls.createTextField(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.TextArea':
+		case 'TiUITextAreaProxy':
 			outlet = TiTools.UI.Controls.createTextArea(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.TableView':
+		case 'TiUITableViewProxy':
 			outlet = TiTools.UI.Controls.createTableView(content.style);
-			callback(outlet);
-			
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 			if(content.header != undefined)
 			{
 				loadFromJSON(
@@ -591,7 +730,7 @@ function loadFromJSON(content, controller, callback)
 					controller,
 					function(child)
 					{
-						child.parent = outlet;
+						child.superview = outlet;
 						outlet.headerView = child;
 					}
 				);
@@ -603,8 +742,20 @@ function loadFromJSON(content, controller, callback)
 					controller,
 					function(child)
 					{
-						child.parent = outlet;
+						child.superview = outlet;
 						outlet.footerView = child;
+					}
+				);
+			}
+			if(content.search != undefined)
+			{
+				loadFromJSON(
+					content.search,
+					controller,
+					function(child)
+					{
+						child.superview = outlet;
+						outlet.search = child;
 					}
 				);
 			}
@@ -622,10 +773,11 @@ function loadFromJSON(content, controller, callback)
 								switch(child.className)
 								{
 									case 'Ti.UI.TableViewSection':
-										child.parent = outlet;
+									case 'TiUITableViewSectionProxy':
+										child.superview = outlet;
 									break;
 									default:
-										throw String(L('TI_TOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
+										throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
 								}
 							}
 						)
@@ -635,6 +787,7 @@ function loadFromJSON(content, controller, callback)
 			}
 			else if(content.rows != undefined)
 			{
+				var rows = [];
 				for(var i = 0; i < content.rows.length; i++)
 				{
 					loadFromJSON(
@@ -645,21 +798,26 @@ function loadFromJSON(content, controller, callback)
 							switch(child.className)
 							{
 								case 'Ti.UI.TableViewRow':
-									child.parent = outlet;
-									outlet.appendRow(child);
+								case 'TiUITableViewRowProxy':
+									child.superview = outlet;
+									rows.push(child);
 								break;
 								default:
-									throw String(L('TI_TOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
+									throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
 							}
 						}
 					);
 				}
+				outlet.appendRow(rows);
 			}
 		break;
 		case 'Ti.UI.TableViewSection':
+		case 'TiUITableViewSectionProxy':
 			outlet = TiTools.UI.Controls.createTableViewSection(content.style);
-			callback(outlet);
-			
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 			if(content.header != undefined)
 			{
 				loadFromJSON(
@@ -667,7 +825,7 @@ function loadFromJSON(content, controller, callback)
 					controller,
 					function(child)
 					{
-						child.parent = outlet;
+						child.superview = outlet;
 						outlet.headerView = child;
 					}
 				);
@@ -679,7 +837,7 @@ function loadFromJSON(content, controller, callback)
 					controller,
 					function(child)
 					{
-						child.parent = outlet;
+						child.superview = outlet;
 						outlet.footerView = child;
 					}
 				);
@@ -696,11 +854,12 @@ function loadFromJSON(content, controller, callback)
 							switch(child.className)
 							{
 								case 'Ti.UI.TableViewRow':
-									child.parent = outlet;
+								case 'TiUITableViewRowProxy':
+									child.superview = outlet;
 									outlet.add(child);
 								break;
 								default:
-									throw String(L('TI_TOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
+									throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
 							}
 						}
 					);
@@ -708,9 +867,12 @@ function loadFromJSON(content, controller, callback)
 			}
 		break;
 		case 'Ti.UI.TableViewRow':
+		case 'TiUITableViewRowProxy':
 			outlet = TiTools.UI.Controls.createTableViewRow(content.style);
-			callback(outlet);
-			
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 			if(content.subviews != undefined)
 			{
 				for(var i = 0; i < content.subviews.length; i++)
@@ -720,7 +882,7 @@ function loadFromJSON(content, controller, callback)
 						controller,
 						function(child)
 						{
-							child.parent = outlet;
+							child.superview = outlet;
 							outlet.add(child);
 						}
 					);
@@ -728,9 +890,12 @@ function loadFromJSON(content, controller, callback)
 			}
 		break;
 		case 'Ti.UI.Picker':
+		case 'TiUIPickerProxy':
 			outlet = TiTools.UI.Controls.createPicker(content.style);
-			callback(outlet);
-			
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 			if(content.columns != undefined)
 			{
 				for(var i = 0; i < content.columns.length; i++)
@@ -743,33 +908,35 @@ function loadFromJSON(content, controller, callback)
 							switch(child.className)
 							{
 								case 'Ti.UI.PickerColumn':
-									child.parent = outlet;
+								case 'TiUIPickerColumnProxy':
+									child.superview = outlet;
 									outlet.add(child);
 								break;
 								default:
-									throw String(L('TI_TOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
+									throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
 							}
 						}
 					);
 				}
 			}
-			if(content.rows != undefined)
+			else if(content.rows != undefined)
 			{
-				for(var i = 0; i < content.columns.length; i++)
+				for(var i = 0; i < content.rows.length; i++)
 				{
 					loadFromJSON(
-						content.columns[i],
+						content.rows[i],
 						controller,
 						function(child)
 						{
 							switch(child.className)
 							{
 								case 'Ti.UI.PickerRow':
-									child.parent = outlet;
+								case 'TiUIPickerRowProxy':
+									child.superview = outlet;
 									outlet.add(child);
 								break;
 								default:
-									throw String(L('TI_TOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
+									throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
 							}
 						}
 					);
@@ -777,9 +944,12 @@ function loadFromJSON(content, controller, callback)
 			}
 		break;
 		case 'Ti.UI.PickerColumn':
+		case 'TiUIPickerColumnProxy':
 			outlet = TiTools.UI.Controls.createPickerColumn(content.style);
-			callback(outlet);
-			
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 			if(content.rows != undefined)
 			{
 				for(var i = 0; i < content.rows.length; i++)
@@ -792,11 +962,12 @@ function loadFromJSON(content, controller, callback)
 							switch(child.className)
 							{
 								case 'Ti.UI.PickerRow':
-									child.parent = outlet;
+								case 'TiUIPickerRowProxy':
+									child.superview = outlet;
 									outlet.addRow(child);
 								break;
 								default:
-									throw String(L('TI_TOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
+									throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_CLASS_NAME') + ': ' + child.className);
 							}
 						}
 					);
@@ -804,27 +975,44 @@ function loadFromJSON(content, controller, callback)
 			}
 		break;
 		case 'Ti.UI.PickerRow':
+		case 'TiUIPickerRowProxy':
 			outlet = TiTools.UI.Controls.createPickerRow(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.WebView':
+		case 'TiUIWebViewProxy':
 			outlet = TiTools.UI.Controls.createWebView(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.GoogleMapView':
 			outlet = TiTools.UI.Controls.createGoogleMapView(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.FacebookLoginButton':
 			outlet = TiTools.UI.Controls.createFacebookLoginButton(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.PaintView':
 			outlet = TiTools.UI.Controls.createPaintView(content.style);
-			callback(outlet);
+			if(callback != undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		default:
-			throw String(L('TI_TOOLS_THROW_UNKNOWN_CLASS_NAME') + '\n' + content.style.className);
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_CLASS_NAME') + '\n' + content.style.className);
 	}
 	if(content.outlet != undefined)
 	{

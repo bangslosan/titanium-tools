@@ -35,12 +35,22 @@ function trim(str)
 	return "";
 }
 
-function padding(str, length)
+function paddingLeft(str, length, chars)
 {
 	str = String(str);
 	while(str.length < length)
 	{
-		str = '0' + str;
+		str = chars + str;
+	}
+	return str;
+};
+
+function paddingRight(str, length, chars)
+{
+	str = String(str);
+	while(str.length < length)
+	{
+		str = str + chars;
 	}
 	return str;
 };
@@ -50,7 +60,7 @@ function chomp(str)
 	var last = str.length - 1;
 	if(str.charAt(last) !== '\n')
 	{
-		return s;
+		return str;
 	}
 	else
 	{
@@ -70,7 +80,7 @@ function isSuffix(str, suffix)
 
 function replaceAll(str, search, replace)
 {
-  return str.split(search).join(replace);
+	return str.split(search).join(replace);
 }
 
 //---------------------------------------------//
@@ -80,7 +90,8 @@ module.exports = {
 	isFloat : isFloat,
 	needsQuoting : needsQuoting,
 	trim : trim,
-	padding : padding,
+	paddingLeft : paddingLeft,
+	paddingRight : paddingRight,
 	chomp : chomp,
 	isPrefix : isPrefix,
 	isSuffix : isSuffix,
