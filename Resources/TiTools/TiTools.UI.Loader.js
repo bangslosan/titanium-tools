@@ -156,7 +156,7 @@ function preloadFromJSON(content)
 			var prefab = TiTools.UI.Prefab.get(content.prefab);
 			if(prefab != undefined)
 			{
-				content = TiTools.Object.combine(TiTools.Object.clone(content), prefab);
+				content = TiTools.Object.combine(content, prefab);
 			}
 			else
 			{

@@ -10,35 +10,37 @@ function unigueID()
 	Ti.App.TiToolsLastUnigueID = Ti.App.TiToolsLastUnigueID + 1;
 	return Ti.App.TiToolsLastUnigueID;
 }
+
 function combine(objectA, objectB)
 {
+	var result = clone(objectA);
 	if(objectB != undefined)
 	{
 		for(var i in objectB)
 		{
 			if(isArray(objectB[i]) == true)
 			{
-				if(objectA[i] == undefined)
+				if(result[i] == undefined)
 				{
-					objectA[i] = [];
+					result[i] = [];
 				}
-				objectA[i] = combine(objectA[i], objectB[i]);
+				result[i] = combine(result[i], objectB[i]);
 			}
 			else if(isObject(objectB[i]) == true)
 			{
-				if(objectA[i] == undefined)
+				if(result[i] == undefined)
 				{
-					objectA[i] = {};
+					result[i] = {};
 				}
-				objectA[i] = combine(objectA[i], objectB[i]);
+				result[i] = combine(result[i], objectB[i]);
 			}
 			else
 			{
-				objectA[i] = objectB[i];
+				result[i] = objectB[i];
 			}
 		}
 	}
-	return objectA;
+	return result;
 }
 
 function clone(object)
@@ -95,7 +97,7 @@ function isObject(object)
 	{
 		return false;
 	}
-	return (Object.prototype.toString.call(object) == '[object Object]');
+	return (object.toString() == '[object Object]');
 }
 
 function isArray(object)

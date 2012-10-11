@@ -96,7 +96,7 @@ function merge(params, defaults)
 			var preset = get(result.preset);
 			if(preset != undefined)
 			{
-				result = TiTools.Object.combine(TiTools.Object.clone(preset), result);
+				result = TiTools.Object.combine(preset, result);
 			}
 			else
 			{
@@ -107,7 +107,7 @@ function merge(params, defaults)
 	}
 	if(defaults != undefined)
 	{
-		result = TiTools.Object.combine(TiTools.Object.clone(defaults), result);
+		result = TiTools.Object.combine(defaults, result);
 	}
 	return preprocess(result);
 }
@@ -411,7 +411,7 @@ function applyByName(object, name)
 				var preset = get(name[i]);
 				if(preset != undefined)
 				{
-					params = TiTools.Object.combine(TiTools.Object.clone(preset), params);
+					params = TiTools.Object.combine(preset, params);
 				}
 			}
 		}
@@ -421,7 +421,7 @@ function applyByName(object, name)
 		var preset = get(name);
 		if(preset != undefined)
 		{
-			params = TiTools.Object.combine(TiTools.Object.clone(preset), params);
+			params = TiTools.Object.combine(preset, params);
 		}
 	}
 	apply(object, preprocess(params));
