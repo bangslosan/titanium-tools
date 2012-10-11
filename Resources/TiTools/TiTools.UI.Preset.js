@@ -11,7 +11,7 @@ var TiTools = {
 
 //---------------------------------------------//
 
-if(Ti.App.TiToolsPresets == undefined)
+if(Ti.App.TiToolsPresets === undefined)
 {
 	Ti.App.TiToolsPresets = [];
 }
@@ -23,7 +23,7 @@ function set(name, style)
 	var list = Ti.App.TiToolsPresets;
 	for(var i = 0; i < list.length; i++)
 	{
-		if(list[i].name == name)
+		if(list[i].name === name)
 		{
 			throw String(TiTools.Locate.getString('TITOOLS_THROW_OVERRIDE_PRESET') + '\n' + name);
 		}
@@ -42,7 +42,7 @@ function get(name)
 	var list = Ti.App.TiToolsPresets;
 	for(var i = 0; i < list.length; i++)
 	{
-		if(list[i].name == name)
+		if(list[i].name === name)
 		{
 			return list[i].style;
 		}
@@ -55,7 +55,7 @@ function remove(name)
 	var list = Ti.App.TiToolsPresets;
 	for(var i = 0; i < list.length; i++)
 	{
-		if(list[i].name == name)
+		if(list[i].name === name)
 		{
 			list.splice(i, 1);
 			break;
@@ -72,14 +72,14 @@ function merge(params, defaults)
 	if(params != undefined)
 	{
 		result = TiTools.Object.clone(params);
-		if(TiTools.Object.isArray(result.preset) == true)
+		if(TiTools.Object.isArray(result.preset) === true)
 		{
 			for(var i = 0; i < result.preset.length; i++)
 			{
-				if(TiTools.Object.isString(result.preset[i]) == true)
+				if(TiTools.Object.isString(result.preset[i]) === true)
 				{
 					var preset = get(result.preset[i]);
-					if(preset != undefined)
+					if(preset !== undefined)
 					{
 						result = TiTools.Object.combine(TiTools.Object.clone(preset), result);
 					}
@@ -91,10 +91,10 @@ function merge(params, defaults)
 			}
 			delete result.preset;
 		}
-		else if(TiTools.Object.isString(result.preset) == true)
+		else if(TiTools.Object.isString(result.preset) === true)
 		{
 			var preset = get(result.preset);
-			if(preset != undefined)
+			if(preset !== undefined)
 			{
 				result = TiTools.Object.combine(TiTools.Object.clone(preset), result);
 			}
@@ -116,22 +116,22 @@ function preprocess(params)
 {
 	for(var i in params)
 	{
-		if(TiTools.Object.isArray(params[i]) == true)
+		if(TiTools.Object.isArray(params[i]) === true)
 		{
 			params[i] = preprocess(params[i]);
 		}
-		else if(TiTools.Object.isObject(params[i]) == true)
+		else if(TiTools.Object.isObject(params[i]) === true)
 		{
 			params[i] = preprocess(params[i]);
 		}
-		else if(TiTools.Object.isString(params[i]) == true)
+		else if(TiTools.Object.isString(params[i]) === true)
 		{
 			params[i] = preprocessArgument(params[i]);
 		}
 	}
-	if(params.margin != undefined)
+	if(params.margin !== undefined)
 	{
-		if(TiTools.Object.isString(params.margin) == true)
+		if(TiTools.Object.isString(params.margin) === true)
 		{
 			var margins = params.margin.split(' ');
 			if(margins.length > 0)
@@ -139,38 +139,38 @@ function preprocess(params)
 				switch(margins.length)
 				{
 					case 2:
-						params.top = (params.top != undefined) ? params.top : Number(margins[0]);
-						params.right = (params.right != undefined) ? params.right : Number(margins[1]);
-						params.bottom = (params.bottom != undefined) ? params.bottom : Number(margins[0]);
-						params.left = (params.left != undefined) ? params.left : Number(margins[1]);
+						params.top = (params.top !== undefined) ? params.top : Number(margins[0]);
+						params.right = (params.right !== undefined) ? params.right : Number(margins[1]);
+						params.bottom = (params.bottom !== undefined) ? params.bottom : Number(margins[0]);
+						params.left = (params.left !== undefined) ? params.left : Number(margins[1]);
 					break;
 					case 3:
-						params.top = (params.top != undefined) ? params.top : Number(margins[0]);
-						params.right = (params.right != undefined) ? params.right : Number(margins[1]);
-						params.bottom = (params.bottom != undefined) ? params.bottom : Number(margins[2]);
-						params.left = (params.left != undefined) ? params.left : Number(margins[1]);
+						params.top = (params.top !== undefined) ? params.top : Number(margins[0]);
+						params.right = (params.right !== undefined) ? params.right : Number(margins[1]);
+						params.bottom = (params.bottom !== undefined) ? params.bottom : Number(margins[2]);
+						params.left = (params.left !== undefined) ? params.left : Number(margins[1]);
 					break;
 					case 4:
-						params.top = (params.top != undefined) ? params.top : Number(margins[0]);
-						params.right = (params.right != undefined) ? params.right : Number(margins[1]);
-						params.bottom = (params.bottom != undefined) ? params.bottom : Number(margins[2]);
-						params.left = (params.left != undefined) ? params.left : Number(margins[3]);
+						params.top = (params.top !== undefined) ? params.top : Number(margins[0]);
+						params.right = (params.right !== undefined) ? params.right : Number(margins[1]);
+						params.bottom = (params.bottom !== undefined) ? params.bottom : Number(margins[2]);
+						params.left = (params.left !== undefined) ? params.left : Number(margins[3]);
 					break;
 					default:
-						params.top = (params.top != undefined) ? params.top : Number(margins[0]);
-						params.right = (params.right != undefined) ? params.right : Number(margins[0]);
-						params.bottom = (params.bottom != undefined) ? params.bottom : Number(margins[0]);
-						params.left = (params.left != undefined) ? params.left : Number(margins[0]);
+						params.top = (params.top !== undefined) ? params.top : Number(margins[0]);
+						params.right = (params.right !== undefined) ? params.right : Number(margins[0]);
+						params.bottom = (params.bottom !== undefined) ? params.bottom : Number(margins[0]);
+						params.left = (params.left !== undefined) ? params.left : Number(margins[0]);
 					break;
 				}
 			}
 		}
-		else if(TiTools.Object.isNumber(params.margin) == true)
+		else if(TiTools.Object.isNumber(params.margin) === true)
 		{
-			params.top = (params.top != undefined) ? params.top : params.margin;
-			params.right = (params.right != undefined) ? params.right : params.margin;
-			params.bottom = (params.bottom != undefined) ? params.bottom : params.margin;
-			params.left = (params.left != undefined) ? params.left : params.margin;
+			params.top = (params.top !== undefined) ? params.top : params.margin;
+			params.right = (params.right !== undefined) ? params.right : params.margin;
+			params.bottom = (params.bottom !== undefined) ? params.bottom : params.margin;
+			params.left = (params.left !== undefined) ? params.left : params.margin;
 		}
 		delete params.margin;
 	}
@@ -356,8 +356,45 @@ function preprocessArgument(arg)
 		case 'Ti.UI.iPhone.TableViewStyle.PLAIN': return Ti.UI.iPhone.TableViewStyle.PLAIN;
 		case 'Ti.UI.iPhone.TableViewSeparatorStyle.NONE': return Ti.UI.iPhone.TableViewSeparatorStyle.NONE;
 		case 'Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE': return Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE;
+		
+		case 'Ti.UI.Android.LINKIFY_ALL': return Ti.UI.Android.LINKIFY_ALL;
+		case 'Ti.UI.Android.LINKIFY_EMAIL_ADDRESSES': return Ti.UI.Android.LINKIFY_EMAIL_ADDRESSES;
+		case 'Ti.UI.Android.LINKIFY_MAP_ADDRESSES': return Ti.UI.Android.LINKIFY_MAP_ADDRESSES;
+		case 'Ti.UI.Android.LINKIFY_PHONE_NUMBERS': return Ti.UI.Android.LINKIFY_PHONE_NUMBERS;
+		case 'Ti.UI.Android.LINKIFY_WEB_URLS': return Ti.UI.Android.LINKIFY_WEB_URLS;
+		case 'Ti.UI.Android.PIXEL_FORMAT_A_8': return Ti.UI.Android.PIXEL_FORMAT_A_8;
+		case 'Ti.UI.Android.PIXEL_FORMAT_LA_88': return Ti.UI.Android.PIXEL_FORMAT_LA_88;
+		case 'Ti.UI.Android.PIXEL_FORMAT_L_8': return Ti.UI.Android.PIXEL_FORMAT_L_8;
+		case 'Ti.UI.Android.PIXEL_FORMAT_OPAQUE': return Ti.UI.Android.PIXEL_FORMAT_OPAQUE;
+		case 'Ti.UI.Android.PIXEL_FORMAT_RGBA_4444': return Ti.UI.Android.PIXEL_FORMAT_RGBA_4444;
+		case 'Ti.UI.Android.PIXEL_FORMAT_RGBA_5551': return Ti.UI.Android.PIXEL_FORMAT_RGBA_5551;
+		case 'Ti.UI.Android.PIXEL_FORMAT_RGBA_8888': return Ti.UI.Android.PIXEL_FORMAT_RGBA_8888;
+		case 'Ti.UI.Android.PIXEL_FORMAT_RGBX_8888': return Ti.UI.Android.PIXEL_FORMAT_RGBX_8888;
+		case 'Ti.UI.Android.PIXEL_FORMAT_RGB_332': return Ti.UI.Android.PIXEL_FORMAT_RGB_332;
+		case 'Ti.UI.Android.PIXEL_FORMAT_RGB_565': return Ti.UI.Android.PIXEL_FORMAT_RGB_565;
+		case 'Ti.UI.Android.PIXEL_FORMAT_RGB_888': return Ti.UI.Android.PIXEL_FORMAT_RGB_888;
+		case 'Ti.UI.Android.PIXEL_FORMAT_TRANSLUCENT': return Ti.UI.Android.PIXEL_FORMAT_TRANSLUCENT;
+		case 'Ti.UI.Android.PIXEL_FORMAT_TRANSPARENT': return Ti.UI.Android.PIXEL_FORMAT_TRANSPARENT;
+		case 'Ti.UI.Android.PIXEL_FORMAT_UNKNOWN': return Ti.UI.Android.PIXEL_FORMAT_UNKNOWN;
+		case 'Ti.UI.Android.SOFT_INPUT_ADJUST_PAN': return Ti.UI.Android.SOFT_INPUT_ADJUST_PAN;
+		case 'Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE': return Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE;
+		case 'Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED': return Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED;
+		case 'Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN': return Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN;
+		case 'Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE': return Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE;
+		case 'Ti.UI.Android.SOFT_INPUT_STATE_HIDDEN': return Ti.UI.Android.SOFT_INPUT_STATE_HIDDEN;
+		case 'Ti.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED': return Ti.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED;
+		case 'Ti.UI.Android.SOFT_INPUT_STATE_VISIBLE': return Ti.UI.Android.SOFT_INPUT_STATE_VISIBLE;
+		case 'Ti.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS': return Ti.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
+		case 'Ti.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS': return Ti.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS;
+		case 'Ti.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS': return Ti.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS;
+		case 'Ti.UI.Android.SWITCH_STYLE_CHECKBOX': return Ti.UI.Android.SWITCH_STYLE_CHECKBOX;
+		case 'Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON': return Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON;
+		case 'Ti.UI.Android.WEBVIEW_PLUGINS_OFF': return Ti.UI.Android.WEBVIEW_PLUGINS_OFF;
+		case 'Ti.UI.Android.WEBVIEW_PLUGINS_ON': return Ti.UI.Android.WEBVIEW_PLUGINS_ON;
+		case 'Ti.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND': return Ti.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND;
+		default: return TiTools.Filesystem.preprocessPath(arg);
 	}
-	return TiTools.Filesystem.preprocessPath(arg);
+	return arg;
 }
 
 //---------------------------------------------//
@@ -365,24 +402,24 @@ function preprocessArgument(arg)
 function applyByName(object, name)
 {
 	var params = {};
-	if(TiTools.Object.isArray(name) == true)
+	if(TiTools.Object.isArray(name) === true)
 	{
 		for(var i = 0; i < name.length; i++)
 		{
-			if(TiTools.Object.isString(name[i]) == true)
+			if(TiTools.Object.isString(name[i]) === true)
 			{
 				var preset = get(name[i]);
-				if(preset != undefined)
+				if(preset !== undefined)
 				{
 					params = TiTools.Object.combine(TiTools.Object.clone(preset), params);
 				}
 			}
 		}
 	}
-	else if(TiTools.Object.isString(name) == true)
+	else if(TiTools.Object.isString(name) === true)
 	{
 		var preset = get(name);
-		if(preset != undefined)
+		if(preset !== undefined)
 		{
 			params = TiTools.Object.combine(TiTools.Object.clone(preset), params);
 		}
@@ -394,11 +431,11 @@ function apply(object, params)
 {
 	for(var i in params)
 	{
-		if(TiTools.Object.isArray(params[i]) == true)
+		if(TiTools.Object.isArray(params[i]) === true)
 		{
 			apply(object[i], params[i]);
 		}
-		else if(TiTools.Object.isObject(params[i]) == true)
+		else if(TiTools.Object.isObject(params[i]) === true)
 		{
 			apply(object[i], params[i]);
 		}
@@ -413,23 +450,23 @@ function apply(object, params)
 
 function load(params)
 {
-	if(TiTools.Object.isArray(params) == true)
+	if(TiTools.Object.isArray(params) === true)
 	{
 		for(var i = 0; i < params.length; i++)
 		{
 			load(params[i]);
 		}
 	}
-	else if(TiTools.Object.isObject(params) == true)
+	else if(TiTools.Object.isObject(params) === true)
 	{
 		var current = TiTools.Platform.appropriate(params);
-		if(current == undefined)
+		if(current === undefined)
 		{
 			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_PLATFORM'));
 		}
 		load(current);
 	}
-	else if(TiTools.Object.isString(params) == true)
+	else if(TiTools.Object.isString(params) === true)
 	{
 		loadFromFilename(params);
 	}
@@ -438,35 +475,35 @@ function load(params)
 function loadFromFilename(filename)
 {
 	var file = TiTools.Filesystem.getFile(filename);
-	if(file.exists() == true)
+	if(file.exists() === true)
 	{
 		var blob = file.read();
-		if(TiTools.String.isSuffix(filename, '.json') == true)
+		if(TiTools.String.isSuffix(filename, '.json') === true)
 		{
 			var content = TiTools.JSON.deserialize(blob.text);
-			if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) === true)
 			{
 				for(var j = 0; j < content.length; j++)
 				{
 					loadFromJSON(content[j]);
 				}
 			}
-			else if(TiTools.Object.isObject(content) == true)
+			else if(TiTools.Object.isObject(content) === true)
 			{
 				loadFromJSON(content);
 			}
 		}
-		else if(TiTools.String.isSuffix(filename, '.xml') == true)
+		else if(TiTools.String.isSuffix(filename, '.xml') === true)
 		{
 			var content = TiTools.XML.deserialize(blob.text);
-			if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) === true)
 			{
 				for(var j = 0; j < content.length; j++)
 				{
 					loadFromXML(content[j]);
 				}
 			}
-			else if(TiTools.Object.isObject(content) == true)
+			else if(TiTools.Object.isObject(content) === true)
 			{
 				loadFromXML(content);
 			}
@@ -484,7 +521,7 @@ function loadFromFilename(filename)
 
 function loadFromJSON(content)
 {
-	if((TiTools.Object.isString(content.name) == false) || (TiTools.Object.isObject(content.style) == false))
+	if((TiTools.Object.isString(content.name) === false) || (TiTools.Object.isObject(content.style) === false))
 	{
 		throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_PRESET_FORMAT'));
 	}

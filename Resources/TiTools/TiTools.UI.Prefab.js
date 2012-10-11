@@ -11,7 +11,7 @@ var TiTools = {
 
 //---------------------------------------------//
 
-if(Ti.App.TiToolsPrefabs == undefined)
+if(Ti.App.TiToolsPrefabs === undefined)
 {
 	Ti.App.TiToolsPrefabs = [];
 }
@@ -23,7 +23,7 @@ function set(name, prefab)
 	var list = Ti.App.TiToolsPrefabs;
 	for(var i = 0; i < list.length; i++)
 	{
-		if(list[i].name == name)
+		if(list[i].name === name)
 		{
 			throw String(TiTools.Locate.getString('TITOOLS_THROW_OVERRIDE_PREFABS') + '\n' + name);
 		}
@@ -42,7 +42,7 @@ function get(name)
 	var list = Ti.App.TiToolsPrefabs;
 	for(var i = 0; i < list.length; i++)
 	{
-		if(list[i].name == name)
+		if(list[i].name === name)
 		{
 			return list[i].prefab;
 		}
@@ -55,7 +55,7 @@ function remove(name)
 	var list = Ti.App.TiToolsPrefabs;
 	for(var i = 0; i < list.length; i++)
 	{
-		if(list[i].name == name)
+		if(list[i].name === name)
 		{
 			list.splice(i, 1);
 			break;
@@ -68,23 +68,23 @@ function remove(name)
 
 function load(params)
 {
-	if(TiTools.Object.isArray(params) == true)
+	if(TiTools.Object.isArray(params) === true)
 	{
 		for(var i = 0; i < params.length; i++)
 		{
 			load(params[i]);
 		}
 	}
-	else if(TiTools.Object.isObject(params) == true)
+	else if(TiTools.Object.isObject(params) === true)
 	{
 		var current = TiTools.Platform.appropriate(params);
-		if(current == undefined)
+		if(current === undefined)
 		{
 			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_PLATFORM'));
 		}
 		load(current);
 	}
-	else if(TiTools.Object.isString(params) == true)
+	else if(TiTools.Object.isString(params) === true)
 	{
 		loadFromFilename(params);
 	}
@@ -93,35 +93,35 @@ function load(params)
 function loadFromFilename(filename)
 {
 	var file = TiTools.Filesystem.getFile(filename);
-	if(file.exists() == true)
+	if(file.exists() === true)
 	{
 		var blob = file.read();
-		if(TiTools.String.isSuffix(filename, '.json') == true)
+		if(TiTools.String.isSuffix(filename, '.json') === true)
 		{
 			var content = TiTools.JSON.deserialize(blob.text);
-			if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) === true)
 			{
 				for(var j = 0; j < content.length; j++)
 				{
 					loadFromJSON(content[j]);
 				}
 			}
-			else if(TiTools.Object.isObject(content) == true)
+			else if(TiTools.Object.isObject(content) === true)
 			{
 				loadFromJSON(content);
 			}
 		}
-		else if(TiTools.String.isSuffix(filename, '.xml') == true)
+		else if(TiTools.String.isSuffix(filename, '.xml') === true)
 		{
 			var content = TiTools.XML.deserialize(blob.text);
-			if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) === true)
 			{
 				for(var j = 0; j < content.length; j++)
 				{
 					loadFromXML(content[j]);
 				}
 			}
-			else if(TiTools.Object.isObject(content) == true)
+			else if(TiTools.Object.isObject(content) === true)
 			{
 				loadFromXML(content);
 			}
@@ -139,7 +139,7 @@ function loadFromFilename(filename)
 
 function loadFromJSON(content)
 {
-	if((TiTools.Object.isString(content.name) == false) || (TiTools.Object.isObject(content.prefab) == false))
+	if((TiTools.Object.isString(content.name) === false) || (TiTools.Object.isObject(content.prefab) === false))
 	{
 		throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_PREFAB_FORMAT'));
 	}

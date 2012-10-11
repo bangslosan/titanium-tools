@@ -50,7 +50,7 @@ function now(offset)
 		}
 	}
 	return date.getTime();
-};
+}
 
 //---------------------------------------------//
 
@@ -99,7 +99,7 @@ function make(params)
 		}
 	}
 	return date.getTime();
-};
+}
 
 //---------------------------------------------//
 
@@ -113,7 +113,7 @@ function make(params)
 	@return
 		Количество дней между датами
 **/
-var betweenOfDays = function(a, b)
+function betweenOfDays(a, b)
 {
 	return Math.round((b - a) / (1000 * 60 * 60 * 24));
 }
@@ -144,7 +144,7 @@ var betweenOfDays = function(a, b)
 **/
 function format(date, mask)
 {
-	if(TiTools.Object.isNumber(date) == true)
+	if(TiTools.Object.isNumber(date) === true)
 	{
 		date = new Date(date);
 	}
@@ -179,7 +179,7 @@ function format(date, mask)
 			return str;
 		}
 	);
-};
+}
 
 //---------------------------------------------//
 

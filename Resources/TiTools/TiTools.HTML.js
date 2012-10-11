@@ -71,7 +71,7 @@ function createTable(style, content)
 	}
 	res += '</table>';
 	return res;
-};
+}
 
 function createTableRow(style, content)
 {
@@ -82,12 +82,12 @@ function createTableRow(style, content)
 	}
 	res += '</tr>';
 	return res;
-};
+}
 
 function createTableCell(style, content)
 {
 	return '<td' + styleSheetGet(style) + '>' + content + '</td>';
-};
+}
 
 //---------------------------------------------//
 

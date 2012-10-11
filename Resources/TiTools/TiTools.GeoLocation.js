@@ -45,7 +45,7 @@ function currentPosition(params)
 	{
 		try
 		{
-			if(event.success == true)
+			if(event.success === true)
 			{
 				if(params.success != undefined)
 				{
@@ -78,8 +78,9 @@ function currentPosition(params)
 			}
 		}
 		Ti.Geolocation.removeEventListener('location', currentPositionCallback);
-	};
-	if(Ti.Geolocation.locationServicesEnabled == true)
+	}
+	
+	if(Ti.Geolocation.locationServicesEnabled === true)
 	{
 		Ti.Geolocation.getCurrentPosition(currentPositionCallback);
 	}
@@ -87,7 +88,7 @@ function currentPosition(params)
 	{
 		currentPositionCallback();
 	}
-};
+}
 
 //---------------------------------------------//
 
@@ -95,6 +96,14 @@ function currentLocation(params)
 {
 	try
 	{
+		if(TiTools.HTTP.isOnline() === false)
+		{
+			if(params.failure != undefined)
+			{
+				params.failure(status);
+			}
+			return;
+		}
 		TiTools.HTTP.response(
 			{
 				reguest : {
@@ -147,6 +156,8 @@ function currentLocation(params)
 									params.success(location);
 								}
 							break;
+							default:
+							break;
 						}
 					}
 					catch(error)
@@ -169,9 +180,9 @@ function currentLocation(params)
 	}
 	catch(error)
 	{
-		if(params.failure != undefined)
+		if(params.except != undefined)
 		{
-			params.failure();
+			params.except();
 		}
 	}
 }
@@ -182,6 +193,14 @@ function paveRoute(params)
 {
 	try
 	{
+		if(TiTools.HTTP.isOnline() === false)
+		{
+			if(params.failure != undefined)
+			{
+				params.failure(status);
+			}
+			return;
+		}
 		TiTools.HTTP.response(
 			{
 				reguest : {
@@ -251,9 +270,9 @@ function paveRoute(params)
 	}
 	catch(error)
 	{
-		if(params.failure != undefined)
+		if(params.except != undefined)
 		{
-			params.failure();
+			params.except();
 		}
 	}
 }

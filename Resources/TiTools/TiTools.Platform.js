@@ -9,10 +9,10 @@ var SCREEN_MODE_EXTRA_LARGE = 'ExtraLarge';
 //---------------------------------------------//
 
 var isSimulator = ((Ti.Platform.model === 'Simulator') || (Ti.Platform.model.indexOf('sdk') !== -1));
-var isAndroid = (Ti.Platform.osname == 'android');
-var isIPhone = (Ti.Platform.osname == 'iphone');
-var isIPad = (Ti.Platform.osname == 'ipad');
-var isIOS = (isIPhone == true) || (isIPad == true);
+var isAndroid = (Ti.Platform.osname === 'android');
+var isIPhone = (Ti.Platform.osname === 'iphone');
+var isIPad = (Ti.Platform.osname === 'ipad');
+var isIOS = (isIPhone === true) || (isIPad === true);
 
 //---------------------------------------------//
 
@@ -24,7 +24,7 @@ var screenMode = SCREEN_MODE_UNKNOWN;
 
 //---------------------------------------------//
 
-if(isAndroid == true)
+if(isAndroid === true)
 {
 	if(Ti.Platform.displayCaps.dpi <= 120)
 	{
@@ -43,28 +43,28 @@ if(isAndroid == true)
 		screenMode = SCREEN_MODE_EXTRA_LARGE;
 	}
 }
-else if(isIPhone == true)
+else if(isIPhone === true)
 {
-	if((screenWidth == 320) && (screenHeight == 480))
+	if((screenWidth === 320) && (screenHeight === 480))
 	{
 		screenMode = SCREEN_MODE_SMALL;
 	}
-	else if((screenWidth == 640) && (screenHeight == 960))
+	else if((screenWidth === 640) && (screenHeight === 960))
 	{
 		screenMode = SCREEN_MODE_NORMAL;
 	}
-	else if((screenWidth == 640) && (screenHeight == 1036))
+	else if((screenWidth === 640) && (screenHeight === 1036))
 	{
 		screenMode = SCREEN_MODE_LARGE;
 	}
 }
-else if(isIPad == true)
+else if(isIPad === true)
 {
-	if((screenWidth == 1024) && (screenHeight == 768))
+	if((screenWidth === 1024) && (screenHeight === 768))
 	{
 		screenMode = SCREEN_MODE_SMALL;
 	}
-	else if((screenWidth == 2048) && (screenHeight == 1536))
+	else if((screenWidth === 2048) && (screenHeight === 1536))
 	{
 		screenMode = SCREEN_MODE_NORMAL;
 	}
@@ -74,35 +74,35 @@ else if(isIPad == true)
 
 function appropriate(params)
 {
-	if(isAndroid == true)
+	if(isAndroid === true)
 	{
-		if(params.android != undefined)
+		if(params.android !== undefined)
 		{
 			return params.android;
 		}
 	}
-	else if(isIOS == true)
+	else if(isIOS === true)
 	{
-		if(isIPhone == true)
+		if(isIPhone === true)
 		{
-			if(params.iphone != undefined)
+			if(params.iphone !== undefined)
 			{
 				return params.iphone;
 			}
 		}
-		else if(isIPad == true)
+		else if(isIPad === true)
 		{
-			if(params.ipad != undefined)
+			if(params.ipad !== undefined)
 			{
 				return params.ipad;
 			}
 		}
-		if(params.ios != undefined)
+		if(params.ios !== undefined)
 		{
 			return params.ios;
 		}
 	}
-	if(params.any != undefined)
+	if(params.any !== undefined)
 	{
 		return params.any;
 	}

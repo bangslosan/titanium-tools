@@ -28,7 +28,7 @@ function preloadSet(name, cache)
 	var list = Ti.App.TiToolsLoaders;
 	for(var i = 0; i < list.length; i++)
 	{
-		if(list[i].name == name)
+		if(list[i].name === name)
 		{
 			throw String(TiTools.Locate.getString('TITOOLS_THROW_OVERRIDE_PRESET') + '\n' + name);
 		}
@@ -47,7 +47,7 @@ function preloadGet(name)
 	var list = Ti.App.TiToolsLoaders;
 	for(var i = 0; i < list.length; i++)
 	{
-		if(list[i].name == name)
+		if(list[i].name === name)
 		{
 			return list[i].cache;
 		}
@@ -60,7 +60,7 @@ function preloadRemove(name)
 	var list = Ti.App.TiToolsLoaders;
 	for(var i = 0; i < list.length; i++)
 	{
-		if(list[i].name == name)
+		if(list[i].name === name)
 		{
 			list.splice(i, 1);
 			break;
@@ -73,23 +73,23 @@ function preloadRemove(name)
 
 function preload(params)
 {
-	if(TiTools.Object.isArray(params) == true)
+	if(TiTools.Object.isArray(params) === true)
 	{
 		for(var i = 0; i < params.length; i++)
 		{
 			preload(params[i]);
 		}
 	}
-	else if(TiTools.Object.isObject(params) == true)
+	else if(TiTools.Object.isObject(params) === true)
 	{
 		var current = TiTools.Platform.appropriate(params);
-		if(current == undefined)
+		if(current === undefined)
 		{
 			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_PLATFORM'));
 		}
 		preload(current);
 	}
-	else if(TiTools.Object.isString(params) == true)
+	else if(TiTools.Object.isString(params) === true)
 	{
 		preloadFromFilename(params);
 	}
@@ -98,37 +98,37 @@ function preload(params)
 function preloadFromFilename(filename)
 {
 	var file = TiTools.Filesystem.getFile(filename);
-	if(file.exists() == true)
+	if(file.exists() === true)
 	{
 		var blob = file.read();
-		if(TiTools.String.isSuffix(filename, '.json') == true)
+		if(TiTools.String.isSuffix(filename, '.json') === true)
 		{
 			var content = TiTools.JSON.deserialize(blob.text);
-			if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) === true)
 			{
 				for(var i = 0; i < content.length; i++)
 				{
 					content[i] = preloadFromJSON(content[i]);
 				}
 			}
-			else if(TiTools.Object.isObject(content) == true)
+			else if(TiTools.Object.isObject(content) === true)
 			{
 				content = preloadFromJSON(content);
 			}
 			preloadSet(filename, content);
 			return content;
 		}
-		else if(TiTools.String.isSuffix(filename, '.xml') == true)
+		else if(TiTools.String.isSuffix(filename, '.xml') === true)
 		{
 			var content = TiTools.XML.deserialize(blob.text);
-			if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) === true)
 			{
 				for(var i = 0; i < content.length; i++)
 				{
 					content[i] = preloadFromXML(content[i]);
 				}
 			}
-			else if(TiTools.Object.isObject(content) == true)
+			else if(TiTools.Object.isObject(content) === true)
 			{
 				content = preloadFromXML(content);
 			}
@@ -149,12 +149,12 @@ function preloadFromFilename(filename)
 
 function preloadFromJSON(content)
 {
-	if(content.prefab != undefined)
+	if(content.prefab !== undefined)
 	{
-		if(TiTools.Object.isString(content.prefab) == true)
+		if(TiTools.Object.isString(content.prefab) === true)
 		{
 			var prefab = TiTools.UI.Prefab.get(content.prefab);
-			if(prefab != undefined)
+			if(prefab !== undefined)
 			{
 				content = TiTools.Object.combine(TiTools.Object.clone(content), prefab);
 			}
@@ -169,51 +169,51 @@ function preloadFromJSON(content)
 			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNSUPPORTED_PREFAB_FORMAT') + ': ' + content.prefab);
 		}
 	}
-	if(content.style != undefined)
+	if(content.style !== undefined)
 	{
 		content.style = TiTools.UI.Preset.merge(content.style);
 	}
-	if(content.root != undefined)
+	if(content.root !== undefined)
 	{
 		content.root = preloadFromJSON(content.root);
 	}
-	if(content.header != undefined)
+	if(content.header !== undefined)
 	{
 		content.header = preloadFromJSON(content.header);
 	}
-	if(content.footer != undefined)
+	if(content.footer !== undefined)
 	{
 		content.footer = preloadFromJSON(content.footer);
 	}
-	if(content.tabs != undefined)
+	if(content.tabs !== undefined)
 	{
 		for(var i = 0; i < content.tabs.length; i++)
 		{
 			content.tabs[i] = preloadFromJSON(content.tabs[i]);
 		}
 	}
-	if(content.sections != undefined)
+	if(content.sections !== undefined)
 	{
 		for(var i = 0; i < content.sections.length; i++)
 		{
 			content.sections[i] = preloadFromJSON(content.sections[i]);
 		}
 	}
-	if(content.columns != undefined)
+	if(content.columns !== undefined)
 	{
 		for(var i = 0; i < content.columns.length; i++)
 		{
 			content.columns[i] = preloadFromJSON(content.columns[i]);
 		}
 	}
-	if(content.rows != undefined)
+	if(content.rows !== undefined)
 	{
 		for(var i = 0; i < content.rows.length; i++)
 		{
 			content.rows[i] = preloadFromJSON(content.rows[i]);
 		}
 	}
-	if(content.subviews != undefined)
+	if(content.subviews !== undefined)
 	{
 		for(var i = 0; i < content.subviews.length; i++)
 		{
@@ -233,7 +233,7 @@ function load(params, owner)
 {
 	var controller = {};
 	var callback = undefined;
-	if(owner != undefined)
+	if(owner !== undefined)
 	{
 		switch(owner.className)
 		{
@@ -374,23 +374,23 @@ function load(params, owner)
 
 function loadFromController(params, controller, callback)
 {
-	if(TiTools.Object.isArray(params) == true)
+	if(TiTools.Object.isArray(params) === true)
 	{
 		for(var i = 0; i < params.length; i++)
 		{
 			loadFromController(params[i], controller, callback);
 		}
 	}
-	else if(TiTools.Object.isObject(params) == true)
+	else if(TiTools.Object.isObject(params) === true)
 	{
 		var current = TiTools.Platform.appropriate(params);
-		if(current == undefined)
+		if(current === undefined)
 		{
 			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_PLATFORM'));
 		}
 		loadFromController(current, controller, callback);
 	}
-	else if(TiTools.Object.isString(params) == true)
+	else if(TiTools.Object.isString(params) === true)
 	{
 		loadFromFilename(params, controller, callback);
 	}
@@ -399,36 +399,36 @@ function loadFromController(params, controller, callback)
 function loadFromFilename(filename, controller, callback)
 {
 	var content = preloadGet(filename);
-	if(content == undefined)
+	if(content === undefined)
 	{
 		content = preloadFromFilename(filename);
 	}
-	if(content != undefined)
+	if(content !== undefined)
 	{
-		if(TiTools.String.isSuffix(filename, '.json') == true)
+		if(TiTools.String.isSuffix(filename, '.json') === true)
 		{
-			if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) === true)
 			{
 				for(var i = 0; i < content.length; i++)
 				{
 					loadFromJSON(content[i], controller, callback);
 				}
 			}
-			else if(TiTools.Object.isObject(content) == true)
+			else if(TiTools.Object.isObject(content) === true)
 			{
 				loadFromJSON(content, controller, callback);
 			}
 		}
-		else if(TiTools.String.isSuffix(filename, '.xml') == true)
+		else if(TiTools.String.isSuffix(filename, '.xml') === true)
 		{
-			if(TiTools.Object.isArray(content) == true)
+			if(TiTools.Object.isArray(content) === true)
 			{
 				for(var i = 0; i < content.length; i++)
 				{
 					loadFromXML(content[i], controller, callback);
 				}
 			}
-			else if(TiTools.Object.isObject(content) == true)
+			else if(TiTools.Object.isObject(content) === true)
 			{
 				loadFromXML(content, controller, callback);
 			}
@@ -449,7 +449,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.AlertDialog':
 		case 'TiUIAlertDialogProxy':
 			outlet = TiTools.UI.Controls.createAlertDialog(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -457,7 +457,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.EmailDialog':
 		case 'TiUIEmailDialogProxy':
 			outlet = TiTools.UI.Controls.createEmailDialog(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -465,7 +465,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.ActivityIndicator':
 		case 'TiUIActivityIndicatorProxy':
 			outlet = TiTools.UI.Controls.createActivityIndicator(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -473,11 +473,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.TabGroup':
 		case 'TiUITabGroupProxy':
 			outlet = TiTools.UI.Controls.createTabGroup(content.style);
-			if(callback != undefined)
-			{
-				callback(outlet);
-			}
-			if(content.tabs != undefined)
+			if(content.tabs !== undefined)
 			{
 				for(var i = 0; i < content.tabs.length; i++)
 				{
@@ -500,7 +496,7 @@ function loadFromJSON(content, controller, callback)
 					);
 				}
 			}
-			if(content.subviews != undefined)
+			if(content.subviews !== undefined)
 			{
 				for(var i = 0; i < content.subviews.length; i++)
 				{
@@ -515,15 +511,15 @@ function loadFromJSON(content, controller, callback)
 					);
 				}
 			}
+			if(callback !== undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.Tab':
 		case 'TiUITabProxy':
 			outlet = TiTools.UI.Controls.createTab(content.style);
-			if(callback != undefined)
-			{
-				callback(outlet);
-			}
-			if(content.root != undefined)
+			if(content.root !== undefined)
 			{
 				loadFromJSON(
 					content.root,
@@ -543,7 +539,7 @@ function loadFromJSON(content, controller, callback)
 					}
 				);
 			}
-			if(content.subviews != undefined)
+			if(content.subviews !== undefined)
 			{
 				for(var i = 0; i < content.subviews.length; i++)
 				{
@@ -558,11 +554,15 @@ function loadFromJSON(content, controller, callback)
 					);
 				}
 			}
+			if(callback !== undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.Window':
 		case 'TiUIWindowProxy':
 			outlet = TiTools.UI.Controls.createWindow(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -570,11 +570,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.View':
 		case 'TiUIViewProxy':
 			outlet = TiTools.UI.Controls.createView(content.style);
-			if(callback != undefined)
-			{
-				callback(outlet);
-			}
-			if(content.subviews != undefined)
+			if(content.subviews !== undefined)
 			{
 				for(var i = 0; i < content.subviews.length; i++)
 				{
@@ -588,16 +584,16 @@ function loadFromJSON(content, controller, callback)
 						}
 					);
 				}
+			}
+			if(callback !== undefined)
+			{
+				callback(outlet);
 			}
 		break;
 		case 'Ti.UI.ScrollView':
 		case 'TiUIScrollViewProxy':
 			outlet = TiTools.UI.Controls.createScrollView(content.style);
-			if(callback != undefined)
-			{
-				callback(outlet);
-			}
-			if(content.subviews != undefined)
+			if(content.subviews !== undefined)
 			{
 				for(var i = 0; i < content.subviews.length; i++)
 				{
@@ -612,15 +608,15 @@ function loadFromJSON(content, controller, callback)
 					);
 				}
 			}
+			if(callback !== undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.ScrollableView':
 		case 'TiUIScrollableViewProxy':
 			outlet = TiTools.UI.Controls.createScrollableView(content.style);
-			if(callback != undefined)
-			{
-				callback(outlet);
-			}
-			if(content.subviews != undefined)
+			if(content.subviews !== undefined)
 			{
 				for(var i = 0; i < content.subviews.length; i++)
 				{
@@ -635,11 +631,15 @@ function loadFromJSON(content, controller, callback)
 					);
 				}
 			}
+			if(callback !== undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.ImageView':
 		case 'TiUIImageViewProxy':
 			outlet = TiTools.UI.Controls.createImageView(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -647,7 +647,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.Button':
 		case 'TiUIButtonProxy':
 			outlet = TiTools.UI.Controls.createButton(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -655,7 +655,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.ButtonBar':
 		case 'TiUIButtonBarProxy':
 			outlet = TiTools.UI.Controls.createButtonBar(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -663,7 +663,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.Label':
 		case 'TiUILabelProxy':
 			outlet = TiTools.UI.Controls.createLabel(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -671,7 +671,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.Switch':
 		case 'TiUISwitchProxy':
 			outlet = TiTools.UI.Controls.createSwitch(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -679,7 +679,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.Slider':
 		case 'TiUISliderProxy':
 			outlet = TiTools.UI.Controls.createSlider(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -687,7 +687,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.SearchBar':
 		case 'TiUISearchBarProxy':
 			outlet = TiTools.UI.Controls.createSearchBar(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -695,7 +695,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.ProgressBar':
 		case 'TiUIProgressBarProxy':
 			outlet = TiTools.UI.Controls.createProgressBar(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -703,7 +703,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.TextField':
 		case 'TiUITextFieldProxy':
 			outlet = TiTools.UI.Controls.createTextField(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -711,7 +711,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.TextArea':
 		case 'TiUITextAreaProxy':
 			outlet = TiTools.UI.Controls.createTextArea(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -719,11 +719,11 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.TableView':
 		case 'TiUITableViewProxy':
 			outlet = TiTools.UI.Controls.createTableView(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
-			if(content.header != undefined)
+			if(content.header !== undefined)
 			{
 				loadFromJSON(
 					content.header,
@@ -735,7 +735,7 @@ function loadFromJSON(content, controller, callback)
 					}
 				);
 			}
-			if(content.footer != undefined)
+			if(content.footer !== undefined)
 			{
 				loadFromJSON(
 					content.footer,
@@ -747,7 +747,7 @@ function loadFromJSON(content, controller, callback)
 					}
 				);
 			}
-			if(content.search != undefined)
+			if(content.search !== undefined)
 			{
 				loadFromJSON(
 					content.search,
@@ -759,7 +759,7 @@ function loadFromJSON(content, controller, callback)
 					}
 				);
 			}
-			if(content.sections != undefined)
+			if(content.sections !== undefined)
 			{
 				var sections = outlet.data;
 				for(var i = 0; i < content.sections.length; i++)
@@ -785,7 +785,7 @@ function loadFromJSON(content, controller, callback)
 				}
 				outlet.data = sections;
 			}
-			else if(content.rows != undefined)
+			else if(content.rows !== undefined)
 			{
 				var rows = [];
 				for(var i = 0; i < content.rows.length; i++)
@@ -814,11 +814,11 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.TableViewSection':
 		case 'TiUITableViewSectionProxy':
 			outlet = TiTools.UI.Controls.createTableViewSection(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
-			if(content.header != undefined)
+			if(content.header !== undefined)
 			{
 				loadFromJSON(
 					content.header,
@@ -830,7 +830,7 @@ function loadFromJSON(content, controller, callback)
 					}
 				);
 			}
-			if(content.footer != undefined)
+			if(content.footer !== undefined)
 			{
 				loadFromJSON(
 					content.footer,
@@ -842,7 +842,7 @@ function loadFromJSON(content, controller, callback)
 					}
 				);
 			}
-			if(content.rows != undefined)
+			if(content.rows !== undefined)
 			{
 				for(var i = 0; i < content.rows.length; i++)
 				{
@@ -873,7 +873,7 @@ function loadFromJSON(content, controller, callback)
 			{
 				callback(outlet);
 			}
-			if(content.subviews != undefined)
+			if(content.subviews !== undefined)
 			{
 				for(var i = 0; i < content.subviews.length; i++)
 				{
@@ -892,11 +892,7 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.Picker':
 		case 'TiUIPickerProxy':
 			outlet = TiTools.UI.Controls.createPicker(content.style);
-			if(callback != undefined)
-			{
-				callback(outlet);
-			}
-			if(content.columns != undefined)
+			if(content.columns !== undefined)
 			{
 				for(var i = 0; i < content.columns.length; i++)
 				{
@@ -919,7 +915,7 @@ function loadFromJSON(content, controller, callback)
 					);
 				}
 			}
-			else if(content.rows != undefined)
+			else if(content.rows !== undefined)
 			{
 				for(var i = 0; i < content.rows.length; i++)
 				{
@@ -942,15 +938,15 @@ function loadFromJSON(content, controller, callback)
 					);
 				}
 			}
+			if(callback !== undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.PickerColumn':
 		case 'TiUIPickerColumnProxy':
 			outlet = TiTools.UI.Controls.createPickerColumn(content.style);
-			if(callback != undefined)
-			{
-				callback(outlet);
-			}
-			if(content.rows != undefined)
+			if(content.rows !== undefined)
 			{
 				for(var i = 0; i < content.rows.length; i++)
 				{
@@ -973,11 +969,15 @@ function loadFromJSON(content, controller, callback)
 					);
 				}
 			}
+			if(callback !== undefined)
+			{
+				callback(outlet);
+			}
 		break;
 		case 'Ti.UI.PickerRow':
 		case 'TiUIPickerRowProxy':
 			outlet = TiTools.UI.Controls.createPickerRow(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -985,28 +985,28 @@ function loadFromJSON(content, controller, callback)
 		case 'Ti.UI.WebView':
 		case 'TiUIWebViewProxy':
 			outlet = TiTools.UI.Controls.createWebView(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
 		break;
 		case 'Ti.UI.GoogleMapView':
 			outlet = TiTools.UI.Controls.createGoogleMapView(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
 		break;
 		case 'Ti.UI.FacebookLoginButton':
 			outlet = TiTools.UI.Controls.createFacebookLoginButton(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
 		break;
 		case 'Ti.PaintView':
 			outlet = TiTools.UI.Controls.createPaintView(content.style);
-			if(callback != undefined)
+			if(callback !== undefined)
 			{
 				callback(outlet);
 			}
@@ -1014,7 +1014,7 @@ function loadFromJSON(content, controller, callback)
 		default:
 			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_CLASS_NAME') + '\n' + content.style.className);
 	}
-	if(content.outlet != undefined)
+	if(content.outlet !== undefined)
 	{
 		controller[content.outlet] = outlet;
 	}

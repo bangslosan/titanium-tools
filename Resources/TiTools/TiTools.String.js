@@ -6,7 +6,7 @@ function isInt(str)
 
 function isFloat(str)
 {
-	var regExp = /^\d*\.\d+$|^\d+\.\d*$/
+	var regExp = /^\d*\.\d+$|^\d+\.\d*$/;
 	return regExp.test(str);
 }
 
@@ -18,7 +18,7 @@ function needsQuoting(str)
 
 function trim(str)
 {
-	if(typeof(str) == 'string')
+	if(typeof(str) === 'string')
 	{
 		var begin = 0;
 		var end = str.length - 1;
@@ -43,7 +43,7 @@ function paddingLeft(str, length, chars)
 		str = chars + str;
 	}
 	return str;
-};
+}
 
 function paddingRight(str, length, chars)
 {
@@ -53,7 +53,7 @@ function paddingRight(str, length, chars)
 		str = str + chars;
 	}
 	return str;
-};
+}
 
 function chomp(str)
 {
@@ -70,13 +70,22 @@ function chomp(str)
 
 function isPrefix(str, prefix)
 {
-	return (str.indexOf(prefix) === 0);
+	if(str.indexOf(prefix) === 0)
+	{
+		return true;
+	}
+	return false;
 }
 
 function isSuffix(str, suffix)
 {
-	return (str.match(suffix + '$') == suffix);
-};
+	var matched = String(str.match(suffix + '$'));
+	if(matched === suffix)
+	{
+		return true;
+	}
+	return false;
+}
 
 function replaceAll(str, search, replace)
 {

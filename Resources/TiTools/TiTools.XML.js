@@ -12,7 +12,7 @@ function serialize(node)
 function deserialize(string)
 {
 	var xml = Ti.XML.parseString(string);
-	if(xml != undefined)
+	if(xml !== undefined)
 	{
 		return deserializeNode(xml);
 	}
@@ -31,12 +31,12 @@ function deserializeNode(node)
 	{
 		case node.ELEMENT_NODE:
 			var attributes = node.attributes;
-			if(attributes != undefined)
+			if(attributes !== undefined)
 			{
 				for(var i = 0; i < attributes.length; i++)
 				{
 					var attribute = attributes.item(i);
-					if(attribute != undefined)
+					if(attribute !== undefined)
 					{
 						result.attributes.push(
 							{
@@ -48,9 +48,11 @@ function deserializeNode(node)
 				}
 			}
 		break;
+		default:
+		break;
 	}
 	var child = node.firstChild;
-	while(child != undefined)
+	while(child !== undefined)
 	{
 		switch(child.nodeType)
 		{

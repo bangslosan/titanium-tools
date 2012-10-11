@@ -5,7 +5,7 @@ function Storage(name)
 	this.reload = function()
 	{
 		this.content = undefined;
-		if(Ti.App.Properties.hasProperty(name) == true)
+		if(Ti.App.Properties.hasProperty(name) === true)
 		{
 			this.content = JSON.parse(Ti.App.Properties.getString(name));
 		}

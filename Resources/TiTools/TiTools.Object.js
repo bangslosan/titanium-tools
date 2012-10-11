@@ -1,4 +1,4 @@
-if(Ti.App.TiToolsLastUnigueID == undefined)
+if(Ti.App.TiToolsLastUnigueID === undefined)
 {
 	Ti.App.TiToolsLastUnigueID = 0;
 }
@@ -7,26 +7,26 @@ if(Ti.App.TiToolsLastUnigueID == undefined)
 
 function unigueID()
 {
-	return Ti.App.TiToolsLastUnigueID++;
+	Ti.App.TiToolsLastUnigueID = Ti.App.TiToolsLastUnigueID + 1;
+	return Ti.App.TiToolsLastUnigueID;
 }
-
 function combine(objectA, objectB)
 {
-	if(objectB != undefined)
+	if(objectB !== undefined)
 	{
 		for(var i in objectB)
 		{
-			if(isArray(objectB[i]) == true)
+			if(isArray(objectB[i]) === true)
 			{
-				if(objectA[i] == undefined)
+				if(objectA[i] === undefined)
 				{
 					objectA[i] = [];
 				}
 				objectA[i] = combine(objectA[i], objectB[i]);
 			}
-			else if(isObject(objectB[i]) == true)
+			else if(isObject(objectB[i]) === true)
 			{
-				if(objectA[i] == undefined)
+				if(objectA[i] === undefined)
 				{
 					objectA[i] = {};
 				}
@@ -39,20 +39,20 @@ function combine(objectA, objectB)
 		}
 	}
 	return objectA;
-};
+}
 
 function clone(object)
 {
-	if(object != undefined)
+	if(object !== undefined)
 	{
 		var result = undefined;
-		if(isArray(object) == true)
+		if(isArray(object) === true)
 		{
 			result = [];
 		}
-		else if(isObject(object) == true)
+		else if(isObject(object) === true)
 		{
-		result = {};
+			result = {};
 		}
 		if(result !== undefined)
 		{
@@ -61,7 +61,7 @@ function clone(object)
 				if(object[prop] !== undefined)
 				{
 					var field = object[prop];
-					if(isObject(field) == true)
+					if(isObject(field) === true)
 					{
 						result[prop] = clone(field);
 					}
@@ -77,33 +77,44 @@ function clone(object)
 	return object;
 }
 
+function swap(object, paramA, paramB)
+{
+	var temp = object[paramA];
+	object[paramA] = object[paramB];
+	object[paramB] = temp;
+}
+
 function isFunction(object)
 {
-	return (typeof(object) == 'function');
+	return (typeof(object) === 'function');
 }
 
 function isObject(object)
 {
-	if(object == undefined)
+	if(object === undefined)
 	{
 		return false;
 	}
-	return (object.toString() == '[object Object]');
+	return (Object.prototype.toString.call(object) === '[object Object]');
 }
 
 function isArray(object)
 {
+	if(object === undefined)
+	{
+		return false;
+	}
 	return (Object.prototype.toString.call(object) === '[object Array]');
 }
 
 function isNumber(object)
 {
-	return (typeof(object) == 'number');
+	return (typeof(object) === 'number');
 }
 
 function isString(object)
 {
-	return (typeof(object) == 'string');
+	return (typeof(object) === 'string');
 }
 
 //---------------------------------------------//
@@ -112,6 +123,7 @@ module.exports = {
 	unigueID : unigueID,
 	combine : combine,
 	clone : clone,
+	swap : swap,
 	isFunction : isFunction,
 	isObject : isObject,
 	isArray : isArray,
