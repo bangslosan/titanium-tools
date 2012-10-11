@@ -5,11 +5,11 @@ var TiTools = {
 //---------------------------------------------//
 
 var getStringProc = undefined;
-if(Ti.Locate !== undefined)
+if(Ti.Locate != undefined)
 {
 	getStringProc = Ti.Locate.getString;
 }
-if(TiTools.Object.isFunction(getStringProc) === false)
+if(TiTools.Object.isFunction(getStringProc) == false)
 {
 	getStringProc = L;
 }
@@ -18,11 +18,11 @@ if(TiTools.Object.isFunction(getStringProc) === false)
 
 function getString(key, defaults)
 {
-	if(defaults === undefined)
+	if(defaults == undefined)
 	{
 		defaults = key;
 	}
-	if(TiTools.Object.isFunction(getStringProc) === true)
+	if(TiTools.Object.isFunction(getStringProc) == true)
 	{
 		return getStringProc(key, defaults);
 	}

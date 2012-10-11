@@ -11,11 +11,11 @@ function isOnline()
 
 function response(params)
 {
-	if(params === undefined)
+	if(params == undefined)
 	{
 		throw new String(TiTools.Locate.getString('TITOOLS_THROW_BAD_PARAMS'));
 	}
-	if(Ti.App.TiToolsHttpHandle !== undefined)
+	if(Ti.App.TiToolsHttpHandle != undefined)
 	{
 		throw new String(TiTools.Locate.getString('TITOOLS_THROW_HHTP_SINGLETON'));
 	}
@@ -35,21 +35,21 @@ function response(params)
 			{
 				var handle = Ti.App.TiToolsHttpHandle;
 				Ti.App.TiToolsHttpHandle = undefined;
-				if(params.success !== undefined)
+				if(params.success != undefined)
 				{
 					params.success(handle);
 				}
 			},
 			onsendstream : function(event)
 			{
-				if(params.sendProgress !== undefined)
+				if(params.sendProgress != undefined)
 				{
 					params.sendProgress(event.progress);
 				}
 			},
 			ondatastream : function(event)
 			{
-				if(params.readProgress !== undefined)
+				if(params.readProgress != undefined)
 				{
 					params.readProgress(event.progress);
 				}
@@ -58,7 +58,7 @@ function response(params)
 			{
 				var handle = Ti.App.TiToolsHttpHandle;
 				Ti.App.TiToolsHttpHandle = undefined;
-				if(params.failure !== undefined)
+				if(params.failure != undefined)
 				{
 					params.failure(handle);
 				}
@@ -66,15 +66,15 @@ function response(params)
 		}
 	);
 	var url = params.reguest.url;
-	if(params.reguest.args !== undefined)
+	if(params.reguest.args != undefined)
 	{
 		var count = 0;
 		for(var i in params.reguest.args)
 		{
 			var item = params.reguest.args[i];
-			if(item !== undefined)
+			if(item != undefined)
 			{
-				url += (((count === 0) ? '?' : '&') + i + '=' + item);
+				url += (((count == 0) ? '?' : '&') + i + '=' + item);
 				count++;
 			}
 		}
@@ -85,7 +85,7 @@ function response(params)
 		case 'POST': handle.open('POST', url); break;
 		default: break;
 	}
-	if(params.reguest.header !== undefined)
+	if(params.reguest.header != undefined)
 	{
 		for(var j = 0; j < params.reguest.header.length; j++)
 		{
@@ -105,7 +105,7 @@ function response(params)
 
 function abort()
 {
-	if(Ti.App.TiToolsHttpHandle !== undefined)
+	if(Ti.App.TiToolsHttpHandle != undefined)
 	{
 		Ti.App.TiToolsHttpHandle.abort();
 		Ti.App.TiToolsHttpHandle = undefined;

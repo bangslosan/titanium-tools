@@ -45,7 +45,7 @@ function currentPosition(params)
 	{
 		try
 		{
-			if(event.success === true)
+			if(event.success == true)
 			{
 				if(params.success != undefined)
 				{
@@ -80,7 +80,7 @@ function currentPosition(params)
 		Ti.Geolocation.removeEventListener('location', currentPositionCallback);
 	}
 	
-	if(Ti.Geolocation.locationServicesEnabled === true)
+	if(Ti.Geolocation.locationServicesEnabled == true)
 	{
 		Ti.Geolocation.getCurrentPosition(currentPositionCallback);
 	}
@@ -96,7 +96,7 @@ function currentLocation(params)
 {
 	try
 	{
-		if(TiTools.HTTP.isOnline() === false)
+		if(TiTools.HTTP.isOnline() == false)
 		{
 			if(params.failure != undefined)
 			{
@@ -193,7 +193,7 @@ function paveRoute(params)
 {
 	try
 	{
-		if(TiTools.HTTP.isOnline() === false)
+		if(TiTools.HTTP.isOnline() == false)
 		{
 			if(params.failure != undefined)
 			{

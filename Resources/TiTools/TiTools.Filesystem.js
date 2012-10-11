@@ -5,7 +5,7 @@ var TiTools = {
 
 //---------------------------------------------//
 
-if(Ti.App.TiToolsFilesystemPath === undefined)
+if(Ti.App.TiToolsFilesystemPath == undefined)
 {
 	var resourcesPath = TiTools.Platform.appropriate(
 		{
@@ -42,12 +42,12 @@ function preprocessPath(path)
 			return p1;
 		}
 	);
-	if(result !== path)
+	if(result != path)
 	{
-		if(TiTools.Platform.isSimulator === true)
+		if(TiTools.Platform.isSimulator == true)
 		{
 			var file = Ti.Filesystem.getFile(result);
-			if(file.exists() === false)
+			if(file.exists() == false)
 			{
 				throw String(TiTools.Locate.getString('TITOOLS_THROW_FILE_NOT_FOUND') + ': ' + result);
 			}

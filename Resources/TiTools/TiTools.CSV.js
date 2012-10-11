@@ -22,23 +22,23 @@ function serialize(csv)
 		for(var j = 0; j < row.length; ++j)
 		{
 			var cur = row[j];
-			if(TiTools.Object.isString(cur) === true)
+			if(TiTools.Object.isString(cur) == true)
 			{
 				cur = cur.replace(/"/g, '""');
-				if((TiTools.String.needsQuoting(cur) === true) || (TiTools.String.isInt(cur) === true) || (TiTools.String.isFloat(cur) === true))
+				if((TiTools.String.needsQuoting(cur) == true) || (TiTools.String.isInt(cur) == true) || (TiTools.String.isFloat(cur) == true))
 				{
 					cur = '"' + cur + '"';
 				}
-				else if(cur === '')
+				else if(cur == '')
 				{
 					cur = '""';
 				}
 			}
-			else if(TiTools.Object.isNumber(cur) === true)
+			else if(TiTools.Object.isNumber(cur) == true)
 			{
 				cur = cur.toString(10);
 			}
-			else if(cur === null)
+			else if(cur == null)
 			{
 				cur = '';
 			}
@@ -75,21 +75,21 @@ function deserialize(str, trim)
 	
 	function deserializeField(field)
 	{
-		if(fieldQuoted !== true)
+		if(fieldQuoted != true)
 		{
-			if(field === '')
+			if(field == '')
 			{
 				field = null;
 			}
-			else if(trim === true)
+			else if(trim == true)
 			{
 				field = TiTools.String.trim(field);
 			}
-			if(TiTools.String.isInt(field) === true)
+			if(TiTools.String.isInt(field) == true)
 			{
 				field = parseInt(field, 10);
 			}
-			else if(TiTools.String.isFloat(field) === true)
+			else if(TiTools.String.isFloat(field) == true)
 			{
 				field = parseFloat(field, 10);
 			}
@@ -101,11 +101,11 @@ function deserialize(str, trim)
 	for(var i = 0; i < str.length; ++i)
 	{
 		var cur = str.charAt(i);
-		if((inQuote === false) && ((cur === ',') || (cur === '\n')))
+		if((inQuote == false) && ((cur == ',') || (cur == '\n')))
 		{
 			field = deserializeField(field);
 			row.push(field);
-			if(cur === '\n')
+			if(cur == '\n')
 			{
 				out.push(row);
 				row = [];
@@ -115,20 +115,20 @@ function deserialize(str, trim)
 		}
 		else
 		{
-			if(cur !== '"')
+			if(cur != '"')
 			{
 				field += cur;
 			}
 			else
 			{
-				if(inQuote === false)
+				if(inQuote == false)
 				{
 					inQuote = true;
 					fieldQuoted = true;
 				}
 				else
 				{
-					if(str.charAt(i + 1) === '"')
+					if(str.charAt(i + 1) == '"')
 					{
 						field += '"';
 						i += 1;

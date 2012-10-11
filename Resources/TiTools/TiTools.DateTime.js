@@ -144,7 +144,7 @@ function betweenOfDays(a, b)
 **/
 function format(date, mask)
 {
-	if(TiTools.Object.isNumber(date) === true)
+	if(TiTools.Object.isNumber(date) == true)
 	{
 		date = new Date(date);
 	}

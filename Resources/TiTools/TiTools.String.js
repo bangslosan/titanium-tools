@@ -18,7 +18,7 @@ function needsQuoting(str)
 
 function trim(str)
 {
-	if(typeof(str) === 'string')
+	if(typeof(str) == 'string')
 	{
 		var begin = 0;
 		var end = str.length - 1;
@@ -58,7 +58,7 @@ function paddingRight(str, length, chars)
 function chomp(str)
 {
 	var last = str.length - 1;
-	if(str.charAt(last) !== '\n')
+	if(str.charAt(last) != '\n')
 	{
 		return str;
 	}
@@ -70,7 +70,7 @@ function chomp(str)
 
 function isPrefix(str, prefix)
 {
-	if(str.indexOf(prefix) === 0)
+	if(str.indexOf(prefix) == 0)
 	{
 		return true;
 	}
@@ -80,7 +80,7 @@ function isPrefix(str, prefix)
 function isSuffix(str, suffix)
 {
 	var matched = String(str.match(suffix + '$'));
-	if(matched === suffix)
+	if(matched == suffix)
 	{
 		return true;
 	}

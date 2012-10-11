@@ -22,19 +22,19 @@ function sleep(time)
 
 function info(data)
 {
-	if(TiTools.Platform.isAndroid === true)
+	if(TiTools.Platform.isAndroid == true)
 	{
-		if(TiTools.Object.isArray(data) === true)
+		if(TiTools.Object.isArray(data) == true)
 		{
 			data = TiTools.JSON.serialize(data);
 		}
-		else if(TiTools.Object.isObject(data) === true)
+		else if(TiTools.Object.isObject(data) == true)
 		{
 			data = TiTools.JSON.serialize(data);
 		}
 		Ti.API.info('[TiTools]: ' + data);
 	}
-	else if(TiTools.Platform.isIOS === true)
+	else if(TiTools.Platform.isIOS == true)
 	{
 		alert(data);
 	}
@@ -55,7 +55,7 @@ function callPhone(phone)
 	alert.addEventListener('click',
 		function(event)
 		{
-			if(event.index === 0)
+			if(event.index == 0)
 			{
 				var number = phone.replace(/([^0-9])+/g, '');
 				if(number.length > 0)
