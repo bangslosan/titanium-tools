@@ -1,13 +1,13 @@
 TiTools
 ==============
-	This project is a library for Titatium Appcelerator that solves different common problems and allows to create 
-	real cross platform applications for iOs/Android. It uses only internal Titanium modules so you don't need to 
-	install additional native modules.
+		This project is a library for Titatium Appcelerator that solves different common problems and allows 
+	to create real cross platform applications for iOs/Android. It uses only internal Titanium modules so you don't 
+	need to install additional native modules.
 
 1. Description
 =============================
-	In our library we implemented pattern called MVC. It allows us to use controllers to implement common logic on 
-	all platforms. Also we implemented loader of interface from presets in JSON files so now it is possible to divide 
+		In our library we implemented pattern called MVC. It allows us to use controllers to implement common logic 
+	on all platforms. Also we implemented loader of interface from presets in JSON files so now it is possible to divide 
 	business logic and GUI.
 		In library we implemented loading of prefabs and presets for interface so it is possible to create custom 
 	widgets like buttons and label. Also now you can use liquid design for Android.
