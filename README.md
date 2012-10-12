@@ -16,7 +16,7 @@ TiTools
 
 2. Installation
 =============================	
-	Just copy the project and import it as regular project. 
+		Just copy the project and import it as regular project. 
 
 3. Description of the main modules
 =============================
