@@ -92,12 +92,27 @@ function load(params)
 
 function loadFromFilename(filename)
 {
-	var file = TiTools.Filesystem.getFile(filename);
-	if(file.exists() == true)
+	if(TiTools.String.isSuffix(filename, '.js') == true)
 	{
-		var blob = file.read();
-		if(TiTools.String.isSuffix(filename, '.json') == true)
+		var module = TiTools.Filesystem.loadModule(filename);
+		if(TiTools.Object.isArray(module) == true)
 		{
+			for(var j = 0; j < module.length; j++)
+			{
+				loadFromJSON(module[j]);
+			}
+		}
+		else if(TiTools.Object.isObject(module) == true)
+		{
+			loadFromJSON(module);
+		}
+	}
+	else if(TiTools.String.isSuffix(filename, '.json') == true)
+	{
+		var file = TiTools.Filesystem.getFile(filename);
+		if(file.exists() == true)
+		{
+			var blob = file.read();
 			var content = TiTools.JSON.deserialize(blob.text);
 			if(TiTools.Object.isArray(content) == true)
 			{
@@ -111,7 +126,15 @@ function loadFromFilename(filename)
 				loadFromJSON(content);
 			}
 		}
-		else if(TiTools.String.isSuffix(filename, '.xml') == true)
+		else
+		{
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_NOT_FOUND') + '\n' + filename);
+		}
+	}
+	else if(TiTools.String.isSuffix(filename, '.xml') == true)
+	{
+		var file = TiTools.Filesystem.getFile(filename);
+		if(file.exists() == true)
 		{
 			var content = TiTools.XML.deserialize(blob.text);
 			if(TiTools.Object.isArray(content) == true)
@@ -128,12 +151,12 @@ function loadFromFilename(filename)
 		}
 		else
 		{
-			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_NOT_FOUND') + '\n' + filename);
 		}
 	}
 	else
 	{
-		throw String(TiTools.Locate.getString('TITOOLS_THROW_NOT_FOUND') + '\n' + filename);
+		throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
 	}
 }
 

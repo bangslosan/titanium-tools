@@ -332,6 +332,18 @@ module.exports = {
 			)
 		);
 	},
+	createGoogleMapViewAnnotation : function(params)
+	{
+		return Ti.Map.createAnnotation(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.GoogleMapViewAnnotation'
+				}
+			)
+		);
+	},
 	createFacebookLoginButton : function(params)
 	{
 		return Ti.Facebook.createLoginButton(

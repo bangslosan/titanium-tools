@@ -97,12 +97,29 @@ function preload(params)
 
 function preloadFromFilename(filename)
 {
-	var file = TiTools.Filesystem.getFile(filename);
-	if(file.exists() == true)
+	if(TiTools.String.isSuffix(filename, '.js') == true)
 	{
-		var blob = file.read();
-		if(TiTools.String.isSuffix(filename, '.json') == true)
+		var content = TiTools.Filesystem.loadModule(filename);
+		if(TiTools.Object.isArray(content) == true)
 		{
+			for(var i = 0; i < content.length; i++)
+			{
+				content[i] = preloadFromJSON(content[i]);
+			}
+		}
+		else if(TiTools.Object.isObject(content) == true)
+		{
+			content = preloadFromJSON(content);
+		}
+		preloadSet(filename, content);
+		return content;
+	}
+	else if(TiTools.String.isSuffix(filename, '.json') == true)
+	{
+		var file = TiTools.Filesystem.getFile(filename);
+		if(file.exists() == true)
+		{
+			var blob = file.read();
 			var content = TiTools.JSON.deserialize(blob.text);
 			if(TiTools.Object.isArray(content) == true)
 			{
@@ -118,8 +135,17 @@ function preloadFromFilename(filename)
 			preloadSet(filename, content);
 			return content;
 		}
-		else if(TiTools.String.isSuffix(filename, '.xml') == true)
+		else
 		{
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_NOT_FOUND') + '\n' + filename);
+		}
+	}
+	else if(TiTools.String.isSuffix(filename, '.xml') == true)
+	{
+		var file = TiTools.Filesystem.getFile(filename);
+		if(file.exists() == true)
+		{
+			var blob = file.read();
 			var content = TiTools.XML.deserialize(blob.text);
 			if(TiTools.Object.isArray(content) == true)
 			{
@@ -137,12 +163,12 @@ function preloadFromFilename(filename)
 		}
 		else
 		{
-			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_NOT_FOUND') + '\n' + filename);
 		}
 	}
 	else
 	{
-		throw String(TiTools.Locate.getString('TITOOLS_THROW_NOT_FOUND') + '\n' + filename);
+		throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
 	}
 	return undefined;
 }
@@ -405,7 +431,21 @@ function loadFromFilename(filename, controller, callback)
 	}
 	if(content != undefined)
 	{
-		if(TiTools.String.isSuffix(filename, '.json') == true)
+		if(TiTools.String.isSuffix(filename, '.js') == true)
+		{
+			if(TiTools.Object.isArray(content) == true)
+			{
+				for(var i = 0; i < content.length; i++)
+				{
+					loadFromJSON(content[i], controller, callback);
+				}
+			}
+			else if(TiTools.Object.isObject(content) == true)
+			{
+				loadFromJSON(content, controller, callback);
+			}
+		}
+		else if(TiTools.String.isSuffix(filename, '.json') == true)
 		{
 			if(TiTools.Object.isArray(content) == true)
 			{
