@@ -1,7 +1,7 @@
-var TiTools = {
-	HTTP : require("TiTools/TiTools.HTTP"),
-	JSON : require("TiTools/TiTools.JSON")
-};
+var TiTools = require("TiTools/TiTools");
+
+TiTools.loadLibrary('TiTools/TiTools.HTTP', 'HTTP');
+TiTools.loadLibrary('TiTools/TiTools.JSON', 'JSON');
 
 //---------------------------------------------//
 

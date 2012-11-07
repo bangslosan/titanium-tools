@@ -1,69 +1,50 @@
-var TiTools = {
-	Object : require("TiTools/TiTools.Object"),
-	String : require("TiTools/TiTools.String"),
-	Filesystem : require("TiTools/TiTools.Filesystem"),
-	Locate : require("TiTools/TiTools.Locate"),
-	Platform : require("TiTools/TiTools.Platform"),
-	Locate : require("TiTools/TiTools.Locate"),
-	JSON : require("TiTools/TiTools.JSON"),
-	XML : require("TiTools/TiTools.XML")
-};
+var TiTools = require("TiTools/TiTools");
+
+TiTools.loadLibrary('TiTools/TiTools.Object', 'Object');
+TiTools.loadLibrary('TiTools/TiTools.String', 'String');
+TiTools.loadLibrary('TiTools/TiTools.Locate', 'Locate');
+TiTools.loadLibrary('TiTools/TiTools.Filesystem', 'Filesystem');
+TiTools.loadLibrary('TiTools/TiTools.Platform', 'Platform');
+TiTools.loadLibrary('TiTools/TiTools.JSON', 'JSON');
+TiTools.loadLibrary('TiTools/TiTools.XML', 'XML');
 
 //---------------------------------------------//
 
-if(Ti.App.TiToolsPrefabs == undefined)
-{
-	Ti.App.TiToolsPrefabs = [];
-}
+var prefabsNames  = [];
+var prefabsCaches = [];
 
 //---------------------------------------------//
 
 function set(name, prefab)
 {
-	var list = Ti.App.TiToolsPrefabs;
-	for(var i = 0; i < list.length; i++)
+	var index = prefabsNames.indexOf(name);
+	if(index > -1)
 	{
-		if(list[i].name == name)
-		{
-			throw String(TiTools.Locate.getString('TITOOLS_THROW_OVERRIDE_PREFABS') + '\n' + name);
-		}
+		throw String(TiTools.Locate.getString('TITOOLS_THROW_OVERRIDE_PREFABS') + '\n' + name);
 	}
-	list.push(
-		{
-			name : name,
-			prefab : prefab
-		}
-	);
-	Ti.App.TiToolsPrefabs = list;
+	prefabsNames.push(name);
+	prefabsCaches.push(prefab); 
 }
 
 function get(name)
 {
-	var list = Ti.App.TiToolsPrefabs;
-	for(var i = 0; i < list.length; i++)
+	var index = prefabsNames.indexOf(name);
+	if( index > -1 )
 	{
-		if(list[i].name == name)
-		{
-			return list[i].prefab;
-		}
+		return prefabsCaches[index]; 
 	}
 	return undefined;
 }
 
 function remove(name)
 {
-	var list = Ti.App.TiToolsPrefabs;
-	for(var i = 0; i < list.length; i++)
+	var index = prefabsNames.indexOf(name);
+	if(index > -1)
 	{
-		if(list[i].name == name)
-		{
-			list.splice(i, 1);
-			break;
-		}
+		prefabsNames.splice(index, 1);
+		prefabsCaches.splice(index, 1); 
 	}
-	Ti.App.TiToolsPrefabs = list;
 }
-
 //---------------------------------------------//
 
 function load(params)
@@ -92,12 +73,27 @@ function load(params)
 
 function loadFromFilename(filename)
 {
-	var file = TiTools.Filesystem.getFile(filename);
-	if(file.exists() == true)
+	if(TiTools.String.isSuffix(filename, '.js') == true)
 	{
-		var blob = file.read();
-		if(TiTools.String.isSuffix(filename, '.json') == true)
+		var module = TiTools.Filesystem.loadModule(filename);
+		if(TiTools.Object.isArray(module) == true)
 		{
+			for(var j = 0; j < module.length; j++)
+			{
+				loadFromJSON(module[j]);
+			}
+		}
+		else if(TiTools.Object.isObject(module) == true)
+		{
+			loadFromJSON(module);
+		}
+	}
+	else if(TiTools.String.isSuffix(filename, '.json') == true)
+	{
+		var file = TiTools.Filesystem.getFile(filename);
+		if(file.exists() == true)
+		{
+			var blob = file.read();
 			var content = TiTools.JSON.deserialize(blob.text);
 			if(TiTools.Object.isArray(content) == true)
 			{
@@ -111,7 +107,15 @@ function loadFromFilename(filename)
 				loadFromJSON(content);
 			}
 		}
-		else if(TiTools.String.isSuffix(filename, '.xml') == true)
+		else
+		{
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_NOT_FOUND') + '\n' + filename);
+		}
+	}
+	else if(TiTools.String.isSuffix(filename, '.xml') == true)
+	{
+		var file = TiTools.Filesystem.getFile(filename);
+		if(file.exists() == true)
 		{
 			var content = TiTools.XML.deserialize(blob.text);
 			if(TiTools.Object.isArray(content) == true)
@@ -128,12 +132,12 @@ function loadFromFilename(filename)
 		}
 		else
 		{
-			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
+			throw String(TiTools.Locate.getString('TITOOLS_THROW_NOT_FOUND') + '\n' + filename);
 		}
 	}
 	else
 	{
-		throw String(TiTools.Locate.getString('TITOOLS_THROW_NOT_FOUND') + '\n' + filename);
+		throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_EXTENSION') + '\n' + filename);
 	}
 }
 

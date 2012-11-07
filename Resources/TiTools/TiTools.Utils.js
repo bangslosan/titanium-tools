@@ -1,9 +1,9 @@
-var TiTools = {
-	Object : require("TiTools/TiTools.Object"),
-	Platform : require("TiTools/TiTools.Platform"),
-	Locate : require("TiTools/TiTools.Locate"),
-	JSON : require("TiTools/TiTools.JSON")
-};
+var TiTools = require("TiTools/TiTools");
+
+TiTools.loadLibrary('TiTools/TiTools.Object', 'Object');
+TiTools.loadLibrary('TiTools/TiTools.Locate', 'Locate');
+TiTools.loadLibrary('TiTools/TiTools.Platform', 'Platform');
+TiTools.loadLibrary('TiTools/TiTools.JSON', 'JSON');
 
 //---------------------------------------------//
 
@@ -68,10 +68,35 @@ function callPhone(phone)
 	alert.show();
 }
 
+/**
+	@brief
+		Вспомогательная функция для работы с текущими табами,
+		возвращает либо то, что на входе, либо текущее значение переменной
+		TiTools.currentTab. В эту переменную при каждом вызове функции TiTools.UI.Controls.createTab()
+		записывается таб. 
+	@param _tab
+		Текущий таб или undefined
+	@return
+		Либо входной параметр либо значение из переменной TiTools.currentTab
+**/
+
+function getCurrentTab(_tab)
+{
+	if( _tab != undefined )
+	{
+		return _tab;
+	}
+	else
+	{
+		return TiTools.currentTab;
+	}
+}
+
 //---------------------------------------------//
 
 module.exports = {
 	sleep : sleep,
 	info : info,
-	callPhone : callPhone
+	callPhone : callPhone,
+	getCurrentTab : getCurrentTab 
 };

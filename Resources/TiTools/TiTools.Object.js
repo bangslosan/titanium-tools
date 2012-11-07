@@ -1,15 +1,13 @@
-if(Ti.App.TiToolsLastUnigueID == undefined)
-{
-	Ti.App.TiToolsLastUnigueID = 0;
-}
+var lastUniqueId = 0;
 
 //---------------------------------------------//
 
 function unigueID()
 {
-	Ti.App.TiToolsLastUnigueID = Ti.App.TiToolsLastUnigueID + 1;
-	return Ti.App.TiToolsLastUnigueID;
+	lastUniqueId++;
+	return lastUniqueId;
 }
+
 
 function combine(objectA, objectB)
 {

@@ -1,3 +1,4 @@
+//TODO изменить на локальные
 if(Ti.App.TiToolsHtmlStyleSheet == undefined)
 {
 	Ti.App.TiToolsHtmlStyleSheet = [];

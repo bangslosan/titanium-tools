@@ -1,20 +1,28 @@
-var TiTools = {
-	Platform : require("TiTools/TiTools.Platform"),
-	Locate : require("TiTools/TiTools.Locate")
-};
+var TiTools = require("TiTools/TiTools");
+
+TiTools.loadLibrary('TiTools/TiTools.Locate', 'Locate');
+TiTools.loadLibrary('TiTools/TiTools.Platform', 'Platform');
 
 //---------------------------------------------//
+
 
 if(Ti.App.TiToolsFilesystemPath == undefined)
 {
 	var resourcesPath = TiTools.Platform.appropriate(
 		{
 			android : 'file:///android_asset/Resources/',
-			ios : Ti.Filesystem.resourcesDirectory + Ti.Filesystem.separator
+			ios : Ti.Filesystem.resourcesDirectory
+		}
+	);
+	var controllersPath = TiTools.Platform.appropriate(
+		{
+			android : '',
+			ios : Ti.Filesystem.resourcesDirectory
 		}
 	);
 	Ti.App.TiToolsFilesystemPath = {
-		resourcesPath : resourcesPath
+		resourcesPath : resourcesPath,
+		controllersPath : controllersPath
 	};
 }
 
@@ -31,29 +39,34 @@ if(Ti.App.TiToolsFilesystemPath == undefined)
 **/
 function preprocessPath(path)
 {
-	var result = path.replace(/%([A-Za-z_]*)%/g,
+	return path.replace(/%([A-Za-z_]*)%/g,
 		function(str, p1, p2, offset, s)
 		{
 			switch(p1)
 			{
 				case 'ResourcesPath': return Ti.App.TiToolsFilesystemPath.resourcesPath;
+				case 'ControllersPath': return Ti.App.TiToolsFilesystemPath.controllersPath;
 				default: break;
 			}
 			return p1;
 		}
 	);
-	if(result != path)
-	{
-		if(TiTools.Platform.isSimulator == true)
-		{
-			var file = Ti.Filesystem.getFile(result);
-			if(file.exists() == false)
-			{
-				throw String(TiTools.Locate.getString('TITOOLS_THROW_FILE_NOT_FOUND') + ': ' + result);
-			}
-		}
-	}
-	return result;
+}
+
+//---------------------------------------------//
+
+/**
+	@brief
+		Загрузка модуля.
+		Если файла не сужествует то сработает исключение
+	@param path
+		Путь до модуля
+	@return
+		Обьект Ti.Module
+**/
+function loadModule(path)
+{
+	return require(path.replace(/\.js$/g, ''));
 }
 
 //---------------------------------------------//
@@ -61,7 +74,7 @@ function preprocessPath(path)
 /**
 	@brief
 		Получение указателя на файл.
-		Если файла не сужествует до сработает исключение
+		Если файла не сужествует то сработает исключение
 	@param path
 		Путь до файла
 	@return
@@ -76,5 +89,6 @@ function getFile(path)
 
 module.exports = {
 	preprocessPath : preprocessPath,
+	loadModule : loadModule,
 	getFile : getFile
 };

@@ -1,9 +1,7 @@
-var TiTools = {
-	Object : require("TiTools/TiTools.Object"),
-	UI : {
-		Preset : require("TiTools/TiTools.UI.Preset")
-	}
-};
+var TiTools = require("TiTools/TiTools");
+
+TiTools.loadLibrary('TiTools/TiTools.Object', 'Object');
+TiTools.loadLibrary('TiTools/TiTools.UI.Preset', 'UI', 'Preset');
 
 //---------------------------------------------//
 
@@ -58,27 +56,34 @@ module.exports = {
 	},
 	createTab : function(params)
 	{
-		return Ti.UI.createTab(
-			TiTools.UI.Preset.merge(
-				params,
-				{
-					uid : TiTools.Object.unigueID(),
-					className : 'Ti.UI.Tab'
-				} 
-			)
-		);
+		TiTools.currentTab = Ti.UI.createTab(
+								TiTools.UI.Preset.merge(
+									params,
+									{
+										uid : TiTools.Object.unigueID(),
+										className : 'Ti.UI.Tab'
+									} 
+								)
+							); 
+		return TiTools.currentTab;
 	},
 	createWindow : function(params)
 	{
-		return Ti.UI.createWindow(
-			TiTools.UI.Preset.merge(
-				params,
-				{
-					uid : TiTools.Object.unigueID(),
-					className : 'Ti.UI.Window'
-				} 
-			)
-		);
+		var win = Ti.UI.createWindow(
+					TiTools.UI.Preset.merge(
+						params,
+						{
+							uid : TiTools.Object.unigueID(),
+							className : 'Ti.UI.Window'
+						} 
+					)
+				);
+		if(params.main != undefined)
+		{
+			var func = require(params.main.replace(/\.js$/g, ''));
+			func(win, params.currentTab);
+		}
+		return win; 
 	},
 	createView : function(params)
 	{
@@ -328,6 +333,18 @@ module.exports = {
 				{
 					uid : TiTools.Object.unigueID(),
 					className : 'Ti.UI.GoogleMapView'
+				}
+			)
+		);
+	},
+	createGoogleMapViewAnnotation : function(params)
+	{
+		return Ti.Map.createAnnotation(
+			TiTools.UI.Preset.merge(
+				params,
+				{
+					uid : TiTools.Object.unigueID(),
+					className : 'Ti.UI.GoogleMapViewAnnotation'
 				}
 			)
 		);
