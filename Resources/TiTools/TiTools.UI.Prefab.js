@@ -1,5 +1,7 @@
 var TiTools = require("TiTools/TiTools");
 
+//---------------------------------------------//
+
 TiTools.loadLibrary('TiTools/TiTools.Object', 'Object');
 TiTools.loadLibrary('TiTools/TiTools.String', 'String');
 TiTools.loadLibrary('TiTools/TiTools.Locate', 'Locate');
@@ -26,6 +28,8 @@ function set(name, prefab)
 	prefabsCaches.push(prefab); 
 }
 
+//---------------------------------------------//
+
 function get(name)
 {
 	var index = prefabsNames.indexOf(name);
@@ -35,6 +39,8 @@ function get(name)
 	}
 	return undefined;
 }
+
+//---------------------------------------------//
 
 function remove(name)
 {
@@ -70,6 +76,8 @@ function load(params)
 		loadFromFilename(params);
 	}
 }
+
+//---------------------------------------------//
 
 function loadFromFilename(filename)
 {
@@ -141,6 +149,8 @@ function loadFromFilename(filename)
 	}
 }
 
+//---------------------------------------------//
+
 function loadFromJSON(content)
 {
 	if((TiTools.Object.isString(content.name) == false) || (TiTools.Object.isObject(content.prefab) == false))
@@ -149,6 +159,8 @@ function loadFromJSON(content)
 	}
 	set(content.name, content.prefab);
 }
+
+//---------------------------------------------//
 
 function loadFromXML(content)
 {

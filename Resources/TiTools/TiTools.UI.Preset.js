@@ -1,5 +1,7 @@
 var TiTools = require("TiTools/TiTools");
 
+//---------------------------------------------//
+
 TiTools.loadLibrary('TiTools/TiTools.Object', 'Object');
 TiTools.loadLibrary('TiTools/TiTools.String', 'String');
 TiTools.loadLibrary('TiTools/TiTools.DateTime', 'DateTime');
@@ -27,6 +29,8 @@ function set(name, style)
 	presetsStyles.push(style);
 }
 
+//---------------------------------------------//
+
 function get(name)
 {
 	var index = presetsNames.indexOf(name);
@@ -36,6 +40,8 @@ function get(name)
 	}
 	return undefined;
 }
+
+//---------------------------------------------//
 
 function remove(name)
 {
@@ -93,6 +99,8 @@ function merge(params, defaults)
 	}
 	return preprocess(result);
 }
+
+//---------------------------------------------//
 
 function preprocess(params)
 {
@@ -158,6 +166,8 @@ function preprocess(params)
 	}
 	return params;
 }
+
+//---------------------------------------------//
 
 function preprocessArgument(arg)
 {
@@ -406,6 +416,8 @@ function applyByName(object, name)
 	apply(object, preprocess(params));
 }
 
+//---------------------------------------------//
+
 function apply(object, params)
 {
 	for(var i in params)
@@ -450,6 +462,8 @@ function load(params)
 		loadFromFilename(params);
 	}
 }
+
+//---------------------------------------------//
 
 function loadFromFilename(filename)
 {
@@ -522,6 +536,8 @@ function loadFromFilename(filename)
 	}
 }
 
+//---------------------------------------------//
+
 function loadFromJSON(content)
 {
 	if((TiTools.Object.isString(content.name) == false) || (TiTools.Object.isObject(content.style) == false))
@@ -530,6 +546,8 @@ function loadFromJSON(content)
 	}
 	set(content.name, content.style);
 }
+
+//---------------------------------------------//
 
 function loadFromXML(content)
 {

@@ -1,4 +1,6 @@
-//TODO изменить на локальные
+
+//---------------------------------------------//
+
 if(Ti.App.TiToolsHtmlStyleSheet == undefined)
 {
 	Ti.App.TiToolsHtmlStyleSheet = [];
@@ -18,6 +20,8 @@ function styleSheetAdd(name, style)
 	Ti.App.TiToolsHtmlStyleSheet = list;
 }
 
+//---------------------------------------------//
+
 function styleSheetSet(name, style)
 {
 	var list = Ti.App.TiToolsHtmlStyleSheet;
@@ -31,6 +35,8 @@ function styleSheetSet(name, style)
 	}
 }
 
+//---------------------------------------------//
+
 function styleSheetGet(name)
 {
 	var list = Ti.App.TiToolsHtmlStyleSheet;
@@ -43,6 +49,8 @@ function styleSheetGet(name)
 	}
 	return '';
 }
+
+//---------------------------------------------//
 
 function styleSheetRemove(name)
 {
@@ -58,10 +66,14 @@ function styleSheetRemove(name)
 	Ti.App.TiToolsHtmlStyleSheet = list;
 }
 
+//---------------------------------------------//
+
 function styleSheetRemoveAll()
 {
 	Ti.App.TiToolsHtmlStyleSheet = [];
 }
+
+//---------------------------------------------//
 
 function createTable(style, content)
 {
@@ -74,6 +86,8 @@ function createTable(style, content)
 	return res;
 }
 
+//---------------------------------------------//
+
 function createTableRow(style, content)
 {
 	var res = '<tr' + styleSheetGet(style) + '>';
@@ -84,6 +98,8 @@ function createTableRow(style, content)
 	res += '</tr>';
 	return res;
 }
+
+//---------------------------------------------//
 
 function createTableCell(style, content)
 {

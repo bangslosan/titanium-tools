@@ -1,5 +1,7 @@
 var TiTools = require("TiTools/TiTools");
 
+//---------------------------------------------//
+
 TiTools.loadLibrary('TiTools/TiTools.Object', 'Object');
 TiTools.loadLibrary('TiTools/TiTools.String', 'String');
 TiTools.loadLibrary('TiTools/TiTools.Locate', 'Locate');
@@ -8,6 +10,8 @@ TiTools.loadLibrary('TiTools/TiTools.Platform', 'Platform');
 TiTools.loadLibrary('TiTools/TiTools.JSON', 'JSON');
 TiTools.loadLibrary('TiTools/TiTools.XML', 'XML');
 TiTools.loadLibrary('TiTools/TiTools.Utils', 'Utils');
+
+//---------------------------------------------//
 
 TiTools.loadLibrary('TiTools/TiTools.UI.Controls', 'UI', 'Controls');
 TiTools.loadLibrary('TiTools/TiTools.UI.Prefab', 'UI', 'Prefab');
@@ -31,6 +35,8 @@ function preloadSet(name, cache)
 	loadersCaches.push(cache);
 }
 
+//---------------------------------------------//
+
 function preloadGet(name)
 {
 	var index = loadersNames.indexOf(name);
@@ -40,6 +46,8 @@ function preloadGet(name)
 	}
 	return undefined;
 }
+
+//---------------------------------------------//
 
 function preloadRemove(name)
 {
@@ -76,6 +84,8 @@ function preload(params)
 		preloadFromFilename(params);
 	}
 }
+
+//---------------------------------------------//
 
 function preloadFromFilename(filename)
 {
@@ -155,6 +165,8 @@ function preloadFromFilename(filename)
 	return undefined;
 }
 
+//---------------------------------------------//
+
 function preloadFromJSON(content)
 {
 	if(content.prefab != undefined)
@@ -230,6 +242,8 @@ function preloadFromJSON(content)
 	}
 	return content;
 }
+
+//---------------------------------------------//
 
 function preloadFromXML(content)
 {
@@ -462,6 +476,8 @@ function loadFromFilename(filename, controller, callback)
 	}
 	return controller;
 }
+
+//---------------------------------------------//
 
 function loadFromJSON(content, controller, callback)
 {
@@ -1042,6 +1058,8 @@ function loadFromJSON(content, controller, callback)
 	}
 	return outlet;
 }
+
+//---------------------------------------------//
 
 function loadFromXML(content, controller, callback)
 {

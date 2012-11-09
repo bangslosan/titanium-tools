@@ -1,10 +1,11 @@
 var TiTools = require("TiTools/TiTools");
 
+//---------------------------------------------//
+
 TiTools.loadLibrary('TiTools/TiTools.Locate', 'Locate');
 TiTools.loadLibrary('TiTools/TiTools.Platform', 'Platform');
 
 //---------------------------------------------//
-
 
 if(Ti.App.TiToolsFilesystemPath == undefined)
 {

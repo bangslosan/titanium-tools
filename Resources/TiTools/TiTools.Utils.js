@@ -1,5 +1,7 @@
 var TiTools = require("TiTools/TiTools");
 
+//---------------------------------------------//
+
 TiTools.loadLibrary('TiTools/TiTools.Object', 'Object');
 TiTools.loadLibrary('TiTools/TiTools.Locate', 'Locate');
 TiTools.loadLibrary('TiTools/TiTools.Platform', 'Platform');
@@ -20,6 +22,8 @@ function sleep(time)
 	}
 }
 
+//---------------------------------------------//
+
 function info(data)
 {
 	if(TiTools.Platform.isAndroid == true)
@@ -39,6 +43,8 @@ function info(data)
 		alert(data);
 	}
 }
+
+//---------------------------------------------//
 
 function callPhone(phone)
 {
@@ -67,6 +73,8 @@ function callPhone(phone)
 	);
 	alert.show();
 }
+
+//---------------------------------------------//
 
 /**
 	@brief

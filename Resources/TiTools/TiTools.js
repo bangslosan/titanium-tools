@@ -10,11 +10,10 @@
 	@param 
 		Переменное число аргументов, первый - путь к модулю, 
 		остальные - пространство в TiTools, к которому добавляются модули. 
-		Например loadLibrary('TiTools/TiTools.UI.Preset', 'UI', 'Preset');
+		Например loadLibrary("TiTools/TiTools.UI.Preset", "UI", "Preset");
 	@return
 		false - не удалось загрузить библиотеку, true - удалось
 **/
-
 function loadLibrary()
 {
 	if(arguments.length < 2)
@@ -57,28 +56,28 @@ function loadLibrary()
 	@return
 		ничего
 **/
-
 function initLibraries()
 {
-	loadLibrary('TiTools/TiTools.Object', 'Object');
-	loadLibrary('TiTools/TiTools.String', 'String');
-	loadLibrary('TiTools/TiTools.DateTime', 'DateTime');
-	loadLibrary('TiTools/TiTools.Storage', 'Storage');
-	loadLibrary('TiTools/TiTools.Locate', 'Locate');
-	loadLibrary('TiTools/TiTools.Filesystem', 'Filesystem');
-	loadLibrary('TiTools/TiTools.Platform', 'Platform');
-	loadLibrary('TiTools/TiTools.HTML', 'HTML');
-	loadLibrary('TiTools/TiTools.HTTP', 'HTTP');
-	loadLibrary('TiTools/TiTools.JSON', 'JSON');
-	loadLibrary('TiTools/TiTools.XML', 'XML');
-	loadLibrary('TiTools/TiTools.CSV', 'CSV');
-	loadLibrary('TiTools/TiTools.Utils', 'Utils');
-	loadLibrary('TiTools/TiTools.GeoLocation', 'GeoLocation');
+	loadLibrary("TiTools/TiTools.Object", "Object");
+	loadLibrary("TiTools/TiTools.String", "String");
+	loadLibrary("TiTools/TiTools.DateTime", "DateTime");
+	loadLibrary("TiTools/TiTools.Global", "Global");
+	loadLibrary("TiTools/TiTools.Storage", "Storage");
+	loadLibrary("TiTools/TiTools.Locate", "Locate");
+	loadLibrary("TiTools/TiTools.Filesystem", "Filesystem");
+	loadLibrary("TiTools/TiTools.Platform", "Platform");
+	loadLibrary("TiTools/TiTools.HTML", "HTML");
+	loadLibrary("TiTools/TiTools.HTTP", "HTTP");
+	loadLibrary("TiTools/TiTools.JSON", "JSON");
+	loadLibrary("TiTools/TiTools.XML", "XML");
+	loadLibrary("TiTools/TiTools.CSV", "CSV");
+	loadLibrary("TiTools/TiTools.Utils", "Utils");
+	loadLibrary("TiTools/TiTools.GeoLocation", "GeoLocation");
 	
-	loadLibrary('TiTools/TiTools.UI.Controls', 'UI', 'Controls');
-	loadLibrary('TiTools/TiTools.UI.Loader', 'UI', 'Loader');
-	loadLibrary('TiTools/TiTools.UI.Prefab', 'UI', 'Prefab');
-	loadLibrary('TiTools/TiTools.UI.Preset', 'UI', 'Preset');
+	loadLibrary("TiTools/TiTools.UI.Controls", "UI", "Controls");
+	loadLibrary("TiTools/TiTools.UI.Loader", "UI", "Loader");
+	loadLibrary("TiTools/TiTools.UI.Prefab", "UI", "Prefab");
+	loadLibrary("TiTools/TiTools.UI.Preset", "UI", "Preset");
 }
 
 //---------------------------------------------//

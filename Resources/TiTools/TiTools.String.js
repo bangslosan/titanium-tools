@@ -1,8 +1,12 @@
+//---------------------------------------------//
+
 function isInt(str)
 {
 	var regExp = /^\d+$/;
 	return regExp.test(str);
 }
+
+//---------------------------------------------//
 
 function isFloat(str)
 {
@@ -10,11 +14,15 @@ function isFloat(str)
 	return regExp.test(str);
 }
 
+//---------------------------------------------//
+
 function needsQuoting(str)
 {
 	var regExp = /^\s|\s$|,|"|\n/;
 	return regExp.test(str);
 }
+
+//---------------------------------------------//
 
 function trim(str)
 {
@@ -35,6 +43,8 @@ function trim(str)
 	return "";
 }
 
+//---------------------------------------------//
+
 function paddingLeft(str, length, chars)
 {
 	str = String(str);
@@ -45,6 +55,8 @@ function paddingLeft(str, length, chars)
 	return str;
 }
 
+//---------------------------------------------//
+
 function paddingRight(str, length, chars)
 {
 	str = String(str);
@@ -54,6 +66,8 @@ function paddingRight(str, length, chars)
 	}
 	return str;
 }
+
+//---------------------------------------------//
 
 function chomp(str)
 {
@@ -68,6 +82,8 @@ function chomp(str)
 	}
 }
 
+//---------------------------------------------//
+
 function isPrefix(str, prefix)
 {
 	if(str.indexOf(prefix) == 0)
@@ -76,6 +92,8 @@ function isPrefix(str, prefix)
 	}
 	return false;
 }
+
+//---------------------------------------------//
 
 function isSuffix(str, suffix)
 {
@@ -86,6 +104,8 @@ function isSuffix(str, suffix)
 	}
 	return false;
 }
+
+//---------------------------------------------//
 
 function replaceAll(str, search, replace)
 {

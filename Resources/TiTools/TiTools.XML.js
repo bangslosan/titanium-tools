@@ -1,5 +1,7 @@
 var TiTools = require("TiTools/TiTools");
 
+//---------------------------------------------//
+
 TiTools.loadLibrary('TiTools/TiTools.String', 'String');
 
 //---------------------------------------------//
@@ -8,6 +10,8 @@ function serialize(node)
 {
 	return '';
 }
+
+//---------------------------------------------//
 
 function deserialize(string)
 {
@@ -18,6 +22,8 @@ function deserialize(string)
 	}
 	return undefined;
 }
+
+//---------------------------------------------//
 
 function deserializeNode(node)
 {
