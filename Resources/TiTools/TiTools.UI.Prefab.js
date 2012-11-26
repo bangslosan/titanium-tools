@@ -82,7 +82,6 @@ function load(params)
 function loadFromFilename(filename)
 {
 	if(TiTools.String.isSuffix(filename, '.js') == true)
-<<<<<<< HEAD
 	{
 		var module = TiTools.Filesystem.loadModule(filename);
 		if(TiTools.Object.isArray(module) == true)
@@ -102,27 +101,6 @@ function loadFromFilename(filename)
 		var file = TiTools.Filesystem.getFile(filename);
 		if(file.exists() == true)
 		{
-=======
-	{
-		var module = TiTools.Filesystem.loadModule(filename);
-		if(TiTools.Object.isArray(module) == true)
-		{
-			for(var j = 0; j < module.length; j++)
-			{
-				loadFromJSON(module[j]);
-			}
-		}
-		else if(TiTools.Object.isObject(module) == true)
-		{
-			loadFromJSON(module);
-		}
-	}
-	else if(TiTools.String.isSuffix(filename, '.json') == true)
-	{
-		var file = TiTools.Filesystem.getFile(filename);
-		if(file.exists() == true)
-		{
->>>>>>> origin/new_architecture
 			var blob = file.read();
 			var content = TiTools.JSON.deserialize(blob.text);
 			if(TiTools.Object.isArray(content) == true)

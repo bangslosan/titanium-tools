@@ -52,7 +52,7 @@ function loadLibrary()
 
 /**
 	@brief
-		загрузка всех библиотек TiTools
+		Загрузка всех библиотек TiTools
 	@return
 		ничего
 **/

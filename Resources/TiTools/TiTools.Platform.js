@@ -1,6 +1,6 @@
 //---------------------------------------------//
 
-var SCREEN_MODE_UNKNOWN = 'unknown';
+var SCREEN_MODE_UNKNOWN = 'Unknown';
 var SCREEN_MODE_SMALL = 'Small';
 var SCREEN_MODE_NORMAL = 'Normal';
 var SCREEN_MODE_LARGE = 'Large';

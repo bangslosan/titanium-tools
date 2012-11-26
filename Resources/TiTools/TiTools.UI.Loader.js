@@ -90,7 +90,6 @@ function preload(params)
 function preloadFromFilename(filename)
 {
 	if(TiTools.String.isSuffix(filename, '.js') == true)
-<<<<<<< HEAD
 	{
 		var content = TiTools.Filesystem.loadModule(filename);
 		if(TiTools.Object.isArray(content) == true)
@@ -112,29 +111,6 @@ function preloadFromFilename(filename)
 		var file = TiTools.Filesystem.getFile(filename);
 		if(file.exists() == true)
 		{
-=======
-	{
-		var content = TiTools.Filesystem.loadModule(filename);
-		if(TiTools.Object.isArray(content) == true)
-		{
-			for(var i = 0; i < content.length; i++)
-			{
-				content[i] = preloadFromJSON(content[i]);
-			}
-		}
-		else if(TiTools.Object.isObject(content) == true)
-		{
-			content = preloadFromJSON(content);
-		}
-		preloadSet(filename, content);
-		return content;
-	}
-	else if(TiTools.String.isSuffix(filename, '.json') == true)
-	{
-		var file = TiTools.Filesystem.getFile(filename);
-		if(file.exists() == true)
-		{
->>>>>>> origin/new_architecture
 			var blob = file.read();
 			var content = TiTools.JSON.deserialize(blob.text);
 			if(TiTools.Object.isArray(content) == true)
