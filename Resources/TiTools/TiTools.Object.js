@@ -1,15 +1,16 @@
-if(Ti.App.TiToolsLastUnigueID == undefined)
-{
-	Ti.App.TiToolsLastUnigueID = 0;
-}
+//---------------------------------------------//
+
+var lastUniqueId = 0;
 
 //---------------------------------------------//
 
 function unigueID()
 {
-	Ti.App.TiToolsLastUnigueID = Ti.App.TiToolsLastUnigueID + 1;
-	return Ti.App.TiToolsLastUnigueID;
+	lastUniqueId++;
+	return lastUniqueId;
 }
+
+//---------------------------------------------//
 
 function combine(objectA, objectB)
 {
@@ -42,6 +43,8 @@ function combine(objectA, objectB)
 	}
 	return result;
 }
+
+//---------------------------------------------//
 
 function clone(object)
 {
@@ -79,6 +82,8 @@ function clone(object)
 	return object;
 }
 
+//---------------------------------------------//
+
 function swap(object, paramA, paramB)
 {
 	var temp = object[paramA];
@@ -86,10 +91,14 @@ function swap(object, paramA, paramB)
 	object[paramB] = temp;
 }
 
+//---------------------------------------------//
+
 function isFunction(object)
 {
 	return (typeof(object) == 'function');
 }
+
+//---------------------------------------------//
 
 function isObject(object)
 {
@@ -100,6 +109,8 @@ function isObject(object)
 	return (object.toString() == '[object Object]');
 }
 
+//---------------------------------------------//
+
 function isArray(object)
 {
 	if(object == undefined)
@@ -109,10 +120,14 @@ function isArray(object)
 	return (Object.prototype.toString.call(object) == '[object Array]');
 }
 
+//---------------------------------------------//
+
 function isNumber(object)
 {
 	return (typeof(object) == 'number');
 }
+
+//---------------------------------------------//
 
 function isString(object)
 {

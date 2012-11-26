@@ -1,6 +1,8 @@
-var TiTools = {
-	Locate : require("TiTools/TiTools.Locate")
-};
+var TiTools = require("TiTools/TiTools");
+
+//---------------------------------------------//
+
+TiTools.loadLibrary('TiTools/TiTools.Locate', 'Locate');
 
 //---------------------------------------------//
 

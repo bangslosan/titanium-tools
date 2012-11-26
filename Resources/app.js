@@ -1,21 +1,23 @@
 var TiTools = require('TiTools/TiTools');
-
+	TiTools.initLibraries();  //первичная загрузка всех библиотек
+	
 //---------------------------------------------//
 
-TiTools.UI.Preset.load(
-	[
-		{
-			android : '%ResourcesPath%Presets/Android.json',
-			ios : '%ResourcesPath%Presets/iOS.json'
-		}
-	]
-);
+if(TiTools.Platform.isAndroid == true)
+{
+	TiTools.UI.Preset.load("Presets/preset.js");
+}
+else
+{
+	TiTools.UI.Preset.load("Presets/preset.js");
+}
+
 
 //---------------------------------------------//
 
 var main = TiTools.UI.Controls.createWindow(
 	{
-		url : 'viewFirst.js'
+		main : 'viewFirst.js' //аналог url
 	}
 );
 main.open();

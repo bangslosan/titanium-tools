@@ -1,16 +1,17 @@
-var TiTools = require("TiTools/TiTools");
+function init(win) 
+{
+	var TiTools = require("TiTools/TiTools");
 
-//---------------------------------------------//
+	//---------------------------------------------//
+	
+	var screen = TiTools.UI.Loader.load('Views/TabGroup.json', win);
+	
+	//---------------------------------------------//
+	
+	screen.tabbar.open();
+	win.hide();
+	
+	//---------------------------------------------//
+}
 
-var window = Ti.UI.currentWindow;
-
-//---------------------------------------------//
-
-var screen = TiTools.UI.Loader.load('%ResourcesPath%Views/TabGroup.json', window);
-
-//---------------------------------------------//
-
-screen.tabbar.open();
-window.hide();
-
-//---------------------------------------------//
+module.exports = init;

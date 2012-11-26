@@ -1,72 +1,62 @@
-var TiTools = {
-	Object : require("TiTools/TiTools.Object"),
-	String : require("TiTools/TiTools.String"),
-	Filesystem : require("TiTools/TiTools.Filesystem"),
-	Locate : require("TiTools/TiTools.Locate"),
-	Platform : require("TiTools/TiTools.Platform"),
-	JSON : require("TiTools/TiTools.JSON"),
-	XML : require("TiTools/TiTools.XML"),
-	Utils : require("TiTools/TiTools.Utils"),
-	UI : {
-		Controls : require("TiTools/TiTools.UI.Controls"),
-		Prefab : require("TiTools/TiTools.UI.Prefab"),
-		Preset : require("TiTools/TiTools.UI.Preset")
-	}
-};
+var TiTools = require("TiTools/TiTools");
 
 //---------------------------------------------//
 
-if(Ti.App.TiToolsLoaders == undefined)
-{
-	Ti.App.TiToolsLoaders = [];
-}
+TiTools.loadLibrary('TiTools/TiTools.Object', 'Object');
+TiTools.loadLibrary('TiTools/TiTools.String', 'String');
+TiTools.loadLibrary('TiTools/TiTools.Locate', 'Locate');
+TiTools.loadLibrary('TiTools/TiTools.Filesystem', 'Filesystem');
+TiTools.loadLibrary('TiTools/TiTools.Platform', 'Platform');
+TiTools.loadLibrary('TiTools/TiTools.JSON', 'JSON');
+TiTools.loadLibrary('TiTools/TiTools.XML', 'XML');
+TiTools.loadLibrary('TiTools/TiTools.Utils', 'Utils');
+
+//---------------------------------------------//
+
+TiTools.loadLibrary('TiTools/TiTools.UI.Controls', 'UI', 'Controls');
+TiTools.loadLibrary('TiTools/TiTools.UI.Prefab', 'UI', 'Prefab');
+TiTools.loadLibrary('TiTools/TiTools.UI.Preset', 'UI', 'Preset');
+
+//---------------------------------------------//
+
+var loadersNames  = [];
+var loadersCaches = [];
 
 //---------------------------------------------//
 
 function preloadSet(name, cache)
 {
-	var list = Ti.App.TiToolsLoaders;
-	for(var i = 0; i < list.length; i++)
+	var index = loadersNames.indexOf(name);
+	if(index > -1)
 	{
-		if(list[i].name == name)
-		{
-			throw String(TiTools.Locate.getString('TITOOLS_THROW_OVERRIDE_PRESET') + '\n' + name);
-		}
+		throw String(TiTools.Locate.getString('TITOOLS_THROW_OVERRIDE_PRESET') + '\n' + name);
 	}
-	list.push(
-		{
-			name : name,
-			cache : cache
-		}
-	);
-	Ti.App.TiToolsLoaders = list;
+	loadersNames.push(name);
+	loadersCaches.push(cache);
 }
+
+//---------------------------------------------//
 
 function preloadGet(name)
 {
-	var list = Ti.App.TiToolsLoaders;
-	for(var i = 0; i < list.length; i++)
+	var index = loadersNames.indexOf(name);
+	if(index > -1)
 	{
-		if(list[i].name == name)
-		{
-			return list[i].cache;
-		}
+		return loadersCaches[index];
 	}
 	return undefined;
 }
 
+//---------------------------------------------//
+
 function preloadRemove(name)
 {
-	var list = Ti.App.TiToolsLoaders;
-	for(var i = 0; i < list.length; i++)
-	{
-		if(list[i].name == name)
-		{
-			list.splice(i, 1);
-			break;
-		}
+	var index = loadersNames.indexOf(name);
+	if(index > -1)
+	{		
+		loadersNames.splice(index, 1);
+		loadersCaches.splice(index, 1);
 	}
-	Ti.App.TiToolsLoaders = list;
 }
 
 //---------------------------------------------//
@@ -95,9 +85,12 @@ function preload(params)
 	}
 }
 
+//---------------------------------------------//
+
 function preloadFromFilename(filename)
 {
 	if(TiTools.String.isSuffix(filename, '.js') == true)
+<<<<<<< HEAD
 	{
 		var content = TiTools.Filesystem.loadModule(filename);
 		if(TiTools.Object.isArray(content) == true)
@@ -119,6 +112,29 @@ function preloadFromFilename(filename)
 		var file = TiTools.Filesystem.getFile(filename);
 		if(file.exists() == true)
 		{
+=======
+	{
+		var content = TiTools.Filesystem.loadModule(filename);
+		if(TiTools.Object.isArray(content) == true)
+		{
+			for(var i = 0; i < content.length; i++)
+			{
+				content[i] = preloadFromJSON(content[i]);
+			}
+		}
+		else if(TiTools.Object.isObject(content) == true)
+		{
+			content = preloadFromJSON(content);
+		}
+		preloadSet(filename, content);
+		return content;
+	}
+	else if(TiTools.String.isSuffix(filename, '.json') == true)
+	{
+		var file = TiTools.Filesystem.getFile(filename);
+		if(file.exists() == true)
+		{
+>>>>>>> origin/new_architecture
 			var blob = file.read();
 			var content = TiTools.JSON.deserialize(blob.text);
 			if(TiTools.Object.isArray(content) == true)
@@ -172,6 +188,8 @@ function preloadFromFilename(filename)
 	}
 	return undefined;
 }
+
+//---------------------------------------------//
 
 function preloadFromJSON(content)
 {
@@ -248,6 +266,8 @@ function preloadFromJSON(content)
 	}
 	return content;
 }
+
+//---------------------------------------------//
 
 function preloadFromXML(content)
 {
@@ -480,6 +500,8 @@ function loadFromFilename(filename, controller, callback)
 	}
 	return controller;
 }
+
+//---------------------------------------------//
 
 function loadFromJSON(content, controller, callback)
 {
@@ -1060,6 +1082,8 @@ function loadFromJSON(content, controller, callback)
 	}
 	return outlet;
 }
+
+//---------------------------------------------//
 
 function loadFromXML(content, controller, callback)
 {

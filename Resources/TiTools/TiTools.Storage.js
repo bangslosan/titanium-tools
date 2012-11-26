@@ -1,3 +1,5 @@
+//---------------------------------------------//
+
 function Storage(name)
 {
 	this.name = 'storage.' + name;

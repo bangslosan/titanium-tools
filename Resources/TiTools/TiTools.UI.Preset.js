@@ -1,69 +1,57 @@
-var TiTools = {
-	Object : require("TiTools/TiTools.Object"),
-	String : require("TiTools/TiTools.String"),
-	Filesystem : require("TiTools/TiTools.Filesystem"),
-	Locate : require("TiTools/TiTools.Locate"),
-	Platform : require("TiTools/TiTools.Platform"),
-	Locate : require("TiTools/TiTools.Locate"),
-	JSON : require("TiTools/TiTools.JSON"),
-	XML : require("TiTools/TiTools.XML")
-};
+var TiTools = require("TiTools/TiTools");
 
 //---------------------------------------------//
 
-if(Ti.App.TiToolsPresets == undefined)
-{
-	Ti.App.TiToolsPresets = [];
-}
+TiTools.loadLibrary('TiTools/TiTools.Object', 'Object');
+TiTools.loadLibrary('TiTools/TiTools.String', 'String');
+TiTools.loadLibrary('TiTools/TiTools.DateTime', 'DateTime');
+TiTools.loadLibrary('TiTools/TiTools.Locate', 'Locate');
+TiTools.loadLibrary('TiTools/TiTools.Filesystem', 'Filesystem');
+TiTools.loadLibrary('TiTools/TiTools.Platform', 'Platform');
+TiTools.loadLibrary('TiTools/TiTools.JSON', 'JSON');
+TiTools.loadLibrary('TiTools/TiTools.XML', 'XML');
+
+//---------------------------------------------//
+
+var presetsNames  = [];
+var presetsStyles = [];
 
 //---------------------------------------------//
 
 function set(name, style)
 {
-	var list = Ti.App.TiToolsPresets;
-	for(var i = 0; i < list.length; i++)
+	var index = presetsNames.indexOf(name);
+	if(index > -1)
 	{
-		if(list[i].name == name)
-		{
-			throw String(TiTools.Locate.getString('TITOOLS_THROW_OVERRIDE_PRESET') + '\n' + name);
-		}
+		throw String(TiTools.Locate.getString('TITOOLS_THROW_OVERRIDE_PRESET') + '\n' + name);
 	}
-	list.push(
-		{
-			name : name,
-			style : style
-		}
-	);
-	Ti.App.TiToolsPresets = list;
+	presetsNames.push(name);
+	presetsStyles.push(style);
 }
+
+//---------------------------------------------//
 
 function get(name)
 {
-	var list = Ti.App.TiToolsPresets;
-	for(var i = 0; i < list.length; i++)
-	{
-		if(list[i].name == name)
-		{
-			return list[i].style;
-		}
+	var index = presetsNames.indexOf(name);
+	if(index > -1)
+	{ 
+		return presetsStyles[index]; 
 	}
 	return undefined;
 }
 
+//---------------------------------------------//
+
 function remove(name)
 {
-	var list = Ti.App.TiToolsPresets;
-	for(var i = 0; i < list.length; i++)
+	var index = presetsNames.indexOf(name);
+	if(index > -1)
 	{
-		if(list[i].name == name)
-		{
-			list.splice(i, 1);
-			break;
-		}
+		presetsNames.splice(index, 1);
+		presetsStyles.splice(index, 1);
 	}
-	Ti.App.TiToolsPresets = list;
 }
-
 //---------------------------------------------//
 
 function merge(params, defaults)
@@ -111,6 +99,8 @@ function merge(params, defaults)
 	}
 	return preprocess(result);
 }
+
+//---------------------------------------------//
 
 function preprocess(params)
 {
@@ -176,6 +166,8 @@ function preprocess(params)
 	}
 	return params;
 }
+
+//---------------------------------------------//
 
 function preprocessArgument(arg)
 {
@@ -424,6 +416,8 @@ function applyByName(object, name)
 	apply(object, preprocess(params));
 }
 
+//---------------------------------------------//
+
 function apply(object, params)
 {
 	for(var i in params)
@@ -468,6 +462,8 @@ function load(params)
 		loadFromFilename(params);
 	}
 }
+
+//---------------------------------------------//
 
 function loadFromFilename(filename)
 {
@@ -540,6 +536,8 @@ function loadFromFilename(filename)
 	}
 }
 
+//---------------------------------------------//
+
 function loadFromJSON(content)
 {
 	if((TiTools.Object.isString(content.name) == false) || (TiTools.Object.isObject(content.style) == false))
@@ -548,6 +546,8 @@ function loadFromJSON(content)
 	}
 	set(content.name, content.style);
 }
+
+//---------------------------------------------//
 
 function loadFromXML(content)
 {

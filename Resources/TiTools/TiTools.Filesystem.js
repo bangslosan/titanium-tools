@@ -1,7 +1,9 @@
-var TiTools = {
-	Platform : require("TiTools/TiTools.Platform"),
-	Locate : require("TiTools/TiTools.Locate")
-};
+var TiTools = require("TiTools/TiTools");
+
+//---------------------------------------------//
+
+TiTools.loadLibrary('TiTools/TiTools.Locate', 'Locate');
+TiTools.loadLibrary('TiTools/TiTools.Platform', 'Platform');
 
 //---------------------------------------------//
 

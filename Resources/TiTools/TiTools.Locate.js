@@ -1,6 +1,8 @@
-var TiTools = {
-	Object : require("TiTools/TiTools.Object")
-};
+var TiTools = require("TiTools/TiTools");
+
+//---------------------------------------------//
+
+TiTools.loadLibrary('TiTools/TiTools.Object', 'Object');
 
 //---------------------------------------------//
 
