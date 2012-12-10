@@ -6,6 +6,10 @@ TiTools.loadLibrary('TiTools/TiTools.Locate', 'Locate');
 
 //---------------------------------------------//
 
+var httpHandle = undefined;
+
+//---------------------------------------------//
+
 function isOnline()
 {
 	return Ti.Network.online;
@@ -17,7 +21,7 @@ function response(params)
 	{
 		throw new String(TiTools.Locate.getString('TITOOLS_THROW_BAD_PARAMS'));
 	}
-	if(Ti.App.TiToolsHttpHandle != undefined)
+	if(httpHandle != undefined)
 	{
 		throw new String(TiTools.Locate.getString('TITOOLS_THROW_HHTP_SINGLETON'));
 	}
@@ -27,7 +31,7 @@ function response(params)
 		case 'POST':
 		break;
 		default:
-			throw String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_METHOD'));
+			throw new String(TiTools.Locate.getString('TITOOLS_THROW_UNKNOWN_METHOD'));
 	}
 	var handle = Ti.Network.createHTTPClient(
 		{
@@ -35,8 +39,8 @@ function response(params)
 			enableKeepAlive : false,
 			onload : function(event)
 			{
-				var handle = Ti.App.TiToolsHttpHandle;
-				Ti.App.TiToolsHttpHandle = undefined;
+				var handle = httpHandle;
+				httpHandle = undefined;
 				if(params.success != undefined)
 				{
 					params.success(handle);
@@ -58,8 +62,8 @@ function response(params)
 			},
 			onerror : function(event)
 			{
-				var handle = Ti.App.TiToolsHttpHandle;
-				Ti.App.TiToolsHttpHandle = undefined;
+				var handle = httpHandle;
+				httpHandle = undefined;
 				if(params.failure != undefined)
 				{
 					params.failure(handle);
@@ -101,16 +105,16 @@ function response(params)
 		case 'POST': handle.send(params.reguest.post); break;
 		default: break;
 	}
-	Ti.App.TiToolsHttpHandle = handle;
-	return Ti.App.TiToolsHttpHandle;
+	httpHandle = handle;
+	return httpHandle;
 }
 
 function abort()
 {
-	if(Ti.App.TiToolsHttpHandle != undefined)
+	if(httpHandle != undefined)
 	{
-		Ti.App.TiToolsHttpHandle.abort();
-		Ti.App.TiToolsHttpHandle = undefined;
+		httpHandle.abort();
+		httpHandle = undefined;
 	}
 }
 
