@@ -460,6 +460,49 @@ function createPaintView(params)
 }
 
 //---------------------------------------------//
+// Extension controls
+//---------------------------------------------//
+if(TiTools.Platform.isAndroid == true)
+{
+	Ti.include("TiTools/TiTools.UI.Controls.CreateButton3Ext.js");
+	
+	Ti.include("TiTools.UI.Controls.CreateButton9Ext.js");
+	
+	Ti.include("TiTools.UI.Controls.CreateButtonBarExt.js");
+	 
+	Ti.include("TiTools.UI.Controls.CreateProgressBarExt.js");
+	
+	Ti.include("TiTools.UI.Controls.CreateTabsExt.js");
+	 
+	Ti.include("TiTools.UI.Controls.CreateModalWindowList.js");
+	
+	Ti.include("TiTools.UI.Controls.CreateModalWindowDateWith.js");
+	
+	Ti.include("TiTools.UI.Controls.CreateModalWindowDateOrTime.js");
+}
+else
+{
+	if(TiTools.Platform.isIOS == true)
+	{
+		Ti.include("TiTools/TiTools.UI.Controls.CreateButton3Ext.js");
+	
+		Ti.include("TiTools/TiTools.UI.Controls.CreateButton9Ext.js");
+		
+		Ti.include("TiTools/TiTools.UI.Controls.CreateButtonBarExt.js");
+		 
+		Ti.include("TiTools/TiTools.UI.Controls.CreateProgressBarExt.js");
+		
+		Ti.include("TiTools/TiTools.UI.Controls.CreateTabsExt.js");
+		 
+		Ti.include("TiTools/TiTools.UI.Controls.CreateModalWindowList.js");
+		
+		Ti.include("TiTools/TiTools.UI.Controls.CreateModalWindowDateWith.js");
+		
+		Ti.include("TiTools/TiTools.UI.Controls.CreateModalWindowDateOrTime.js");
+	}
+	
+}
+//---------------------------------------------//
 
 module.exports = {
 	createAlertDialog : createAlertDialog,
@@ -491,5 +534,15 @@ module.exports = {
 	createGoogleMapView : createGoogleMapView,
 	createGoogleMapViewAnnotation : createGoogleMapViewAnnotation,
 	createFacebookLoginButton : createFacebookLoginButton,
-	createPaintView : createPaintView
+	createPaintView : createPaintView,
+	Ext : {
+		createButton3 : createButton3Ext,
+		createButton9 : createButton9Ext,
+		createButtonBar : createButtonBarExt,
+		createProgressBar : createProgressBarExt,
+		createTabs : createTabsExt,
+		createModalWindowList : createModalWindowList,
+		createModalWindowDateOrTime : createModalWindowDateOrTime,
+		createModalWindowDateWith : createModalWindowDateWith
+	}
 };

@@ -12,6 +12,15 @@ module.exports = {
 				width : 300,
 				height : 100
 			}
+		},
+		{
+			outlet : "client",
+			style : {
+				className : "Ti.UI.View",
+				layout : "vertical",
+				width : Ti.UI.FILL,
+				height : Ti.UI.SIZE
+			}
 		}
 	]
 };
