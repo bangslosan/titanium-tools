@@ -2629,17 +2629,10 @@ function pluginLoadWithPath(plugin, path) {
 	}
 }
 function pluginInvokeMethod(name, args, defaults) {
-	var has = "Has" + name;
 	for(var i = 0; i < _plugin.length; i++) {
 		var plugin = _plugin[i];
-		if(coreIsFunction(plugin[has]) == false) {
-			var hasMethod = plugin[has];
-			if(hasMethod.apply(this, args) == true) {
-				if(coreIsFunction(plugin[name]) == false) {
-					var callMethod = plugin[name];
-					return callMethod.apply(this, args);
-				}
-			}
+		if(coreIsFunction(plugin[name]) == false) {
+			return plugin[name].apply(this, args);
 		}
 	}
 	return defaults;
