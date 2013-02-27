@@ -95,6 +95,7 @@ var stringTrimLeft = underscoreString.ltrim;
 var stringTrimRight = underscoreString.rtrim;
 var stringPaddingLeft = underscoreString.lpad;
 var stringPaddingRight = underscoreString.rpad;
+var stringRepeat = underscoreString.repeat;
 
 function stringIsInt(str) {
 	return /^\d+$/.test(str);
@@ -2210,17 +2211,46 @@ function utilsSleep(ms) {
 		}
 	}
 }
-function utilsInfo(data) {
-	if(coreIsAndroid == true) {
-		if(coreIsArray(data) == true) {
-			Ti.API.info("[TiTools]: " + jsonSerialize(data));
-		} else if(coreIsObject(data) == true) {
-			Ti.API.info("[TiTools]: " + jsonSerialize(data));
-		} else {
-			Ti.API.info("[TiTools]: " + data);
+function utilsInfo(message, list) {
+	function printList(name, value, pad, inc) {
+		function printPad(name, value, end) {
+			var empty = stringRepeat(" ", pad);
+			if(name != undefined) {
+				return empty + name + " = " + value + end;
+			}
+			return empty + value + end;
 		}
-	} else if(coreIsIOS == true) {
-		Ti.API.info("[TiTools]: " + data);
+		
+		var text = "";
+		if(coreIsArray(value) == true) {
+			text += printPad(name, "[", "\n");
+			for(var i = 0; i < value.length; i++) {
+				text += printList(undefined, value[i], pad + inc, inc);
+			}
+			text += printPad(undefined, "]", "\n");
+		} else if(coreIsFunction(value) == true) {
+			text += printPad(name, "\"Function\"", "\n");
+		} else if(coreIsObject(value) == true) {
+			text += printPad(name, "{", "\n");
+			for(var i in value) {
+				text += printList(i, value[i], pad + inc, inc);
+			}
+			text += printPad(undefined, "}", "\n");
+		} else {
+			text += printPad(name, "\"" + value + "\"", "\n");
+		}
+		return text;
+	}
+	
+	if(coreIsArray(message) == true) {
+		Ti.API.info("[TiTools]: " + jsonSerialize(message));
+	} else if(coreIsObject(message) == true) {
+		Ti.API.info("[TiTools]: " + jsonSerialize(message));
+	} else {
+		Ti.API.info("[TiTools]: " + message);
+	}
+	if(list != undefined) {
+		Ti.API.info(printList(undefined, list, 0, 2));
 	}
 }
 function utilsAppropriateAny(params, defaults) {
@@ -2546,6 +2576,7 @@ function pluginLoadWithPath(plugin, path) {
 	}
 	var module = coreLoadJS(plugin);
 	if(module != undefined) {
+		utilsInfo("Plugin loaded: \"" + plugin + "\"", module);
 		instance[path[count]] = module;
 		_plugin[plugin] = module;
 	}
@@ -2572,7 +2603,10 @@ function pluginInvokeMethod(name, args, defaults) {
 //---------------------------------------------//
 
 function errorCustom(message, func, value) {
-	utilsInfo(coreTr(message) + " in function \"" + func + "\" as \"" + value + "\"");
+	utilsInfo(coreTr(message), [
+		"Function = \"" + func + "\"",
+		"Detail = \"" + value + "\""
+	]);
 }
 function errorNotFound(func, file) {
 	errorCustom("TITOOLS_ERROR_NOT_FOUND", func, file);
@@ -2650,7 +2684,8 @@ var TiTools = {
 		trimLeft: stringTrimLeft,
 		trimRight: stringTrimRight,
 		paddingLeft: stringPaddingLeft,
-		paddingRight: stringPaddingRight
+		paddingRight: stringPaddingRight,
+		repeat: stringRepeat
 	},
 	Date: {
 		now: dateNow,
