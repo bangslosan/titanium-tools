@@ -1,51 +1,44 @@
-var TiTools = require('TiTools/TiTools');
+var TiTools2 = require("TiTools2/TiTools");
 
 //---------------------------------------------//
 
-TiTools.initLibraries(); //Первичная загрузка всех библиотек
-	
-//---------------------------------------------//
-
-if(TiTools.Platform.isAndroid == true)
-{
-	TiTools.UI.Preset.load("Presets/Common.js");
-	switch(TiTools.Platform.screenMode) // Определение группы в которую входит экран
-	{
-		case TiTools.Platform.SCREEN_MODE_UNKNOWN: // Если не получилось определить группу экрана
-		break;
-		case TiTools.Platform.SCREEN_MODE_SMALL:
-		break;
-		case TiTools.Platform.SCREEN_MODE_NORMAL:
-		break;
-		case TiTools.Platform.SCREEN_MODE_LARGE:
-		break;
-		case TiTools.Platform.SCREEN_MODE_EXTRA_LARGE:
-		break;
-	}
-}
-else if(TiTools.Platform.isIOS == true)
-{
-	if(TiTools.Platform.isIPhone == true)
-	{
-		TiTools.UI.Preset.load("Presets/iPhone/Common.js");
-	}
-	else if(TiTools.Platform.isIPad == true)
-	{
-		TiTools.UI.Preset.load("Presets/iPad/Common.js");
-	}
-}
+TiTools2.Plugin.load("TiTools2/Plugins/TiTools.Google", "Google");
 
 //---------------------------------------------//
 
-// Создаем главное окно приложения
-var main = TiTools.UI.Controls.createWindow(
+TiTools2.Project.initialize(
 	{
-		main : "Controllers/Main.js" // Файл контроллера который отвечает за окно
+		presets: {
+			iphone: [
+				"presets/iphone/common.js"
+			],
+			ipad: [
+				"presets/ipad/common.js"
+			],
+			android: {
+				small: [
+					"presets/small/common.js"
+				],
+				any: [
+					"presets/common.js"
+				]
+			}
+		},
+		controllers: {
+			"main": "main/cont.js",
+			"tutorial.components": "main/tutorial/components/cont.js",
+			"tutorial.components.standarts": "main/tutorial/components/standarts/cont.js",
+			"tutorial.components.dialogs": "main/tutorial/components/dialogs/cont.js",
+			"tutorial.components.tables": "main/tutorial/components/tables/cont.js",
+			"tutorial.network": "main/tutorial/network/cont.js",
+			"tutorial.more": "main/tutorial/more/cont.js"
+		}
 	}
 );
-// Вызываем инициализацию контроллера окно
-main.initialize();
-// Показываем окно
-main.open();
+
+//---------------------------------------------//
+
+var window = TiTools2.Project.createWindow("main");
+window.open();
 
 //---------------------------------------------//

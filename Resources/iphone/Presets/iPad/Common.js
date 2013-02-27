@@ -1,6 +1,6 @@
 module.exports = [
 	{
-		name : "Window",
+		id : "Window",
 		style : {
 			backgroundColor : "#afafaf"
 		}
