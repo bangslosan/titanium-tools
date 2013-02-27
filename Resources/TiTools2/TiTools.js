@@ -88,7 +88,7 @@ function coreLoadJS(filename) {
 // TODO:NAMESPACE:STRING
 //---------------------------------------------//
 
-var stringIsPrefix = underscoreString.startWith;
+var stringIsPrefix = underscoreString.startsWith;
 var stringIsSuffix = underscoreString.endsWith;
 var stringTrim = underscoreString.trim;
 var stringTrimLeft = underscoreString.ltrim;
@@ -96,6 +96,7 @@ var stringTrimRight = underscoreString.rtrim;
 var stringPaddingLeft = underscoreString.lpad;
 var stringPaddingRight = underscoreString.rpad;
 var stringRepeat = underscoreString.repeat;
+var stringFormat = underscoreString.sprintf;
 
 function stringIsInt(str) {
 	return /^\d+$/.test(str);
@@ -369,6 +370,8 @@ TiToolsNetworkHttpClient.prototype.stop = function() {
 	}
 }
 
+//---------------------------------------------//
+
 function networkCreateHttpClient(params) {
 	var handle = undefined;
 	if(Ti.Network.online == true) {
@@ -442,10 +445,22 @@ function xmlDeserializeNode(node) {
 	}
 	return result;
 }
+function xmlGetNode(node, nodeName) {
+	var childs = node.childs;
+	var count = childs.length;
+	for(var i = 0; i < count; i++) {
+		var child = childs[i]
+		if(child.name == nodeName) {
+			return child;
+		}
+	}
+	return undefined;
+}
 function xmlFindNode(node, nodeName) {
 	var result = [];
 	var childs = node.childs;
-	for(var i = 0; i < childs.length; i++) {
+	var count = childs.length;
+	for(var i = 0; i < count; i++) {
 		var child = childs[i]
 		if(child.name == nodeName) {
 			result.push(child);
@@ -455,7 +470,8 @@ function xmlFindNode(node, nodeName) {
 }
 function xmlMergeNodeAttributes(nodes) {
 	var result = {};
-	for(var i = 0; i < nodes.length; i++) {
+	var count = nodes.length;
+	for(var i = 0; i < count; i++) {
 		var node = nodes[i];
 		result = utilsCombine(node.attributes, result);
 	}
@@ -585,18 +601,6 @@ function uiCreateParams(preset, params, tiClassName) {
 		tiClassName: tiClassName
 	});
 }
-function uiCreateAlertDialog(preset, params) {
-	return Ti.UI.createAlertDialog(uiCreateParams(preset, params, "AlertDialog"));
-}
-function uiCreateEmailDialog(preset, params) {
-	return Ti.UI.createEmailDialog(uiCreateParams(preset, params, "EmailDialog"));
-}
-function uiCreateOptionDialog(preset, params) {
-	return Ti.UI.createOptionDialog(uiCreateParams(preset, params, "OptionDialog"));
-}
-function uiCreateActivityIndicator(preset, params) {
-	return Ti.UI.createActivityIndicator(uiCreateParams(preset, params, "ActivityIndicator"));
-}
 function uiCreateTabGroup(preset, params) {
 	var self = Ti.UI.createTabGroup(uiCreateParams(preset, params, "TabGroup"));
 	self.addEventListener("focus", function(event) {
@@ -619,7 +623,7 @@ function uiCreateTab(preset, params, window) {
 	return Ti.UI.createTab(uiCreateParams(preset, args, "Tab"));
 }
 function uiCreateNavigationGroup(preset, params, window) {
-	if(coreIsIOS == true) {
+	if(coreIsIPhone == true) {
 		var args = [
 			params,
 			{
@@ -750,6 +754,37 @@ function uiCreateMapViewAnnotation(preset, params) {
 function uiCreateFacebookLoginButton(preset, params) {
 	return Ti.Facebook.createLoginButton(uiCreateParams(preset, params, "FacebookLoginButton"));
 }
+function uiCreateAlertDialog(preset, params) {
+	return Ti.UI.createAlertDialog(uiCreateParams(preset, params, "AlertDialog"));
+}
+function uiCreateEmailDialog(preset, params) {
+	return Ti.UI.createEmailDialog(uiCreateParams(preset, params, "EmailDialog"));
+}
+function uiCreateOptionDialog(preset, params) {
+	return Ti.UI.createOptionDialog(uiCreateParams(preset, params, "OptionDialog"));
+}
+function uiCreatePhoneCallDialog(phone) {
+	var alert = uiCreateAlertDialog(undefined, {
+		message: coreTr("TITOOLS_ALERT_REQUEST_CALL") + "\n" + phone,
+		buttonNames: [
+			coreTr("TITOOLS_ALERT_CALL"),
+			coreTr("TITOOLS_ALERT_NO")
+		],
+		cancel: 1
+	});
+	alert.addEventListener("click", function(event) {
+		if(event.index == 0) {
+			var number = phone.replace(/([^0-9])+/g, "");
+			if(number.length > 0) {
+				Ti.Platform.openURL("tel:" + number);
+			}
+		}
+	});
+	alert.show();
+}
+function uiCreateActivityIndicator(preset, params) {
+	return Ti.UI.createActivityIndicator(uiCreateParams(preset, params, "ActivityIndicator"));
+}
 function uiThirdPartyCreatePaintView(preset, params) {
 	var module = coreLoadJS("ti.paint");
 	if(module != undefined) {
@@ -758,60 +793,60 @@ function uiThirdPartyCreatePaintView(preset, params) {
 }
 
 //---------------------------------------------//
-// TODO:NAMESPACE:CUSTOM:LOAD
+// TODO:NAMESPACE:LOADER
 //---------------------------------------------//
 
-function customLoad(params, callbackJs, callbackXml, callbackX) {
-	function customLoadPlatformSingle(data) {
+function loaderWithParams(params, callbackJs, callbackXml, callbackX) {
+	function loadPlatformSingle(data) {
 		if(coreIsObject(data) == true) {
-			customLoadScreen(data);
+			loadScreen(data);
 		} else {
-			customLoad(data, callbackJs, callbackXml, callbackX);
+			loaderWithParams(data, callbackJs, callbackXml, callbackX);
 		}
 	}
-	function customLoadPlatform(data) {
+	function loadPlatform(data) {
 		var platform = utilsAppropriatePlatform(data);
 		if(platform != undefined) {
-			customLoadPlatformSingle(platform);
+			loadPlatformSingle(platform);
 		}
 		var any = utilsAppropriateAny(data);
 		if(any != undefined) {
-			customLoadPlatformSingle(any);
+			loadPlatformSingle(any);
 		}
 	}
-	function customLoadScreen(data) {
+	function loadScreen(data) {
 		var screen = utilsAppropriateScreen(data);
 		if(screen != undefined) {
-			customLoad(screen, callbackJs, callbackXml, callbackX);
+			loaderWithParams(screen, callbackJs, callbackXml, callbackX);
 		}
 		var any = utilsAppropriateAny(data);
 		if(any != undefined) {
-			customLoad(any, callbackJs, callbackXml, callbackX);
+			loaderWithParams(any, callbackJs, callbackXml, callbackX);
 		}
 	}
 	
 	if(coreIsArray(params) == true) {
 		for(var i = 0; i < params.length; i++) {
-			customLoad(params[i], callbackJs, callbackXml, callbackX);
+			loaderWithParams(params[i], callbackJs, callbackXml, callbackX);
 		}
 	} else if(coreIsObject(params) == true) {
 		var platform = params.platform;
 		var screen = params.screen;
 		if((coreIsObject(platform) == true) || (coreIsObject(screen) == true)) {
 			if(coreIsObject(platform) == true) {
-				customLoadPlatform(platform);
+				loadPlatform(platform);
 			}
 			if(coreIsObject(screen) == true) {
-				customLoadScreen(screen);
+				loadScreen(screen);
 			}
 		} else {
-			customLoadPlatform(params);
+			loadPlatform(params);
 		}
 	} else if(coreIsString(params) == true) {
-		customLoadExt(params, callbackJs, callbackXml, callbackX);
+		loaderWithFileName(params, callbackJs, callbackXml, callbackX);
 	}
 }
-function customLoadExt(filename, callbackJs, callbackXml, callbackX) {
+function loaderWithFileName(filename, callbackJs, callbackXml, callbackX) {
 	if(stringIsSuffix(filename, ".js") == true) {
 		var module = coreLoadJS(filename);
 		if(callbackJs != undefined) {
@@ -826,7 +861,7 @@ function customLoadExt(filename, callbackJs, callbackXml, callbackX) {
 				callbackJs(content);
 			}
 		} else {
-			errorNotFound("customLoadExt", filename);
+			errorNotFound("loaderWithFileName", filename);
 		}
 	} else if(stringIsSuffix(filename, ".xml") == true) {
 		var file = fileSystemGetFile(filename);
@@ -837,13 +872,13 @@ function customLoadExt(filename, callbackJs, callbackXml, callbackX) {
 				callbackXml(content);
 			}
 		} else {
-			errorNotFound("customLoadExt", filename);
+			errorNotFound("loaderWithFileName", filename);
 		}
 	} else {
 		if(callbackX != undefined) {
 			callbackX(filename)
 		} else {
-			errorUnknownExtension("customLoadExt", filename);
+			errorUnknownExtension("loaderWithFileName", filename);
 		}
 	}
 }
@@ -866,6 +901,30 @@ function presetRemove(id) {
 	delete _preset[id];
 }
 function presetMerge(preset, paramsA, paramsB) {
+	function preprocess(params) {
+		function preprocessArgument(arg) {
+			if(coreIsString(arg) == true) {
+				arg = arg.replace(/TiTools.tr\(([A-Za-z0-9_\.]*)\)/g, function(str, p1, p2, offset, s) {
+					return coreTr(p1, p1);
+				});
+				return utilsStringToConst(arg, pathPreprocess);
+			}
+			return arg;
+		}
+		
+		for(var i in params) {
+			var value = params[i];
+			if(coreIsArray(value) == true) {
+				params[i] = preprocess(value);
+			} else if(coreIsObject(value) == true) {
+				params[i] = preprocess(value);
+			} else if(coreIsString(value) == true) {
+				params[i] = preprocessArgument(value);
+			}
+		}
+		return params;
+	}
+	
 	var result = utilsClone(paramsA);
 	if(preset != "") {
 		if(coreIsArray(preset) == true) {
@@ -895,29 +954,7 @@ function presetMerge(preset, paramsA, paramsB) {
 	if(paramsB != undefined) {
 		result = utilsCombine(paramsB, result);
 	}
-	return presetPreprocess(result);
-}
-function presetPreprocess(params) {
-	for(var i in params) {
-		var value = params[i];
-		if(coreIsArray(value) == true) {
-			params[i] = presetPreprocess(value);
-		} else if(coreIsObject(value) == true) {
-			params[i] = presetPreprocess(value);
-		} else if(coreIsString(value) == true) {
-			params[i] = presetPreprocessArgument(value);
-		}
-	}
-	return params;
-}
-function presetPreprocessArgument(arg) {
-	if(coreIsString(arg) == true) {
-		arg = arg.replace(/TiTools.tr\(([A-Za-z0-9_\.]*)\)/g, function(str, p1, p2, offset, s) {
-			return coreTr(p1, p1);
-		});
-		return utilsStringToConst(arg, pathPreprocess);
-	}
-	return arg;
+	return preprocess(result);
 }
 function presetApplyByName(object, name) {
 	var params = {};
@@ -944,7 +981,7 @@ function presetApply(object, params) {
 	}
 }
 function presetLoad(params) {
-	customLoad(params, presetLoadJS, presetLoadXML, presetLoadX);
+	loaderWithParams(params, presetLoadJS, presetLoadXML, presetLoadX);
 }
 function presetLoadJS(content) {
 	if(coreIsArray(content) == true) {
@@ -994,7 +1031,7 @@ function presetLoadItemXML(content) {
 	return undefined;
 }
 function presetLoadX(filename) {
-	pluginInvokeMethod("PresetLoadX", [ filename ]);
+	pluginInvokeMethod("presetLoad", [ filename ]);
 }
 
 //---------------------------------------------//
@@ -1015,7 +1052,7 @@ function prefabRemove(id) {
 	delete _prefab[id];
 }
 function prefabLoad(params) {
-	customLoad(params, prefabLoadJS, prefabLoadXML, prefabLoadX);
+	loaderWithParams(params, prefabLoadJS, prefabLoadXML, prefabLoadX);
 }
 function prefabLoadJS(content) {
 	if(coreIsArray(content) == true) {
@@ -1050,24 +1087,17 @@ function prefabLoadXML(content) {
 }
 function prefabLoadItemXML(content) {
 	if(coreIsString(content.attributes.id) == true) {
-		var items = xmlFindNode(content, "Item");
+		var items = content.childs;
 		if(items.length > 0) {
-			if(items.length == 1) {
-				return {
-					id: content.attributes.id,
-					prefab: prefabItemXMLToItemJS(items[0])
-				};
-			} else {
-				var data = [];
-				for(var i = 0; i < items.length; i++) {
-					var item = prefabItemXMLToItemJS(items[i]);
-					data.push(item);
-				}
-				return {
-					id: content.attributes.id,
-					prefab: data
-				};
+			var data = [];
+			for(var i = 0; i < items.length; i++) {
+				var item = formCacheLoadItemXML(items[i]);
+				data.push(item);
 			}
+			return {
+				id: content.attributes.id,
+				prefab: data
+			};
 		} else {
 			errorPresetUnsupportedFormat("prefabLoadItemXML", preset);
 		}
@@ -1076,154 +1106,8 @@ function prefabLoadItemXML(content) {
 	}
 	return undefined;
 }
-function prefabItemXMLToItemJS(content) {
-	var result = {};
-	switch(content.name) {
-		case "Item":
-		case "Tab":
-		case "Root":
-		case "Header":
-		case "Footer":
-		case "Search":
-		case "Section":
-		case "Column":
-		case "Row":
-			if(coreIsString(content.attributes.class) == true) {
-				result.class = content.attributes.class;
-			}
-			if(coreIsString(content.attributes.id) == true) {
-				result.id = content.attributes.id;
-			}
-			if(coreIsString(content.attributes.preset) == true) {
-				result.preset = content.attributes.preset;
-			}
-			var styles = xmlFindNode(content, "Style");
-			if(styles.length > 0) {
-				result.style = xmlMergeNodeAttributes(styles);
-			} else {
-				result.style = {};
-			}
-			var binds = xmlFindNode(content, "Bind");
-			if(binds.length > 0) {
-				result.bind = xmlMergeNodeAttributes(binds);
-			} else {
-				result.bind = {};
-			}
-			switch(result.class) {
-				case "TabGroup":
-					var tabs = xmlFindNode(content, "Tab");
-					if(tabs.length > 0) {
-						result.tabs = [];
-						for(var i = 0; i < tabs.length; i++) {
-							result.tabs.push(prefabItemXMLToItemJS(tabs[i]));
-						}
-					}
-				break;
-				case "Tab":
-					var root = xmlFindNode(content, "Root");
-					if(root.length == 1) {
-						result.root = prefabItemXMLToItemJS(root[0]);
-					}
-					var items = xmlFindNode(content, "Item");
-					if(items.length > 0) {
-						result.subviews = [];
-						for(var i = 0; i < items.length; i++) {
-							result.subviews.push(prefabItemXMLToItemJS(items[i]));
-						}
-					}
-				break;
-				case "TableView":
-					var header = xmlFindNode(content, "Header");
-					if(header.length == 1) {
-						result.header = prefabItemXMLToItemJS(header[0]);
-					}
-					var footer = xmlFindNode(content, "Footer");
-					if(footer.length == 1) {
-						result.footer = prefabItemXMLToItemJS(footer[0]);
-					}
-					var search = xmlFindNode(content, "Search");
-					if(search.length == 1) {
-						result.search = prefabItemXMLToItemJS(search[0]);
-					}
-					var sections = xmlFindNode(content, "Section");
-					if(sections.length > 0) {
-						result.sections = [];
-						for(var i = 0; i < sections.length; i++) {
-							result.sections.push(prefabItemXMLToItemJS(sections[i]));
-						}
-					}
-					var rows = xmlFindNode(content, "Row");
-					if(rows.length > 0) {
-						result.rows = [];
-						for(var i = 0; i < rows.length; i++) {
-							result.rows.push(prefabItemXMLToItemJS(rows[i]));
-						}
-					}
-				break;
-				case "TableViewSection":
-					var header = xmlFindNode(content, "Header");
-					if(header.length == 1) {
-						result.header = prefabItemXMLToItemJS(header[0]);
-					}
-					var footer = xmlFindNode(content, "Footer");
-					if(footer.length == 1) {
-						result.footer = prefabItemXMLToItemJS(footer[0]);
-					}
-					var rows = xmlFindNode(content, "Row");
-					if(rows.length > 0) {
-						result.rows = [];
-						for(var i = 0; i < rows.length; i++) {
-							result.rows.push(prefabItemXMLToItemJS(rows[i]));
-						}
-					}
-				break;
-				case "Picker":
-					var columns = xmlFindNode(content, "Column");
-					if(columns.length > 0) {
-						result.columns = [];
-						for(var i = 0; i < columns.length; i++) {
-							result.columns.push(prefabItemXMLToItemJS(columns[i]));
-						}
-					}
-					var rows = xmlFindNode(content, "Row");
-					if(rows.length > 0) {
-						result.rows = [];
-						for(var i = 0; i < rows.length; i++) {
-							result.rows.push(prefabItemXMLToItemJS(rows[i]));
-						}
-					}
-				break;
-				case "PickerColumn":
-					var rows = xmlFindNode(content, "Row");
-					if(rows.length > 0) {
-						result.rows = [];
-						for(var i = 0; i < rows.length; i++) {
-							result.rows.push(prefabItemXMLToItemJS(rows[i]));
-						}
-					}
-				break;
-				default:
-					var items = xmlFindNode(content, "Item");
-					if(items.length > 0) {
-						result.subviews = [];
-						for(var i = 0; i < items.length; i++) {
-							result.subviews.push(prefabItemXMLToItemJS(items[i]));
-						}
-					}
-				break;
-			}
-		break;
-		default:
-			var temp = pluginInvokeMethod("PrefabItemXMLToItemJS", [ content ]);
-			if(temp != undefined) {
-				result = temp;
-			}
-		break;
-	}
-	return result;
-}
 function prefabLoadX(filename) {
-	pluginInvokeMethod("PrefabLoadX", [ filename ]);
+	pluginInvokeMethod("prefabLoad", [ filename ]);
 }
 
 //---------------------------------------------//
@@ -1234,45 +1118,45 @@ var _formPreload = {};
 
 //---------------------------------------------//
 
-function formPreLoadSet(id, value) {
+function formCacheSet(id, value) {
 	_formPreload[id] = value;
 }
-function formPreLoadGet(id) {
+function formCacheGet(id) {
 	return _formPreload[id];
 }
-function formPreLoadRemove(id) {
+function formCacheRemove(id) {
 	delete _formPreload[id];
 }
-function formPreLoad(filename) {
-	var result = formPreLoadGet(filename);
+function formCacheLoad(filename) {
+	var result = formCacheGet(filename);
 	if(result == undefined) {
-		customLoad(filename, function(content) {
-			result = formPreLoadJS(content)
+		loaderWithParams(filename, function(content) {
+			result = formCacheLoadJS(content)
 		}, function(content) {
-			result = formPreLoadXML(content);
+			result = formCacheLoadXML(content);
 		}, function(content) {
-			result = formPreLoadX(content);
+			result = formCacheLoadX(content);
 		});
 		if(result != undefined) {
-			formPreLoadSet(filename, result);
+			formCacheSet(filename, result);
 		}
 	}
 	return result;
 }
-function formPreLoadJS(content) {
+function formCacheLoadJS(content) {
 	if(coreIsArray(content) == true) {
 		var result = [];
 		for(var i = 0; i < content.length; i++) {
-			var item = formPreLoadItemJS(content[i]);
+			var item = formCacheLoadItemJS(content[i]);
 			result.push(item);
 		}
 		return result;
 	} else if(coreIsObject(content) == true) {
-		return formPreLoadItemJS(content);
+		return formCacheLoadItemJS(content);
 	}
 	return undefined;
 }
-function formPreLoadItemJS(content) {
+function formCacheLoadItemJS(content) {
 	if(coreIsObject(content) == true) {
 		if(content.prefab != undefined) {
 			if(coreIsString(content.prefab) == true) {
@@ -1280,11 +1164,11 @@ function formPreLoadItemJS(content) {
 				if(prefab != undefined) {
 					content = utilsCombine(content, prefab);
 				} else {
-					errorPrefabNotFound("formPreLoadItemJS", content.prefab);
+					errorPrefabNotFound("formCacheLoadItemJS", content.prefab);
 				}
 				delete content.prefab;
 			} else {
-				errorPrefabUnsupportedFormat("formPreLoadItemJS", content.prefab);
+				errorPrefabUnsupportedFormat("formCacheLoadItemJS", content.prefab);
 			}
 		}
 		if(content.preset != undefined) {
@@ -1294,44 +1178,44 @@ function formPreLoadItemJS(content) {
 			delete content.preset;
 		}
 		if(content.root != undefined) {
-			content.root = formPreLoadItemJS(content.root);
+			content.root = formCacheLoadItemJS(content.root);
 		}
 		if(content.header != undefined) {
-			content.header = formPreLoadItemJS(content.header);
+			content.header = formCacheLoadItemJS(content.header);
 		}
 		if(content.footer != undefined) {
-			content.footer = formPreLoadItemJS(content.footer);
+			content.footer = formCacheLoadItemJS(content.footer);
 		}
 		if(content.tabs != undefined) {
 			for(var i = 0; i < content.tabs.length; i++) {
-				content.tabs[i] = formPreLoadItemJS(content.tabs[i]);
+				content.tabs[i] = formCacheLoadItemJS(content.tabs[i]);
 			}
 		}
 		if(content.sections != undefined) {
 			for(var i = 0; i < content.sections.length; i++) {
-				content.sections[i] = formPreLoadItemJS(content.sections[i]);
+				content.sections[i] = formCacheLoadItemJS(content.sections[i]);
 			}
 		}
 		if(content.columns != undefined) {
 			for(var i = 0; i < content.columns.length; i++) {
-				content.columns[i] = formPreLoadItemJS(content.columns[i]);
+				content.columns[i] = formCacheLoadItemJS(content.columns[i]);
 			}
 		}
 		if(content.rows != undefined) {
 			for(var i = 0; i < content.rows.length; i++) {
-				content.rows[i] = formPreLoadItemJS(content.rows[i]);
+				content.rows[i] = formCacheLoadItemJS(content.rows[i]);
 			}
 		}
 		if(content.subviews != undefined) {
 			for(var i = 0; i < content.subviews.length; i++) {
-				content.subviews[i] = formPreLoadItemJS(content.subviews[i]);
+				content.subviews[i] = formCacheLoadItemJS(content.subviews[i]);
 			}
 		}
-		pluginInvokeMethod("FormPreLoadItemJS", [ content ]);
+		pluginInvokeMethod("formCacheItem", [ content ]);
 	}
 	return content;
 }
-function formPreLoadXML(content) {
+function formCacheLoadXML(content) {
 	var result = {};
 	switch(content.name) {
 		case "Form":
@@ -1365,11 +1249,11 @@ function formPreLoadXML(content) {
 			if(views.length == 1) {
 				var items = xmlFindNode(content, "Item");
 				if(items.length == 1) {
-					result.views = prefabItemXMLToItemJS(items[0]);
+					result.views = formCacheLoadItemXML(items[0]);
 				} else if(items.length > 1) {
 					result.views = [];
 					for(var i = 0; i < items.length; i++) {
-						var item = prefabItemXMLToItemJS(items[i]);
+						var item = formCacheLoadItemXML(items[i]);
 						if(item != undefined) {
 							result.views.push(item);
 						}
@@ -1378,10 +1262,10 @@ function formPreLoadXML(content) {
 			}
 		break;
 		case "Item":
-			result = prefabItemXMLToItemJS(content);
+			result = formCacheLoadItemXML(content);
 		break;
 		default:
-			var temp = pluginInvokeMethod("FormPreLoadXML", [ content ]);
+			var temp = pluginInvokeMethod("formLoadXML", [ content ]);
 			if(temp != undefined) {
 				result = temp;
 			}
@@ -1389,8 +1273,104 @@ function formPreLoadXML(content) {
 	}
 	return result;
 }
-function formPreLoadX(filename) {
-	return pluginInvokeMethod("FormPreLoadX", [ filename ]);
+function formCacheLoadItemXML(content) {
+	function getItems(node, name) {
+		var result = [];
+		var list = xmlFindNode(node, name);
+		var count = list.length;
+		for(var i = 0; i < count; i++) {
+			result.push(formCacheLoadItemXML(list[i]));
+		}
+		return result;
+	}
+	function getItemsWithGroup(node, group, name) {
+		var item = xmlGetNode(node, group);
+		if(item != undefined) {
+			return getItems(item, name);
+		}
+		return [];
+	}
+	function getItem(node, name) {
+		var item = xmlGetNode(node, name);
+		if(item != undefined) {
+			return formCacheLoadItemXML(item)
+		}
+		return undefined;
+	}
+	
+	var result = {};
+	switch(content.name) {
+		case "View":
+		case "Item":
+			if(coreIsString(content.attributes.class) == true) {
+				result.class = content.attributes.class;
+			}
+			if(coreIsString(content.attributes.id) == true) {
+				result.id = content.attributes.id;
+			}
+			if(coreIsString(content.attributes.preset) == true) {
+				result.preset = content.attributes.preset;
+			}
+			var styles = xmlFindNode(content, "Style");
+			if(styles.length > 0) {
+				result.style = xmlMergeNodeAttributes(styles);
+			} else {
+				result.style = {};
+			}
+			var binds = xmlFindNode(content, "Bind");
+			if(binds.length > 0) {
+				result.bind = xmlMergeNodeAttributes(binds);
+			} else {
+				result.bind = {};
+			}
+			switch(result.class) {
+				case "TabGroup":
+					result.tabs = getItemsWithGroup(content, "Tabs", "View");
+				break;
+				case "Tab":
+					result.window = getItem(content, "Window");
+					result.subviews = getItems(content, "Views", "View");
+				break;
+				case "NavigationGroup":
+					result.window = getItem(content, "Window");
+					result.windows = getItemsWithGroup(content, "Windows", "View");
+				break;
+				case "TableView":
+					result.header = getItem(content, "Header");
+					result.footer = getItem(content, "Footer");
+					result.search = getItem(content, "Search");
+					result.sections = getItemsWithGroup(content, "Sections", "View");
+					result.rows = getItemsWithGroup(content, "Rows", "View");
+				break;
+				case "TableViewSection":
+					result.header = getItem(content, "Header");
+					result.footer = getItem(content, "Footer");
+					result.rows = getItemsWithGroup(content, "Rows", "View");
+				break;
+				case "Picker":
+					result.columns = getItemsWithGroup(content, "Columns", "View");
+					result.rows = getItemsWithGroup(content, "Rows", "View");
+				break;
+				case "PickerColumn":
+					result.rows = getItemsWithGroup(content, "Rows", "View");
+				break;
+				default:
+					result.subviews = getItems(content, "View");
+				break;
+			}
+			result.items = getItems(content, "Item");
+		break;
+		default:
+			var temp = pluginInvokeMethod("formCacheLoadItemXML", [ content ]);
+			if(temp != undefined) {
+				result = temp;
+			}
+		break;
+	}
+	return result;
+}
+function formCacheLoadX(filename) {
+	return pluginInvokeMethod("formCacheLoad", [ filename ]);
 }
 
 //---------------------------------------------//
@@ -1404,6 +1384,7 @@ function formLoad(parent, filename, params) {
 		switch(parent.tiClassName) {
 			case "TabGroup": callback = formAppendTabGroup; break;
 			case "Tab": callback = formAppendTab; break;
+			case "NavigationGroup": callback = formAppendNavigationGroup; break;
 			case "Window": callback = formAppendWindow; break;
 			case "ScrollableView": callback = formAppendScrollableView; break;
 			case "TableView": callback = formAppendTableView; break;
@@ -1411,7 +1392,7 @@ function formLoad(parent, filename, params) {
 			case "PickerColumn": callback = formAppendTableViewRow; break;
 			case "HttpClient": break;
 			default:
-				var temp = pluginInvokeMethod("FormLoad", [ parent, filename, params ]);
+				var temp = pluginInvokeMethod("formLoad", [ parent, filename, params ]);
 				if(coreIsFunction(temp) == true) {
 					control = temp;
 				} else {
@@ -1420,7 +1401,7 @@ function formLoad(parent, filename, params) {
 			break;
 		}
 	}
-	var content = formPreLoad(filename);
+	var content = formCacheLoad(filename);
 	if(content != undefined) {
 		formLoadJS(content, params, controller, parent, callback);
 	} else {
@@ -1448,10 +1429,29 @@ function formLoadJS(content, params, controller, parent, callback) {
 	}
 }
 function formLoadItemJS(content, params, controller, parent, callback) {
+	function storeControl(store, id, control) {
+		if(store[id] == undefined) {
+			store[id] = control;
+		} else if(coreIsArray(store[id]) == true) {
+			store[id].push(control);
+		} else {
+			store[id] = [
+				controller[id],
+				control
+			];
+		}
+	}
+	function storeControlInTarget(store, targetId, id, control) {
+		if(store[targetId] != undefined) {
+			storeControl(store[targetId], id, control);
+		}
+	}
+	
 	var control = undefined;
 	switch(content.class) {
 		case "TabGroup": control = formControlTabGroup(content, params, controller, parent, callback); break;
 		case "Tab": control = formControlTab(content, params, controller, parent, callback); break;
+		case "NavigationGroup": control = formControlNavigationGroup(content, params, controller, parent, callback); break;
 		case "Window": control = formControlWindow(content, params, controller, parent, callback); break;
 		case "View": control = formControlView(content, params, controller, parent, callback); break;
 		case "ScrollView": control = formControlScrollView(content, params, controller, parent, callback); break;
@@ -1483,7 +1483,7 @@ function formLoadItemJS(content, params, controller, parent, callback) {
 		case "OptionDialog": control = formControlOther(uiCreateOptionDialog, content, params, controller, parent, callback); break;
 		case "HttpClient": control = formControlHttpClient(content, params, controller, parent); break;
 		default:
-			var temp = pluginInvokeMethod("FormLoadItemJS", [ content, params, controller, parent, callback ]);
+			var temp = pluginInvokeMethod("formLoadItem", [ content, params, controller, parent, callback ]);
 			if(temp != undefined) {
 				control = temp;
 			} else {
@@ -1500,33 +1500,16 @@ function formLoadItemJS(content, params, controller, parent, callback) {
 	}
 	var id = content.id;
 	if(id != undefined) {
-		formStoreControl(controller, id, control);
+		storeControl(controller, id, control);
 		var target = content.target;
 		if(target != "") {
 			switch(target) {
-				case "parent": formStoreControl(parent, id, control); break;
-				default: formStoreControlInTarget(controller, target, id, control); break;
+				case "parent": storeControl(parent, id, control); break;
+				default: storeControlInTarget(controller, target, id, control); break;
 			}
 		}
 	}
 	return control;
-}
-function formStoreControl(store, id, control) {
-	if(store[id] == undefined) {
-		store[id] = control;
-	} else if(coreIsArray(store[id]) == true) {
-		store[id].push(control);
-	} else {
-		store[id] = [
-			controller[id],
-			control
-		];
-	}
-}
-function formStoreControlInTarget(store, targetId, id, control) {
-	if(store[targetId] != undefined) {
-		formStoreControlId(store[targetId], id, control);
-	}
 }
 
 //---------------------------------------------//
@@ -1544,6 +1527,9 @@ function formControlBindStyle(styles, params) {
 					result[i] = style.replace(/<%\s*([A-Za-z0-9_\.]*)\s*%>/g, function(str, p1, p2, offset, s) {
 						var value = params[p1];
 						if(value != undefined) {
+							if(coreIsFunction(value) == true) {
+								return value(params);
+							}
 							return value;
 						} else {
 							errorThisNotValue("formControlBindStyle", p1);
@@ -1614,12 +1600,12 @@ function formAppendTabGroup(parent, child) {
 }
 function formControlTab(content, params, controller, parent, callback) {
 	var style = formControlBindStyle(content.style, params);
-	var control = uiCreateTab(content.preset, style);
+	var window = content.window;
+	if(coreIsObject(window) == true) {
+		window = formLoadItemJS(root, params, controller, control);
+	}
+	var control = uiCreateTab(content.preset, style, window);
 	if(control != undefined) {
-		var root = content.root;
-		if(coreIsObject(root) == true) {
-			formLoadItemJS(root, params, controller, control, formAppendTab);
-		}
 		var subviews = content.subviews;
 		if(coreIsArray(subviews) == true) {
 			var count = subviews.length;
@@ -1646,6 +1632,39 @@ function formAppendTab(parent, child) {
 		default:
 			child.superview = parent;
 			parent.add(child);
+		break;
+	}
+}
+function formControlNavigationGroup(content, params, controller, parent, callback) {
+	var style = formControlBindStyle(content.style, params);
+	var window = content.window;
+	if(coreIsObject(window) == true) {
+		window = formLoadItemJS(root, params, controller, control);
+	}
+	var control = uiCreateNavigationGroup(content.preset, style, window);
+	if(control != undefined) {
+		var windows = content.windows;
+		if(coreIsArray(windows) == true) {
+			var count = windows.length;
+			for(var i = 0; i < count; i++) {
+				formLoadItemJS(windows[i], params, controller, control, formAppendNavigationGroup);
+			}
+		}
+		if(coreIsFunction(callback) == true) {
+			callback(parent, control);
+		}
+		var bind = content.bind;
+		if(coreIsObject(bind) == true) {
+			formControlBindFunction(bind, params, control);
+		}
+	}
+	return control;
+}
+function formAppendNavigationGroup(parent, child) {
+	switch(child.tiClassName) {
+		case "Window":
+			child.superview = parent;
+			parent.open(child);
 		break;
 	}
 }
@@ -2098,7 +2117,7 @@ function projectLoadForm(forms) {
 	function initForms(list) {
 		var count = list.length;
 		for(var i = 0; i < count; i++) {
-			formPreLoad(list[i]);
+			formCacheLoad(list[i]);
 		}
 	}
 	
@@ -2117,14 +2136,14 @@ function projectLoadForm(forms) {
 }
 function projectCreateTabGroup(params) {
 	var preset = undefined;
-	var style = undefined;
+	var style = {};
 	var tabs = [];
 	var args = undefined;
-	if(params != undefined) {
+	if(coreIsObject(params) == true) {
 		if(params.preset != undefined) {
 			preset = params.preset;
 		}
-		if(params.style != undefined) {
+		if(coreIsObject(params.style) == true) {
 			style = params.style;
 		}
 		if(coreIsArray(params.tabs) != undefined) {
@@ -2145,6 +2164,27 @@ function projectCreateTabGroup(params) {
 		tabgroup.addTab(uiCreateTab(tab.preset, tab.style, window));
 	}
 	return tabgroup;
+}
+function projectCreateNavigationGroup(params) {
+	var preset = undefined;
+	var style = {};
+	var window = undefined;
+	var args = undefined;
+	if(coreIsObject(params) == true) {
+		if(params.preset != undefined) {
+			preset = params.preset;
+		}
+		if(coreIsObject(params.style) == true) {
+			style = params.style;
+		}
+		if(coreIsObject(params.window) == true) {
+			window = projectCreateWindow(params.window.controller, params.window.params)
+		}
+		if(params.args != undefined) {
+			args = params.args;
+		}
+	}
+	return uiCreateNavigationGroup(preset, style, window);
 }
 function projectCreateWindowStyle(controller, params) {
 	var result = {};
@@ -2313,232 +2353,239 @@ function utilsAppropriateScreen(params, defaults) {
 	}
 	return defaults;
 }
-function utilsCallToNumber(phone) {
-	var alert = uiCreateAlertDialog(undefined, {
-		message: coreTr("TITOOLS_ALERT_REQUEST_CALL") + "\n" + phone,
-		buttonNames: [
-			coreTr("TITOOLS_ALERT_CALL"),
-			coreTr("TITOOLS_ALERT_NO")
-		],
-		cancel: 1
-	});
-	alert.addEventListener("click", function(event) {
-		if(event.index == 0) {
-			var number = phone.replace(/([^0-9])+/g, "");
-			if(number.length > 0) {
-				Ti.Platform.openURL("tel:" + number);
+function utilsStringToConst(string, callbackDefault) {
+	if(stringIsPrefix(string, "Ti.UI.") == true) {
+		switch(string) {
+			case "Ti.UI.FILL": return Ti.UI.FILL;
+			case "Ti.UI.SIZE": return Ti.UI.SIZE;
+			case "Ti.UI.PORTRAIT": return Ti.UI.PORTRAIT;
+			case "Ti.UI.UPSIDE_PORTRAIT": return Ti.UI.UPSIDE_PORTRAIT;
+			case "Ti.UI.LANDSCAPE_LEFT": return Ti.UI.LANDSCAPE_LEFT;
+			case "Ti.UI.LANDSCAPE_RIGHT": return Ti.UI.LANDSCAPE_RIGHT;
+			case "Ti.UI.INPUT_BORDERSTYLE_NONE": return Ti.UI.INPUT_BORDERSTYLE_NONE;
+			case "Ti.UI.INPUT_BORDERSTYLE_BEZEL": return Ti.UI.INPUT_BORDERSTYLE_BEZEL;
+			case "Ti.UI.INPUT_BORDERSTYLE_LINE": return Ti.UI.INPUT_BORDERSTYLE_LINE;
+			case "Ti.UI.INPUT_BORDERSTYLE_ROUNDED": return Ti.UI.INPUT_BORDERSTYLE_ROUNDED;
+			case "Ti.UI.INPUT_BUTTONMODE_ALWAYS": return Ti.UI.INPUT_BUTTONMODE_ALWAYS;
+			case "Ti.UI.INPUT_BUTTONMODE_NEVER": return Ti.UI.INPUT_BUTTONMODE_NEVER;
+			case "Ti.UI.INPUT_BUTTONMODE_ONBLUR": return Ti.UI.INPUT_BUTTONMODE_ONBLUR;
+			case "Ti.UI.INPUT_BUTTONMODE_ONFOCUS": return Ti.UI.INPUT_BUTTONMODE_ONFOCUS;
+			case "Ti.UI.PICKER_TYPE_PLAIN": return Ti.UI.PICKER_TYPE_PLAIN;
+			case "Ti.UI.PICKER_TYPE_DATE": return Ti.UI.PICKER_TYPE_DATE;
+			case "Ti.UI.PICKER_TYPE_TIME": return Ti.UI.PICKER_TYPE_TIME;
+			case "Ti.UI.PICKER_TYPE_DATE_AND_TIME": return Ti.UI.PICKER_TYPE_DATE_AND_TIME;
+			case "Ti.UI.PICKER_TYPE_COUNT_DOWN_TIMER": return Ti.UI.PICKER_TYPE_COUNT_DOWN_TIMER;
+			case "Ti.UI.TEXT_ALIGNMENT_LEFT": return Ti.UI.TEXT_ALIGNMENT_LEFT;
+			case "Ti.UI.TEXT_ALIGNMENT_CENTER": return Ti.UI.TEXT_ALIGNMENT_CENTER;
+			case "Ti.UI.TEXT_ALIGNMENT_RIGHT": return Ti.UI.TEXT_ALIGNMENT_RIGHT;
+			case "Ti.UI.TEXT_AUTOCAPITALIZATION_NONE": return Ti.UI.TEXT_AUTOCAPITALIZATION_NONE;
+			case "Ti.UI.TEXT_AUTOCAPITALIZATION_SENTENCES": return Ti.UI.TEXT_AUTOCAPITALIZATION_SENTENCES;
+			case "Ti.UI.TEXT_AUTOCAPITALIZATION_WORDS": return Ti.UI.TEXT_AUTOCAPITALIZATION_WORDS;
+			case "Ti.UI.TEXT_AUTOCAPITALIZATION_ALL": return Ti.UI.TEXT_AUTOCAPITALIZATION_ALL;
+			case "Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP": return Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP;
+			case "Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER": return Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER;
+			case "Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM": return Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM;
+			case "Ti.UI.KEYBOARD_DEFAULT": return Ti.UI.KEYBOARD_DEFAULT;
+			case "Ti.UI.KEYBOARD_ASCII": return Ti.UI.KEYBOARD_ASCII;
+			case "Ti.UI.KEYBOARD_EMAIL": return Ti.UI.KEYBOARD_EMAIL;
+			case "Ti.UI.KEYBOARD_URL": return Ti.UI.KEYBOARD_URL;
+			case "Ti.UI.KEYBOARD_APPEARANCE_ALERT": return Ti.UI.KEYBOARD_APPEARANCE_ALERT;
+			case "Ti.UI.KEYBOARD_APPEARANCE_DEFAULT": return Ti.UI.KEYBOARD_APPEARANCE_DEFAULT;
+			case "Ti.UI.KEYBOARD_NAMEPHONE_PAD": return Ti.UI.KEYBOARD_NAMEPHONE_PAD;
+			case "Ti.UI.KEYBOARD_NUMBER_PAD": return Ti.UI.KEYBOARD_NUMBER_PAD;
+			case "Ti.UI.KEYBOARD_NUMBERS_PUNCTUATION": return Ti.UI.KEYBOARD_NUMBERS_PUNCTUATION;
+			case "Ti.UI.KEYBOARD_DECIMAL_PAD": return Ti.UI.KEYBOARD_DECIMAL_PAD;
+			case "Ti.UI.KEYBOARD_PHONE_PAD": return Ti.UI.KEYBOARD_PHONE_PAD;
+			case "Ti.UI.ActivityIndicatorStyle.PLAIN": return Ti.UI.ActivityIndicatorStyle.PLAIN;
+			case "Ti.UI.ActivityIndicatorStyle.DARK": return Ti.UI.ActivityIndicatorStyle.DARK;
+			case "Ti.UI.ActivityIndicatorStyle.BIG": return Ti.UI.ActivityIndicatorStyle.BIG;
+			case "Ti.UI.ActivityIndicatorStyle.BIG_DARK": return Ti.UI.ActivityIndicatorStyle.BIG_DARK;
+		}
+		if(stringIsPrefix(string, "Ti.UI.iOS.") == true) {
+			switch(string) {
+				case "Ti.UI.iOS.AD_SIZE_LANDSCAPE": return Ti.UI.iOS.AD_SIZE_LANDSCAPE;
+				case "Ti.UI.iOS.AD_SIZE_PORTRAIT": return Ti.UI.iOS.AD_SIZE_PORTRAIT;
+				case "Ti.UI.iOS.AUTODETECT_ADDRESS": return Ti.UI.iOS.AUTODETECT_ADDRESS;
+				case "Ti.UI.iOS.AUTODETECT_ALL": return Ti.UI.iOS.AUTODETECT_ALL;
+				case "Ti.UI.iOS.AUTODETECT_CALENDAR": return Ti.UI.iOS.AUTODETECT_CALENDAR;
+				case "Ti.UI.iOS.AUTODETECT_LINK": return Ti.UI.iOS.AUTODETECT_LINK;
+				case "Ti.UI.iOS.AUTODETECT_NONE": return Ti.UI.iOS.AUTODETECT_NONE;
+				case "Ti.UI.iOS.AUTODETECT_PHONE": return Ti.UI.iOS.AUTODETECT_PHONE;
+				case "Ti.UI.iOS.BLEND_MODE_CLEAR": return Ti.UI.iOS.BLEND_MODE_CLEAR;
+				case "Ti.UI.iOS.BLEND_MODE_COLOR": return Ti.UI.iOS.BLEND_MODE_COLOR;
+				case "Ti.UI.iOS.BLEND_MODE_COLOR_BURN": return Ti.UI.iOS.BLEND_MODE_COLOR_BURN;
+				case "Ti.UI.iOS.BLEND_MODE_COLOR_DODGE": return Ti.UI.iOS.BLEND_MODE_COLOR_DODGE;
+				case "Ti.UI.iOS.BLEND_MODE_COPY": return Ti.UI.iOS.BLEND_MODE_COPY;
+				case "Ti.UI.iOS.BLEND_MODE_DARKEN": return Ti.UI.iOS.BLEND_MODE_DARKEN;
+				case "Ti.UI.iOS.BLEND_MODE_DESTINATION_ATOP": return Ti.UI.iOS.BLEND_MODE_DESTINATION_ATOP;
+				case "Ti.UI.iOS.BLEND_MODE_DESTINATION_IN": return Ti.UI.iOS.BLEND_MODE_DESTINATION_IN;
+				case "Ti.UI.iOS.BLEND_MODE_DESTINATION_OUT": return Ti.UI.iOS.BLEND_MODE_DESTINATION_OUT;
+				case "Ti.UI.iOS.BLEND_MODE_DESTINATION_OVER": return Ti.UI.iOS.BLEND_MODE_DESTINATION_OVER;
+				case "Ti.UI.iOS.BLEND_MODE_DIFFERENCE": return Ti.UI.iOS.BLEND_MODE_DIFFERENCE;
+				case "Ti.UI.iOS.BLEND_MODE_EXCLUSION": return Ti.UI.iOS.BLEND_MODE_EXCLUSION;
+				case "Ti.UI.iOS.BLEND_MODE_HARD_LIGHT": return Ti.UI.iOS.BLEND_MODE_HARD_LIGHT;
+				case "Ti.UI.iOS.BLEND_MODE_HUE": return Ti.UI.iOS.BLEND_MODE_HUE;
+				case "Ti.UI.iOS.BLEND_MODE_LIGHTEN": return Ti.UI.iOS.BLEND_MODE_LIGHTEN;
+				case "Ti.UI.iOS.BLEND_MODE_LUMINOSITY": return Ti.UI.iOS.BLEND_MODE_LUMINOSITY;
+				case "Ti.UI.iOS.BLEND_MODE_MULTIPLY": return Ti.UI.iOS.BLEND_MODE_MULTIPLY;
+				case "Ti.UI.iOS.BLEND_MODE_NORMAL": return Ti.UI.iOS.BLEND_MODE_NORMAL;
+				case "Ti.UI.iOS.BLEND_MODE_OVERLAY": return Ti.UI.iOS.BLEND_MODE_OVERLAY;
+				case "Ti.UI.iOS.BLEND_MODE_PLUS_DARKER": return Ti.UI.iOS.BLEND_MODE_PLUS_DARKER;
+				case "Ti.UI.iOS.BLEND_MODE_PLUS_LIGHTER": return Ti.UI.iOS.BLEND_MODE_PLUS_LIGHTER;
+				case "Ti.UI.iOS.BLEND_MODE_SATURATION": return Ti.UI.iOS.BLEND_MODE_SATURATION;
+				case "Ti.UI.iOS.BLEND_MODE_SCREEN": return Ti.UI.iOS.BLEND_MODE_SCREEN;
+				case "Ti.UI.iOS.BLEND_MODE_SOFT_LIGHT": return Ti.UI.iOS.BLEND_MODE_SOFT_LIGHT;
+				case "Ti.UI.iOS.BLEND_MODE_SOURCE_ATOP": return Ti.UI.iOS.BLEND_MODE_SOURCE_ATOP;
+				case "Ti.UI.iOS.BLEND_MODE_SOURCE_IN": return Ti.UI.iOS.BLEND_MODE_SOURCE_IN;
+				case "Ti.UI.iOS.BLEND_MODE_SOURCE_OUT": return Ti.UI.iOS.BLEND_MODE_SOURCE_OUT;
+				case "Ti.UI.iOS.BLEND_MODE_XOR": return Ti.UI.iOS.BLEND_MODE_XOR;
+				case "Ti.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND": return Ti.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND;
+				case "Ti.UI.iOS.COLOR_SCROLLVIEW_BACKGROUND": return Ti.UI.iOS.COLOR_SCROLLVIEW_BACKGROUND;
+				case "Ti.UI.iOS.COLOR_UNDER_PAGE_BACKGROUND": return Ti.UI.iOS.COLOR_UNDER_PAGE_BACKGROUND;
+				case "Ti.UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND": return Ti.UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND;
 			}
 		}
-	});
-	alert.show();
-}
-function utilsStringToConst(string, callbackDefault) {
-	switch(string) {
-		case "Ti.UI.FILL": return Ti.UI.FILL;
-		case "Ti.UI.SIZE": return Ti.UI.SIZE;
-		case "Ti.UI.PORTRAIT": return Ti.UI.PORTRAIT;
-		case "Ti.UI.UPSIDE_PORTRAIT": return Ti.UI.UPSIDE_PORTRAIT;
-		case "Ti.UI.LANDSCAPE_LEFT": return Ti.UI.LANDSCAPE_LEFT;
-		case "Ti.UI.LANDSCAPE_RIGHT": return Ti.UI.LANDSCAPE_RIGHT;
-		case "Ti.UI.INPUT_BORDERSTYLE_NONE": return Ti.UI.INPUT_BORDERSTYLE_NONE;
-		case "Ti.UI.INPUT_BORDERSTYLE_BEZEL": return Ti.UI.INPUT_BORDERSTYLE_BEZEL;
-		case "Ti.UI.INPUT_BORDERSTYLE_LINE": return Ti.UI.INPUT_BORDERSTYLE_LINE;
-		case "Ti.UI.INPUT_BORDERSTYLE_ROUNDED": return Ti.UI.INPUT_BORDERSTYLE_ROUNDED;
-		case "Ti.UI.INPUT_BUTTONMODE_ALWAYS": return Ti.UI.INPUT_BUTTONMODE_ALWAYS;
-		case "Ti.UI.INPUT_BUTTONMODE_NEVER": return Ti.UI.INPUT_BUTTONMODE_NEVER;
-		case "Ti.UI.INPUT_BUTTONMODE_ONBLUR": return Ti.UI.INPUT_BUTTONMODE_ONBLUR;
-		case "Ti.UI.INPUT_BUTTONMODE_ONFOCUS": return Ti.UI.INPUT_BUTTONMODE_ONFOCUS;
-		case "Ti.UI.PICKER_TYPE_PLAIN": return Ti.UI.PICKER_TYPE_PLAIN;
-		case "Ti.UI.PICKER_TYPE_DATE": return Ti.UI.PICKER_TYPE_DATE;
-		case "Ti.UI.PICKER_TYPE_TIME": return Ti.UI.PICKER_TYPE_TIME;
-		case "Ti.UI.PICKER_TYPE_DATE_AND_TIME": return Ti.UI.PICKER_TYPE_DATE_AND_TIME;
-		case "Ti.UI.PICKER_TYPE_COUNT_DOWN_TIMER": return Ti.UI.PICKER_TYPE_COUNT_DOWN_TIMER;
-		case "Ti.UI.TEXT_ALIGNMENT_LEFT": return Ti.UI.TEXT_ALIGNMENT_LEFT;
-		case "Ti.UI.TEXT_ALIGNMENT_CENTER": return Ti.UI.TEXT_ALIGNMENT_CENTER;
-		case "Ti.UI.TEXT_ALIGNMENT_RIGHT": return Ti.UI.TEXT_ALIGNMENT_RIGHT;
-		case "Ti.UI.TEXT_AUTOCAPITALIZATION_NONE": return Ti.UI.TEXT_AUTOCAPITALIZATION_NONE;
-		case "Ti.UI.TEXT_AUTOCAPITALIZATION_SENTENCES": return Ti.UI.TEXT_AUTOCAPITALIZATION_SENTENCES;
-		case "Ti.UI.TEXT_AUTOCAPITALIZATION_WORDS": return Ti.UI.TEXT_AUTOCAPITALIZATION_WORDS;
-		case "Ti.UI.TEXT_AUTOCAPITALIZATION_ALL": return Ti.UI.TEXT_AUTOCAPITALIZATION_ALL;
-		case "Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP": return Ti.UI.TEXT_VERTICAL_ALIGNMENT_TOP;
-		case "Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER": return Ti.UI.TEXT_VERTICAL_ALIGNMENT_CENTER;
-		case "Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM": return Ti.UI.TEXT_VERTICAL_ALIGNMENT_BOTTOM;
-		case "Ti.UI.KEYBOARD_DEFAULT": return Ti.UI.KEYBOARD_DEFAULT;
-		case "Ti.UI.KEYBOARD_ASCII": return Ti.UI.KEYBOARD_ASCII;
-		case "Ti.UI.KEYBOARD_EMAIL": return Ti.UI.KEYBOARD_EMAIL;
-		case "Ti.UI.KEYBOARD_URL": return Ti.UI.KEYBOARD_URL;
-		case "Ti.UI.KEYBOARD_APPEARANCE_ALERT": return Ti.UI.KEYBOARD_APPEARANCE_ALERT;
-		case "Ti.UI.KEYBOARD_APPEARANCE_DEFAULT": return Ti.UI.KEYBOARD_APPEARANCE_DEFAULT;
-		case "Ti.UI.KEYBOARD_NAMEPHONE_PAD": return Ti.UI.KEYBOARD_NAMEPHONE_PAD;
-		case "Ti.UI.KEYBOARD_NUMBER_PAD": return Ti.UI.KEYBOARD_NUMBER_PAD;
-		case "Ti.UI.KEYBOARD_NUMBERS_PUNCTUATION": return Ti.UI.KEYBOARD_NUMBERS_PUNCTUATION;
-		case "Ti.UI.KEYBOARD_DECIMAL_PAD": return Ti.UI.KEYBOARD_DECIMAL_PAD;
-		case "Ti.UI.KEYBOARD_PHONE_PAD": return Ti.UI.KEYBOARD_PHONE_PAD;
-		case "Ti.UI.ActivityIndicatorStyle.PLAIN": return Ti.UI.ActivityIndicatorStyle.PLAIN;
-		case "Ti.UI.ActivityIndicatorStyle.DARK": return Ti.UI.ActivityIndicatorStyle.DARK;
-		case "Ti.UI.ActivityIndicatorStyle.BIG": return Ti.UI.ActivityIndicatorStyle.BIG;
-		case "Ti.UI.ActivityIndicatorStyle.BIG_DARK": return Ti.UI.ActivityIndicatorStyle.BIG_DARK;
-		case "Ti.UI.iOS.AD_SIZE_LANDSCAPE": return Ti.UI.iOS.AD_SIZE_LANDSCAPE;
-		case "Ti.UI.iOS.AD_SIZE_PORTRAIT": return Ti.UI.iOS.AD_SIZE_PORTRAIT;
-		case "Ti.UI.iOS.AUTODETECT_ADDRESS": return Ti.UI.iOS.AUTODETECT_ADDRESS;
-		case "Ti.UI.iOS.AUTODETECT_ALL": return Ti.UI.iOS.AUTODETECT_ALL;
-		case "Ti.UI.iOS.AUTODETECT_CALENDAR": return Ti.UI.iOS.AUTODETECT_CALENDAR;
-		case "Ti.UI.iOS.AUTODETECT_LINK": return Ti.UI.iOS.AUTODETECT_LINK;
-		case "Ti.UI.iOS.AUTODETECT_NONE": return Ti.UI.iOS.AUTODETECT_NONE;
-		case "Ti.UI.iOS.AUTODETECT_PHONE": return Ti.UI.iOS.AUTODETECT_PHONE;
-		case "Ti.UI.iOS.BLEND_MODE_CLEAR": return Ti.UI.iOS.BLEND_MODE_CLEAR;
-		case "Ti.UI.iOS.BLEND_MODE_COLOR": return Ti.UI.iOS.BLEND_MODE_COLOR;
-		case "Ti.UI.iOS.BLEND_MODE_COLOR_BURN": return Ti.UI.iOS.BLEND_MODE_COLOR_BURN;
-		case "Ti.UI.iOS.BLEND_MODE_COLOR_DODGE": return Ti.UI.iOS.BLEND_MODE_COLOR_DODGE;
-		case "Ti.UI.iOS.BLEND_MODE_COPY": return Ti.UI.iOS.BLEND_MODE_COPY;
-		case "Ti.UI.iOS.BLEND_MODE_DARKEN": return Ti.UI.iOS.BLEND_MODE_DARKEN;
-		case "Ti.UI.iOS.BLEND_MODE_DESTINATION_ATOP": return Ti.UI.iOS.BLEND_MODE_DESTINATION_ATOP;
-		case "Ti.UI.iOS.BLEND_MODE_DESTINATION_IN": return Ti.UI.iOS.BLEND_MODE_DESTINATION_IN;
-		case "Ti.UI.iOS.BLEND_MODE_DESTINATION_OUT": return Ti.UI.iOS.BLEND_MODE_DESTINATION_OUT;
-		case "Ti.UI.iOS.BLEND_MODE_DESTINATION_OVER": return Ti.UI.iOS.BLEND_MODE_DESTINATION_OVER;
-		case "Ti.UI.iOS.BLEND_MODE_DIFFERENCE": return Ti.UI.iOS.BLEND_MODE_DIFFERENCE;
-		case "Ti.UI.iOS.BLEND_MODE_EXCLUSION": return Ti.UI.iOS.BLEND_MODE_EXCLUSION;
-		case "Ti.UI.iOS.BLEND_MODE_HARD_LIGHT": return Ti.UI.iOS.BLEND_MODE_HARD_LIGHT;
-		case "Ti.UI.iOS.BLEND_MODE_HUE": return Ti.UI.iOS.BLEND_MODE_HUE;
-		case "Ti.UI.iOS.BLEND_MODE_LIGHTEN": return Ti.UI.iOS.BLEND_MODE_LIGHTEN;
-		case "Ti.UI.iOS.BLEND_MODE_LUMINOSITY": return Ti.UI.iOS.BLEND_MODE_LUMINOSITY;
-		case "Ti.UI.iOS.BLEND_MODE_MULTIPLY": return Ti.UI.iOS.BLEND_MODE_MULTIPLY;
-		case "Ti.UI.iOS.BLEND_MODE_NORMAL": return Ti.UI.iOS.BLEND_MODE_NORMAL;
-		case "Ti.UI.iOS.BLEND_MODE_OVERLAY": return Ti.UI.iOS.BLEND_MODE_OVERLAY;
-		case "Ti.UI.iOS.BLEND_MODE_PLUS_DARKER": return Ti.UI.iOS.BLEND_MODE_PLUS_DARKER;
-		case "Ti.UI.iOS.BLEND_MODE_PLUS_LIGHTER": return Ti.UI.iOS.BLEND_MODE_PLUS_LIGHTER;
-		case "Ti.UI.iOS.BLEND_MODE_SATURATION": return Ti.UI.iOS.BLEND_MODE_SATURATION;
-		case "Ti.UI.iOS.BLEND_MODE_SCREEN": return Ti.UI.iOS.BLEND_MODE_SCREEN;
-		case "Ti.UI.iOS.BLEND_MODE_SOFT_LIGHT": return Ti.UI.iOS.BLEND_MODE_SOFT_LIGHT;
-		case "Ti.UI.iOS.BLEND_MODE_SOURCE_ATOP": return Ti.UI.iOS.BLEND_MODE_SOURCE_ATOP;
-		case "Ti.UI.iOS.BLEND_MODE_SOURCE_IN": return Ti.UI.iOS.BLEND_MODE_SOURCE_IN;
-		case "Ti.UI.iOS.BLEND_MODE_SOURCE_OUT": return Ti.UI.iOS.BLEND_MODE_SOURCE_OUT;
-		case "Ti.UI.iOS.BLEND_MODE_XOR": return Ti.UI.iOS.BLEND_MODE_XOR;
-		case "Ti.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND": return Ti.UI.iOS.COLOR_GROUP_TABLEVIEW_BACKGROUND;
-		case "Ti.UI.iOS.COLOR_SCROLLVIEW_BACKGROUND": return Ti.UI.iOS.COLOR_SCROLLVIEW_BACKGROUND;
-		case "Ti.UI.iOS.COLOR_UNDER_PAGE_BACKGROUND": return Ti.UI.iOS.COLOR_UNDER_PAGE_BACKGROUND;
-		case "Ti.UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND": return Ti.UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND;
-		case "Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UNKNOWN": return Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UNKNOWN;
-		case "Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP": return Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP;
-		case "Ti.UI.iPad.POPOVER_ARROW_DIRECTION_RIGHT": return Ti.UI.iPad.POPOVER_ARROW_DIRECTION_RIGHT;
-		case "Ti.UI.iPad.POPOVER_ARROW_DIRECTION_DOWN": return Ti.UI.iPad.POPOVER_ARROW_DIRECTION_DOWN;
-		case "Ti.UI.iPad.POPOVER_ARROW_DIRECTION_LEFT": return Ti.UI.iPad.POPOVER_ARROW_DIRECTION_LEFT;
-		case "Ti.UI.iPad.POPOVER_ARROW_DIRECTION_ANY": return Ti.UI.iPad.POPOVER_ARROW_DIRECTION_ANY;
-		case "Ti.UI.iPhone.MODAL_PRESENTATION_CURRENT_CONTEXT": return Ti.UI.iPhone.MODAL_PRESENTATION_CURRENT_CONTEXT;
-		case "Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET": return Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET;
-		case "Ti.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN": return Ti.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN;
-		case "Ti.UI.iPhone.MODAL_PRESENTATION_PAGESHEET": return Ti.UI.iPhone.MODAL_PRESENTATION_PAGESHEET;
-		case "Ti.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL": return Ti.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL;
-		case "Ti.UI.iPhone.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE": return Ti.UI.iPhone.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE;
-		case "Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL": return Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL;
-		case "Ti.UI.iPhone.MODAL_TRANSITION_STYLE_PARTIAL_CURL": return Ti.UI.iPhone.MODAL_TRANSITION_STYLE_PARTIAL_CURL;
-		case "Ti.UI.iPhone.ActivityIndicatorStyle.PLAIN": return Ti.UI.iPhone.ActivityIndicatorStyle.PLAIN;
-		case "Ti.UI.iPhone.ActivityIndicatorStyle.DARK": return Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
-		case "Ti.UI.iPhone.ActivityIndicatorStyle.BIG": return Ti.UI.iPhone.ActivityIndicatorStyle.BIG;
-		case "Ti.UI.iPhone.AnimationStyle.NONE": return Ti.UI.iPhone.AnimationStyle.NONE;
-		case "Ti.UI.iPhone.AnimationStyle.CURL_UP": return Ti.UI.iPhone.AnimationStyle.CURL_UP;
-		case "Ti.UI.iPhone.AnimationStyle.CURL_DOWN": return Ti.UI.iPhone.AnimationStyle.CURL_DOWN;
-		case "Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT": return Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT;
-		case "Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT": return Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT;
-		case "Ti.UI.iPhone.ProgressBarStyle.DEFAULT": return Ti.UI.iPhone.TableViewSeparatorStyle.DEFAULT;
-		case "Ti.UI.iPhone.ProgressBarStyle.PLAIN": return Ti.UI.iPhone.TableViewSeparatorStyle.PLAIN;
-		case "Ti.UI.iPhone.ProgressBarStyle.BAR": return Ti.UI.iPhone.TableViewSeparatorStyle.BAR;
-		case "Ti.UI.iPhone.RowAnimationStyle.NONE": return Ti.UI.iPhone.RowAnimationStyle.NONE;
-		case "Ti.UI.iPhone.RowAnimationStyle.FADE": return Ti.UI.iPhone.RowAnimationStyle.FADE;
-		case "Ti.UI.iPhone.RowAnimationStyle.TOP": return Ti.UI.iPhone.RowAnimationStyle.TOP;
-		case "Ti.UI.iPhone.RowAnimationStyle.RIGHT": return Ti.UI.iPhone.RowAnimationStyle.RIGHT;
-		case "Ti.UI.iPhone.RowAnimationStyle.BOTTOM": return Ti.UI.iPhone.RowAnimationStyle.BOTTOM;
-		case "Ti.UI.iPhone.RowAnimationStyle.LEFT": return Ti.UI.iPhone.RowAnimationStyle.LEFT;
-		case "Ti.UI.iPhone.ScrollIndicatorStyle.DEFAULT": return Ti.UI.iPhone.ScrollIndicatorStyle.DEFAULT;
-		case "Ti.UI.iPhone.ScrollIndicatorStyle.BLACK": return Ti.UI.iPhone.ScrollIndicatorStyle.BLACK;
-		case "Ti.UI.iPhone.ScrollIndicatorStyle.WHITE": return Ti.UI.iPhone.ScrollIndicatorStyle.WHITE;
-		case "Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_NONE": return Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_NONE;
-		case "Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_FADE": return Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_FADE;
-		case "Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_SLIDE": return Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_SLIDE;
-		case "Ti.UI.iPhone.StatusBar.DEFAULT": return Ti.UI.iPhone.StatusBar.DEFAULT;
-		case "Ti.UI.iPhone.StatusBar.GRAY": return Ti.UI.iPhone.StatusBar.GRAY;
-		case "Ti.UI.iPhone.StatusBar.GREY": return Ti.UI.iPhone.StatusBar.GREY;
-		case "Ti.UI.iPhone.StatusBar.OPAQUE_BLACK": return Ti.UI.iPhone.StatusBar.OPAQUE_BLACK;
-		case "Ti.UI.iPhone.StatusBar.TRANSLUCENT_BLACK": return Ti.UI.iPhone.StatusBar.TRANSLUCENT_BLACK;
-		case "Ti.UI.iPhone.SystemButton.ACTION": return Ti.UI.iPhone.SystemButton.ACTION;
-		case "Ti.UI.iPhone.SystemButton.ACTIVITY": return Ti.UI.iPhone.SystemButton.ACTIVITY;
-		case "Ti.UI.iPhone.SystemButton.ADD": return Ti.UI.iPhone.SystemButton.ADD;
-		case "Ti.UI.iPhone.SystemButton.BOOKMARKS": return Ti.UI.iPhone.SystemButton.BOOKMARKS;
-		case "Ti.UI.iPhone.SystemButton.CAMERA": return Ti.UI.iPhone.SystemButton.CAMERA;
-		case "Ti.UI.iPhone.SystemButton.CANCEL": return Ti.UI.iPhone.SystemButton.CANCEL;
-		case "Ti.UI.iPhone.SystemButton.COMPOSE": return Ti.UI.iPhone.SystemButton.COMPOSE;
-		case "Ti.UI.iPhone.SystemButton.CONTACT_ADD": return Ti.UI.iPhone.SystemButton.CONTACT_ADD;
-		case "Ti.UI.iPhone.SystemButton.DISCLOSURE": return Ti.UI.iPhone.SystemButton.DISCLOSURE;
-		case "Ti.UI.iPhone.SystemButton.DONE": return Ti.UI.iPhone.SystemButton.DONE;
-		case "Ti.UI.iPhone.SystemButton.EDIT": return Ti.UI.iPhone.SystemButton.EDIT;
-		case "Ti.UI.iPhone.SystemButton.FAST_FORWARD": return Ti.UI.iPhone.SystemButton.FAST_FORWARD;
-		case "Ti.UI.iPhone.SystemButton.FIXED_SPACE": return Ti.UI.iPhone.SystemButton.FIXED_SPACE;
-		case "Ti.UI.iPhone.SystemButton.FLEXIBLE_SPACE": return Ti.UI.iPhone.SystemButton.FLEXIBLE_SPACE;
-		case "Ti.UI.iPhone.SystemButton.INFO_DARK": return Ti.UI.iPhone.SystemButton.INFO_DARK;
-		case "Ti.UI.iPhone.SystemButton.INFO_LIGHT": return Ti.UI.iPhone.SystemButton.INFO_LIGHT;
-		case "Ti.UI.iPhone.SystemButton.ORGANIZE": return Ti.UI.iPhone.SystemButton.ORGANIZE;
-		case "Ti.UI.iPhone.SystemButton.PAUSE": return Ti.UI.iPhone.SystemButton.PAUSE;
-		case "Ti.UI.iPhone.SystemButton.PLAY": return Ti.UI.iPhone.SystemButton.PLAY;
-		case "Ti.UI.iPhone.SystemButton.REFRESH": return Ti.UI.iPhone.SystemButton.REFRESH;
-		case "Ti.UI.iPhone.SystemButton.REPLY": return Ti.UI.iPhone.SystemButton.REPLY;
-		case "Ti.UI.iPhone.SystemButton.REWIND": return Ti.UI.iPhone.SystemButton.REWIND;
-		case "Ti.UI.iPhone.SystemButton.SAVE": return Ti.UI.iPhone.SystemButton.SAVE;
-		case "Ti.UI.iPhone.SystemButton.SPINNER": return Ti.UI.iPhone.SystemButton.SPINNER;
-		case "Ti.UI.iPhone.SystemButton.STOP": return Ti.UI.iPhone.SystemButton.STOP;
-		case "Ti.UI.iPhone.SystemButton.TRASH": return Ti.UI.iPhone.SystemButton.TRASH;
-		case "Ti.UI.iPhone.SystemButtonStyle.PLAIN": return Ti.UI.iPhone.SystemButtonStyle.PLAIN;
-		case "Ti.UI.iPhone.SystemButtonStyle.DONE": return Ti.UI.iPhone.SystemButtonStyle.DONE;
-		case "Ti.UI.iPhone.SystemButtonStyle.BAR": return Ti.UI.iPhone.SystemButtonStyle.BAR;
-		case "Ti.UI.iPhone.SystemButtonStyle.BORDERED": return Ti.UI.iPhone.SystemButtonStyle.BORDERED;
-		case "Ti.UI.iPhone.TableViewScrollPosition.NONE": return Ti.UI.iPhone.TableViewScrollPosition.NONE;
-		case "Ti.UI.iPhone.TableViewScrollPosition.TOP": return Ti.UI.iPhone.TableViewScrollPosition.TOP;
-		case "Ti.UI.iPhone.TableViewScrollPosition.MIDDLE": return Ti.UI.iPhone.TableViewScrollPosition.MIDDLE;
-		case "Ti.UI.iPhone.TableViewScrollPosition.BOTTOM": return Ti.UI.iPhone.TableViewScrollPosition.BOTTOM;
-		case "Ti.UI.iPhone.TableViewStyle.GROUPED": return Ti.UI.iPhone.TableViewStyle.GROUPED;
-		case "Ti.UI.iPhone.TableViewStyle.PLAIN": return Ti.UI.iPhone.TableViewStyle.PLAIN;
-		case "Ti.UI.iPhone.TableViewSeparatorStyle.NONE": return Ti.UI.iPhone.TableViewSeparatorStyle.NONE;
-		case "Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE": return Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE;
-		case "Ti.UI.Android.LINKIFY_ALL": return Ti.UI.Android.LINKIFY_ALL;
-		case "Ti.UI.Android.LINKIFY_EMAIL_ADDRESSES": return Ti.UI.Android.LINKIFY_EMAIL_ADDRESSES;
-		case "Ti.UI.Android.LINKIFY_MAP_ADDRESSES": return Ti.UI.Android.LINKIFY_MAP_ADDRESSES;
-		case "Ti.UI.Android.LINKIFY_PHONE_NUMBERS": return Ti.UI.Android.LINKIFY_PHONE_NUMBERS;
-		case "Ti.UI.Android.LINKIFY_WEB_URLS": return Ti.UI.Android.LINKIFY_WEB_URLS;
-		case "Ti.UI.Android.PIXEL_FORMAT_A_8": return Ti.UI.Android.PIXEL_FORMAT_A_8;
-		case "Ti.UI.Android.PIXEL_FORMAT_LA_88": return Ti.UI.Android.PIXEL_FORMAT_LA_88;
-		case "Ti.UI.Android.PIXEL_FORMAT_L_8": return Ti.UI.Android.PIXEL_FORMAT_L_8;
-		case "Ti.UI.Android.PIXEL_FORMAT_OPAQUE": return Ti.UI.Android.PIXEL_FORMAT_OPAQUE;
-		case "Ti.UI.Android.PIXEL_FORMAT_RGBA_4444": return Ti.UI.Android.PIXEL_FORMAT_RGBA_4444;
-		case "Ti.UI.Android.PIXEL_FORMAT_RGBA_5551": return Ti.UI.Android.PIXEL_FORMAT_RGBA_5551;
-		case "Ti.UI.Android.PIXEL_FORMAT_RGBA_8888": return Ti.UI.Android.PIXEL_FORMAT_RGBA_8888;
-		case "Ti.UI.Android.PIXEL_FORMAT_RGBX_8888": return Ti.UI.Android.PIXEL_FORMAT_RGBX_8888;
-		case "Ti.UI.Android.PIXEL_FORMAT_RGB_332": return Ti.UI.Android.PIXEL_FORMAT_RGB_332;
-		case "Ti.UI.Android.PIXEL_FORMAT_RGB_565": return Ti.UI.Android.PIXEL_FORMAT_RGB_565;
-		case "Ti.UI.Android.PIXEL_FORMAT_RGB_888": return Ti.UI.Android.PIXEL_FORMAT_RGB_888;
-		case "Ti.UI.Android.PIXEL_FORMAT_TRANSLUCENT": return Ti.UI.Android.PIXEL_FORMAT_TRANSLUCENT;
-		case "Ti.UI.Android.PIXEL_FORMAT_TRANSPARENT": return Ti.UI.Android.PIXEL_FORMAT_TRANSPARENT;
-		case "Ti.UI.Android.PIXEL_FORMAT_UNKNOWN": return Ti.UI.Android.PIXEL_FORMAT_UNKNOWN;
-		case "Ti.UI.Android.SOFT_INPUT_ADJUST_PAN": return Ti.UI.Android.SOFT_INPUT_ADJUST_PAN;
-		case "Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE": return Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE;
-		case "Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED": return Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED;
-		case "Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN": return Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN;
-		case "Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE": return Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE;
-		case "Ti.UI.Android.SOFT_INPUT_STATE_HIDDEN": return Ti.UI.Android.SOFT_INPUT_STATE_HIDDEN;
-		case "Ti.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED": return Ti.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED;
-		case "Ti.UI.Android.SOFT_INPUT_STATE_VISIBLE": return Ti.UI.Android.SOFT_INPUT_STATE_VISIBLE;
-		case "Ti.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS": return Ti.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
-		case "Ti.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS": return Ti.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS;
-		case "Ti.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS": return Ti.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS;
-		case "Ti.UI.Android.SWITCH_STYLE_CHECKBOX": return Ti.UI.Android.SWITCH_STYLE_CHECKBOX;
-		case "Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON": return Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON;
-		case "Ti.UI.Android.WEBVIEW_PLUGINS_OFF": return Ti.UI.Android.WEBVIEW_PLUGINS_OFF;
-		case "Ti.UI.Android.WEBVIEW_PLUGINS_ON": return Ti.UI.Android.WEBVIEW_PLUGINS_ON;
-		case "Ti.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND": return Ti.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND;
-		default:
-			var temp = pluginInvokeMethod("UtilsStringToConst", [ string ]);
-			if(temp != undefined) {
-				return temp;
+		if(stringIsPrefix(string, "Ti.UI.iPad.") == true) {
+			switch(string) {
+				case "Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UNKNOWN": return Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UNKNOWN;
+				case "Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP": return Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UP;
+				case "Ti.UI.iPad.POPOVER_ARROW_DIRECTION_RIGHT": return Ti.UI.iPad.POPOVER_ARROW_DIRECTION_RIGHT;
+				case "Ti.UI.iPad.POPOVER_ARROW_DIRECTION_DOWN": return Ti.UI.iPad.POPOVER_ARROW_DIRECTION_DOWN;
+				case "Ti.UI.iPad.POPOVER_ARROW_DIRECTION_LEFT": return Ti.UI.iPad.POPOVER_ARROW_DIRECTION_LEFT;
+				case "Ti.UI.iPad.POPOVER_ARROW_DIRECTION_ANY": return Ti.UI.iPad.POPOVER_ARROW_DIRECTION_ANY;
 			}
-		break;
+		}
+		if(stringIsPrefix(string, "Ti.UI.iPhone.") == true) {
+			switch(string) {
+				case "Ti.UI.iPhone.MODAL_PRESENTATION_CURRENT_CONTEXT": return Ti.UI.iPhone.MODAL_PRESENTATION_CURRENT_CONTEXT;
+				case "Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET": return Ti.UI.iPhone.MODAL_PRESENTATION_FORMSHEET;
+				case "Ti.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN": return Ti.UI.iPhone.MODAL_PRESENTATION_FULLSCREEN;
+				case "Ti.UI.iPhone.MODAL_PRESENTATION_PAGESHEET": return Ti.UI.iPhone.MODAL_PRESENTATION_PAGESHEET;
+				case "Ti.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL": return Ti.UI.iPhone.MODAL_TRANSITION_STYLE_COVER_VERTICAL;
+				case "Ti.UI.iPhone.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE": return Ti.UI.iPhone.MODAL_TRANSITION_STYLE_CROSS_DISSOLVE;
+				case "Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL": return Ti.UI.iPhone.MODAL_TRANSITION_STYLE_FLIP_HORIZONTAL;
+				case "Ti.UI.iPhone.MODAL_TRANSITION_STYLE_PARTIAL_CURL": return Ti.UI.iPhone.MODAL_TRANSITION_STYLE_PARTIAL_CURL;
+				case "Ti.UI.iPhone.ActivityIndicatorStyle.PLAIN": return Ti.UI.iPhone.ActivityIndicatorStyle.PLAIN;
+				case "Ti.UI.iPhone.ActivityIndicatorStyle.DARK": return Ti.UI.iPhone.ActivityIndicatorStyle.DARK;
+				case "Ti.UI.iPhone.ActivityIndicatorStyle.BIG": return Ti.UI.iPhone.ActivityIndicatorStyle.BIG;
+				case "Ti.UI.iPhone.AnimationStyle.NONE": return Ti.UI.iPhone.AnimationStyle.NONE;
+				case "Ti.UI.iPhone.AnimationStyle.CURL_UP": return Ti.UI.iPhone.AnimationStyle.CURL_UP;
+				case "Ti.UI.iPhone.AnimationStyle.CURL_DOWN": return Ti.UI.iPhone.AnimationStyle.CURL_DOWN;
+				case "Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT": return Ti.UI.iPhone.AnimationStyle.FLIP_FROM_LEFT;
+				case "Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT": return Ti.UI.iPhone.AnimationStyle.FLIP_FROM_RIGHT;
+				case "Ti.UI.iPhone.ProgressBarStyle.DEFAULT": return Ti.UI.iPhone.TableViewSeparatorStyle.DEFAULT;
+				case "Ti.UI.iPhone.ProgressBarStyle.PLAIN": return Ti.UI.iPhone.TableViewSeparatorStyle.PLAIN;
+				case "Ti.UI.iPhone.ProgressBarStyle.BAR": return Ti.UI.iPhone.TableViewSeparatorStyle.BAR;
+				case "Ti.UI.iPhone.RowAnimationStyle.NONE": return Ti.UI.iPhone.RowAnimationStyle.NONE;
+				case "Ti.UI.iPhone.RowAnimationStyle.FADE": return Ti.UI.iPhone.RowAnimationStyle.FADE;
+				case "Ti.UI.iPhone.RowAnimationStyle.TOP": return Ti.UI.iPhone.RowAnimationStyle.TOP;
+				case "Ti.UI.iPhone.RowAnimationStyle.RIGHT": return Ti.UI.iPhone.RowAnimationStyle.RIGHT;
+				case "Ti.UI.iPhone.RowAnimationStyle.BOTTOM": return Ti.UI.iPhone.RowAnimationStyle.BOTTOM;
+				case "Ti.UI.iPhone.RowAnimationStyle.LEFT": return Ti.UI.iPhone.RowAnimationStyle.LEFT;
+				case "Ti.UI.iPhone.ScrollIndicatorStyle.DEFAULT": return Ti.UI.iPhone.ScrollIndicatorStyle.DEFAULT;
+				case "Ti.UI.iPhone.ScrollIndicatorStyle.BLACK": return Ti.UI.iPhone.ScrollIndicatorStyle.BLACK;
+				case "Ti.UI.iPhone.ScrollIndicatorStyle.WHITE": return Ti.UI.iPhone.ScrollIndicatorStyle.WHITE;
+				case "Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_NONE": return Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_NONE;
+				case "Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_FADE": return Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_FADE;
+				case "Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_SLIDE": return Ti.UI.iPhone.StatusBar.ANIMATION_STYLE_SLIDE;
+				case "Ti.UI.iPhone.StatusBar.DEFAULT": return Ti.UI.iPhone.StatusBar.DEFAULT;
+				case "Ti.UI.iPhone.StatusBar.GRAY": return Ti.UI.iPhone.StatusBar.GRAY;
+				case "Ti.UI.iPhone.StatusBar.GREY": return Ti.UI.iPhone.StatusBar.GREY;
+				case "Ti.UI.iPhone.StatusBar.OPAQUE_BLACK": return Ti.UI.iPhone.StatusBar.OPAQUE_BLACK;
+				case "Ti.UI.iPhone.StatusBar.TRANSLUCENT_BLACK": return Ti.UI.iPhone.StatusBar.TRANSLUCENT_BLACK;
+				case "Ti.UI.iPhone.SystemButton.ACTION": return Ti.UI.iPhone.SystemButton.ACTION;
+				case "Ti.UI.iPhone.SystemButton.ACTIVITY": return Ti.UI.iPhone.SystemButton.ACTIVITY;
+				case "Ti.UI.iPhone.SystemButton.ADD": return Ti.UI.iPhone.SystemButton.ADD;
+				case "Ti.UI.iPhone.SystemButton.BOOKMARKS": return Ti.UI.iPhone.SystemButton.BOOKMARKS;
+				case "Ti.UI.iPhone.SystemButton.CAMERA": return Ti.UI.iPhone.SystemButton.CAMERA;
+				case "Ti.UI.iPhone.SystemButton.CANCEL": return Ti.UI.iPhone.SystemButton.CANCEL;
+				case "Ti.UI.iPhone.SystemButton.COMPOSE": return Ti.UI.iPhone.SystemButton.COMPOSE;
+				case "Ti.UI.iPhone.SystemButton.CONTACT_ADD": return Ti.UI.iPhone.SystemButton.CONTACT_ADD;
+				case "Ti.UI.iPhone.SystemButton.DISCLOSURE": return Ti.UI.iPhone.SystemButton.DISCLOSURE;
+				case "Ti.UI.iPhone.SystemButton.DONE": return Ti.UI.iPhone.SystemButton.DONE;
+				case "Ti.UI.iPhone.SystemButton.EDIT": return Ti.UI.iPhone.SystemButton.EDIT;
+				case "Ti.UI.iPhone.SystemButton.FAST_FORWARD": return Ti.UI.iPhone.SystemButton.FAST_FORWARD;
+				case "Ti.UI.iPhone.SystemButton.FIXED_SPACE": return Ti.UI.iPhone.SystemButton.FIXED_SPACE;
+				case "Ti.UI.iPhone.SystemButton.FLEXIBLE_SPACE": return Ti.UI.iPhone.SystemButton.FLEXIBLE_SPACE;
+				case "Ti.UI.iPhone.SystemButton.INFO_DARK": return Ti.UI.iPhone.SystemButton.INFO_DARK;
+				case "Ti.UI.iPhone.SystemButton.INFO_LIGHT": return Ti.UI.iPhone.SystemButton.INFO_LIGHT;
+				case "Ti.UI.iPhone.SystemButton.ORGANIZE": return Ti.UI.iPhone.SystemButton.ORGANIZE;
+				case "Ti.UI.iPhone.SystemButton.PAUSE": return Ti.UI.iPhone.SystemButton.PAUSE;
+				case "Ti.UI.iPhone.SystemButton.PLAY": return Ti.UI.iPhone.SystemButton.PLAY;
+				case "Ti.UI.iPhone.SystemButton.REFRESH": return Ti.UI.iPhone.SystemButton.REFRESH;
+				case "Ti.UI.iPhone.SystemButton.REPLY": return Ti.UI.iPhone.SystemButton.REPLY;
+				case "Ti.UI.iPhone.SystemButton.REWIND": return Ti.UI.iPhone.SystemButton.REWIND;
+				case "Ti.UI.iPhone.SystemButton.SAVE": return Ti.UI.iPhone.SystemButton.SAVE;
+				case "Ti.UI.iPhone.SystemButton.SPINNER": return Ti.UI.iPhone.SystemButton.SPINNER;
+				case "Ti.UI.iPhone.SystemButton.STOP": return Ti.UI.iPhone.SystemButton.STOP;
+				case "Ti.UI.iPhone.SystemButton.TRASH": return Ti.UI.iPhone.SystemButton.TRASH;
+				case "Ti.UI.iPhone.SystemButtonStyle.PLAIN": return Ti.UI.iPhone.SystemButtonStyle.PLAIN;
+				case "Ti.UI.iPhone.SystemButtonStyle.DONE": return Ti.UI.iPhone.SystemButtonStyle.DONE;
+				case "Ti.UI.iPhone.SystemButtonStyle.BAR": return Ti.UI.iPhone.SystemButtonStyle.BAR;
+				case "Ti.UI.iPhone.SystemButtonStyle.BORDERED": return Ti.UI.iPhone.SystemButtonStyle.BORDERED;
+				case "Ti.UI.iPhone.TableViewScrollPosition.NONE": return Ti.UI.iPhone.TableViewScrollPosition.NONE;
+				case "Ti.UI.iPhone.TableViewScrollPosition.TOP": return Ti.UI.iPhone.TableViewScrollPosition.TOP;
+				case "Ti.UI.iPhone.TableViewScrollPosition.MIDDLE": return Ti.UI.iPhone.TableViewScrollPosition.MIDDLE;
+				case "Ti.UI.iPhone.TableViewScrollPosition.BOTTOM": return Ti.UI.iPhone.TableViewScrollPosition.BOTTOM;
+				case "Ti.UI.iPhone.TableViewStyle.GROUPED": return Ti.UI.iPhone.TableViewStyle.GROUPED;
+				case "Ti.UI.iPhone.TableViewStyle.PLAIN": return Ti.UI.iPhone.TableViewStyle.PLAIN;
+				case "Ti.UI.iPhone.TableViewSeparatorStyle.NONE": return Ti.UI.iPhone.TableViewSeparatorStyle.NONE;
+				case "Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE": return Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE;
+			}
+		}
+		if(stringIsPrefix(string, "Ti.UI.Android.") == true) {
+			switch(string) {
+				case "Ti.UI.Android.LINKIFY_ALL": return Ti.UI.Android.LINKIFY_ALL;
+				case "Ti.UI.Android.LINKIFY_EMAIL_ADDRESSES": return Ti.UI.Android.LINKIFY_EMAIL_ADDRESSES;
+				case "Ti.UI.Android.LINKIFY_MAP_ADDRESSES": return Ti.UI.Android.LINKIFY_MAP_ADDRESSES;
+				case "Ti.UI.Android.LINKIFY_PHONE_NUMBERS": return Ti.UI.Android.LINKIFY_PHONE_NUMBERS;
+				case "Ti.UI.Android.LINKIFY_WEB_URLS": return Ti.UI.Android.LINKIFY_WEB_URLS;
+				case "Ti.UI.Android.PIXEL_FORMAT_A_8": return Ti.UI.Android.PIXEL_FORMAT_A_8;
+				case "Ti.UI.Android.PIXEL_FORMAT_LA_88": return Ti.UI.Android.PIXEL_FORMAT_LA_88;
+				case "Ti.UI.Android.PIXEL_FORMAT_L_8": return Ti.UI.Android.PIXEL_FORMAT_L_8;
+				case "Ti.UI.Android.PIXEL_FORMAT_OPAQUE": return Ti.UI.Android.PIXEL_FORMAT_OPAQUE;
+				case "Ti.UI.Android.PIXEL_FORMAT_RGBA_4444": return Ti.UI.Android.PIXEL_FORMAT_RGBA_4444;
+				case "Ti.UI.Android.PIXEL_FORMAT_RGBA_5551": return Ti.UI.Android.PIXEL_FORMAT_RGBA_5551;
+				case "Ti.UI.Android.PIXEL_FORMAT_RGBA_8888": return Ti.UI.Android.PIXEL_FORMAT_RGBA_8888;
+				case "Ti.UI.Android.PIXEL_FORMAT_RGBX_8888": return Ti.UI.Android.PIXEL_FORMAT_RGBX_8888;
+				case "Ti.UI.Android.PIXEL_FORMAT_RGB_332": return Ti.UI.Android.PIXEL_FORMAT_RGB_332;
+				case "Ti.UI.Android.PIXEL_FORMAT_RGB_565": return Ti.UI.Android.PIXEL_FORMAT_RGB_565;
+				case "Ti.UI.Android.PIXEL_FORMAT_RGB_888": return Ti.UI.Android.PIXEL_FORMAT_RGB_888;
+				case "Ti.UI.Android.PIXEL_FORMAT_TRANSLUCENT": return Ti.UI.Android.PIXEL_FORMAT_TRANSLUCENT;
+				case "Ti.UI.Android.PIXEL_FORMAT_TRANSPARENT": return Ti.UI.Android.PIXEL_FORMAT_TRANSPARENT;
+				case "Ti.UI.Android.PIXEL_FORMAT_UNKNOWN": return Ti.UI.Android.PIXEL_FORMAT_UNKNOWN;
+				case "Ti.UI.Android.SOFT_INPUT_ADJUST_PAN": return Ti.UI.Android.SOFT_INPUT_ADJUST_PAN;
+				case "Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE": return Ti.UI.Android.SOFT_INPUT_ADJUST_RESIZE;
+				case "Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED": return Ti.UI.Android.SOFT_INPUT_ADJUST_UNSPECIFIED;
+				case "Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN": return Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_HIDDEN;
+				case "Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE": return Ti.UI.Android.SOFT_INPUT_STATE_ALWAYS_VISIBLE;
+				case "Ti.UI.Android.SOFT_INPUT_STATE_HIDDEN": return Ti.UI.Android.SOFT_INPUT_STATE_HIDDEN;
+				case "Ti.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED": return Ti.UI.Android.SOFT_INPUT_STATE_UNSPECIFIED;
+				case "Ti.UI.Android.SOFT_INPUT_STATE_VISIBLE": return Ti.UI.Android.SOFT_INPUT_STATE_VISIBLE;
+				case "Ti.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS": return Ti.UI.Android.SOFT_KEYBOARD_DEFAULT_ON_FOCUS;
+				case "Ti.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS": return Ti.UI.Android.SOFT_KEYBOARD_HIDE_ON_FOCUS;
+				case "Ti.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS": return Ti.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS;
+				case "Ti.UI.Android.SWITCH_STYLE_CHECKBOX": return Ti.UI.Android.SWITCH_STYLE_CHECKBOX;
+				case "Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON": return Ti.UI.Android.SWITCH_STYLE_TOGGLEBUTTON;
+				case "Ti.UI.Android.WEBVIEW_PLUGINS_OFF": return Ti.UI.Android.WEBVIEW_PLUGINS_OFF;
+				case "Ti.UI.Android.WEBVIEW_PLUGINS_ON": return Ti.UI.Android.WEBVIEW_PLUGINS_ON;
+				case "Ti.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND": return Ti.UI.Android.WEBVIEW_PLUGINS_ON_DEMAND;
+			}
+		}
+	} else if(stringIsPrefix(string, "TiTools2.") == true) {
+		if(stringIsPrefix(string, "TiTools2.Screen.") == true) {
+			switch(string) {
+				case "TiTools.Screen.UNKNOWN": return SCREEN_UNKNOWN;
+				case "TiTools.Screen.SMALL": return SCREEN_SMALL;
+				case "TiTools.Screen.NORMAL": return SCREEN_NORMAL;
+				case "TiTools.Screen.LARGE": return SCREEN_LARGE;
+				case "TiTools.Screen.EXTRA_LARGE": return SCREEN_EXTRA_LARGE;
+			}
+		}
+	}
+	var temp = pluginInvokeMethod("stringToConst", [ string ]);
+	if(temp != undefined) {
+		return temp;
 	}
 	return callbackDefault(string);
 }
@@ -2602,53 +2649,47 @@ function pluginInvokeMethod(name, args, defaults) {
 // TODO:NAMESPACE:ERROR
 //---------------------------------------------//
 
-function errorCustom(message, func, value) {
-	utilsInfo(coreTr(message), [
-		"Function = \"" + func + "\"",
-		"Detail = \"" + value + "\""
-	]);
-}
 function errorNotFound(func, file) {
-	errorCustom("TITOOLS_ERROR_NOT_FOUND", func, file);
+	utilsInfo(coreTr("TITOOLS_ERROR_NOT_FOUND"), stringFormat(" - In %s\n - File %s\n", func, file));
 }
 function errorUnknownExtension(func, file) {
-	errorCustom("TITOOLS_ERROR_UNKNOWN_EXTENSION", func, file);
+	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_EXTENSION"), stringFormat(" - In %s\n - File %s\n", func, file));
 }
 function errorUnknownPlatform(func, platform) {
-	errorCustom("TITOOLS_ERROR_UNKNOWN_PLATFORM", func, jsonSerialize(platform));
+	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_PLATFORM"), stringFormat(" - In %s\n - Platform %s\n", func, jsonSerialize(platform)));
 }
-function errorUnknownScreen(func, platform) {
-	errorCustom("TITOOLS_ERROR_UNKNOWN_SCREEN", func, jsonSerialize(platform));
+function errorUnknownScreen(func, screen) {
+	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_SCREEN"), stringFormat(" - In %s\n - Screen %s\n", func, jsonSerialize(screen)));
 }
 function errorUnknownMethod(func, method) {
-	errorCustom("TITOOLS_ERROR_UNKNOWN_METHOD", func, method);
+	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_METHOD"), stringFormat(" - In %s\n - Method %s\n", func, method));
 }
 function errorPresetNotFound(func, preset) {
-	errorCustom("TITOOLS_ERROR_PRESET_NOT_FOUND", func, preset);
+	utilsInfo(coreTr("TITOOLS_ERROR_PRESET_NOT_FOUND"), stringFormat(" - In %s\n - Preset %s\n", func, preset));
 }
 function errorPresetUnsupportedFormat(func, preset) {
-	errorCustom("TITOOLS_ERROR_PRESET_UNSUPPORTED_FORMAT", func, jsonSerialize(preset));
+	utilsInfo(coreTr("TITOOLS_ERROR_PRESET_UNSUPPORTED_FORMAT"), stringFormat(" - In %s\n - Preset %s\n", func, jsonSerialize(preset)));
 }
-function errorPrefabNotFound(func, preset) {
-	errorCustom("TITOOLS_ERROR_PREFAB_NOT_FOUND", func, preset);
+function errorPrefabNotFound(func, prefab) {
+	utilsInfo(coreTr("TITOOLS_ERROR_PREFAB_NOT_FOUND"), stringFormat(" - In %s\n - Prefab %s\n", func, prefab));
 }
-function errorPrefabUnsupportedFormat(func, preset) {
-	errorCustom("TITOOLS_ERROR_PREFAB_UNSUPPORTED_FORMAT", func, jsonSerialize(preset));
+function errorPrefabUnsupportedFormat(func, prefab) {
+	utilsInfo(coreTr("TITOOLS_ERROR_PREFAB_UNSUPPORTED_FORMAT"), stringFormat(" - In %s\n - File %s\n", Prefab, jsonSerialize(prefab)));
 }
 function errorUnsupportedPlatform(func, platform) {
-	errorCustom("TITOOLS_ERROR_UNSUPPORTED_PLATFORM", func, platform);
+	utilsInfo(coreTr("TITOOLS_ERROR_UNSUPPORTED_PLATFORM"), stringFormat(" - In %s\n - Platform %s\n", func, platform));
 }
 function errorUnsupportedClassName(func, tiClassName) {
-	errorCustom("TITOOLS_ERROR_UNSUPPORTED_CLASS_NAME", func, tiClassName);
+	utilsInfo(coreTr("TITOOLS_ERROR_UNSUPPORTED_CLASS_NAME"), stringFormat(" - In %s\n - ClassName %s\n", func, tiClassName));
 }
 function errorUnknownClassName(func, tiClassName) {
-	errorCustom("TITOOLS_ERROR_UNKNOWN_CLASS_NAME", func, tiClassName);
+	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_CLASS_NAME"), stringFormat(" - In %s\n - ClassName %s\n", func, tiClassName));
 }
 function errorThisNotValue(func, name) {
-	errorCustom("TITOOLS_ERROR_THIS_NOT_VALUE", func, name);
+	utilsInfo(coreTr("TITOOLS_ERROR_THIS_NOT_VALUE"), stringFormat(" - In %s\n - Value name %s\n", func, name));
 }
 function errorThisNotFunction(func, name) {
-	errorCustom("TITOOLS_ERROR_THIS_NOT_FUNCTION", func, name);
+	utilsInfo(coreTr("TITOOLS_ERROR_THIS_NOT_FUNCTION"), stringFormat(" - In %s\n - Function name %s\n", func, name));
 }
 
 //---------------------------------------------//
@@ -2685,7 +2726,8 @@ var TiTools = {
 		trimRight: stringTrimRight,
 		paddingLeft: stringPaddingLeft,
 		paddingRight: stringPaddingRight,
-		repeat: stringRepeat
+		repeat: stringRepeat,
+		format: stringFormat
 	},
 	Date: {
 		now: dateNow,
@@ -2714,8 +2756,8 @@ var TiTools = {
 		distance: geoDistance
 	},
 	Path: {
-		resources: pathResources,
-		controllers: pathControllers,
+		resources: pathResources(),
+		controllers: pathControllers(),
 		preprocess: pathPreprocess
 	},
 	FileSystem: {
@@ -2730,8 +2772,12 @@ var TiTools = {
 		deserialize: jsonDeserialize
 	},
 	XML: {
+		Private: {
+			deserializeNode: xmlDeserializeNode
+		},
 		serialize: xmlSerialize,
 		deserialize: xmlDeserialize,
+		getNode: xmlGetNode,
 		findNode: xmlFindNode,
 		mergeNodeAttributes: xmlMergeNodeAttributes
 	},
@@ -2740,13 +2786,13 @@ var TiTools = {
 		deserialize: csvDeserialize
 	},
 	UI: {
+		Private: {
+			createParams: uiCreateParams
+		},
 		currentTab: undefined,
-		createAlertDialog: uiCreateAlertDialog,
-		createEmailDialog: uiCreateEmailDialog,
-		createOptionDialog: uiCreateOptionDialog,
-		createActivityIndicator: uiCreateActivityIndicator,
 		createTabGroup: uiCreateTabGroup,
 		createTab: uiCreateTab,
+		createNavigationGroup: uiCreateNavigationGroup,
 		createWindow: uiCreateWindow,
 		createView: uiCreateView,
 		createScrollView: uiCreateScrollView,
@@ -2772,11 +2818,28 @@ var TiTools = {
 		createMapView: uiCreateMapView,
 		createMapViewAnnotation: uiCreateMapViewAnnotation,
 		createFacebookLoginButton: uiCreateFacebookLoginButton,
+		createAlertDialog: uiCreateAlertDialog,
+		createEmailDialog: uiCreateEmailDialog,
+		createOptionDialog: uiCreateOptionDialog,
+		createPhoneCallDialog: uiCreatePhoneCallDialog,
+		createActivityIndicator: uiCreateActivityIndicator,
 		ThirdParty: {
 			ceatePaintView: uiThirdPartyCreatePaintView
 		}
 	},
+	Loader: {
+		Private: {
+			withParams: loaderWithParams,
+			withFileName: loaderWithFileName
+		}
+	},
 	Preset: {
+		Private: {
+			loadJS: presetLoadJS,
+			loadXML: presetLoadXML,
+			loadItemXML: presetLoadItemXML,
+			loadX: presetLoadX
+		},
 		set: presetSet,
 		get: presetGet,
 		remove: presetRemove,
@@ -2786,21 +2849,74 @@ var TiTools = {
 		load: presetLoad
 	},
 	Prefab: {
+		Private: {
+			loadJS: prefabLoadJS,
+			loadXML: prefabLoadXML,
+			loadItemXML: prefabLoadItemXML,
+			loadX: prefabLoadX
+		},
 		set: prefabSet,
 		get: prefabGet,
 		remove: prefabRemove,
 		load: prefabLoad
 	},
 	Form: {
-		PreLoad: {
-			set: formPreLoadSet,
-			get: formPreLoadGet,
-			remove: formPreLoadRemove,
-			load: formPreLoad
+		Private: {
+			loadJS: formLoadJS,
+			loadItemJS: formLoadItemJS,
+			Control: {
+				controlBindStyle: formControlBindStyle,
+				controlBindFunction: formControlBindFunction,
+				controlTabGroup: formControlTabGroup,
+				appendTabGroup: formAppendTabGroup,
+				controlTab: formControlTab,
+				appendTab: formAppendTab,
+				controlNavigationGroup: formControlNavigationGroup,
+				appendNavigationGroup: formAppendNavigationGroup,
+				controlWindow: formControlWindow,
+				appendWindow: formAppendWindow,
+				controlView: formControlView,
+				controlScrollView: formControlScrollView,
+				controlScrollableView: formControlScrollableView,
+				appendScrollableView: formAppendScrollableView,
+				controlTableView: formControlTableView,
+				appendTableView: formAppendTableView,
+				appendTableViewHeader: formAppendTableViewHeader,
+				appendTableViewFooter: formAppendTableViewFooter,
+				controlTableViewSection: formControlTableViewSection,
+				appendTableViewSection: formAppendTableViewSection,
+				appendTableViewSectionHeader: formAppendTableViewSectionHeader,
+				appendTableViewSectionFooter: formAppendTableViewSectionFooter,
+				controlTableViewRow: formControlTableViewRow,
+				appendTableViewRow: formAppendTableViewRow,
+				controlPicker: formControlPicker,
+				appendPicker: formAppendPicker,
+				controlPickerColumn: formControlPickerColumn,
+				appendPickerColumn: formAppendPickerColumn,
+				controlOther: formControlOther,
+				appendOther: formAppendOther,
+				controlHttpClient: formControlHttpClient
+			}
+		},
+		Cache: {
+			Private: {
+				loadJS: formCacheLoadJS,
+				loadItemJS: formCacheLoadItemJS,
+				loadXML: formCacheLoadXML,
+				loadItemXML: formCacheLoadItemXML,
+				loadX: formCacheLoadX
+			},
+			set: formCacheSet,
+			get: formCacheGet,
+			remove: formCacheRemove,
+			load: formCacheLoad
 		},
 		load: formLoad
 	},
 	Project: {
+		Private: {
+			createWindowStyle: projectCreateWindowStyle
+		},
 		initialize: projectInitialize,
 		loadPreset: projectLoadPreset,
 		loadPrefab: projectLoadPrefab,
@@ -2818,12 +2934,31 @@ var TiTools = {
 		appropriateAny: utilsAppropriateAny,
 		appropriatePlatform: utilsAppropriatePlatform,
 		appropriateScreen: utilsAppropriateScreen,
-		callToNumber: utilsCallToNumber,
 		stringToConst: utilsStringToConst
 	},
 	Plugin: {
+		Private: {
+			loadWithPath: pluginLoadWithPath,
+			invokeMethod: pluginInvokeMethod
+		},
 		isLoad: pluginIsLoad,
 		load: pluginLoad
+	},
+	Error: {
+		notFound: errorNotFound,
+		unknownExtension: errorUnknownExtension,
+		unknownPlatform: errorUnknownPlatform,
+		unknownScreen: errorUnknownScreen,
+		unknownMethod: errorUnknownMethod,
+		presetNotFound: errorPresetNotFound,
+		presetUnsupportedFormat: errorPresetUnsupportedFormat,
+		prefabNotFound: errorPrefabNotFound,
+		prefabUnsupportedFormat: errorPrefabUnsupportedFormat,
+		unsupportedPlatform: errorUnsupportedPlatform,
+		unsupportedClassName: errorUnsupportedClassName,
+		unknownClassName: errorUnknownClassName,
+		thisNotValue: errorThisNotValue,
+		thisNotFunction: errorThisNotFunction
 	},
 	ThirdParty: {
 		underscore: underscore,
