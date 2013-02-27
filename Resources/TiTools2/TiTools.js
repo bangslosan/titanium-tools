@@ -97,6 +97,7 @@ var stringPaddingLeft = underscoreString.lpad;
 var stringPaddingRight = underscoreString.rpad;
 var stringRepeat = underscoreString.repeat;
 var stringFormat = underscoreString.sprintf;
+var stringLines = underscoreString.lines;
 
 function stringIsInt(str) {
 	return /^\d+$/.test(str);
@@ -2252,8 +2253,8 @@ function utilsSleep(ms) {
 	}
 }
 function utilsInfo(message, list) {
-	function printList(name, value, pad, inc) {
-		function printPad(name, value, end) {
+	function infoFormat(name, value, pad, inc) {
+		function infoLine(name, value, end) {
 			var empty = stringRepeat(" ", pad);
 			if(name != undefined) {
 				return empty + name + " = " + value + end;
@@ -2263,25 +2264,26 @@ function utilsInfo(message, list) {
 		
 		var text = "";
 		if(coreIsArray(value) == true) {
-			text += printPad(name, "[", "\n");
+			text += infoLine(name, "[", "\n");
 			for(var i = 0; i < value.length; i++) {
-				text += printList(undefined, value[i], pad + inc, inc);
+				text += infoFormat(undefined, value[i], pad + inc, inc);
 			}
-			text += printPad(undefined, "]", "\n");
+			text += infoLine(undefined, "]", "\n");
 		} else if(coreIsFunction(value) == true) {
-			text += printPad(name, "\"Function\"", "\n");
+			text += infoLine(name, "\"Function\"", "\n");
 		} else if(coreIsObject(value) == true) {
-			text += printPad(name, "{", "\n");
+			text += infoLine(name, "{", "\n");
 			for(var i in value) {
-				text += printList(i, value[i], pad + inc, inc);
+				text += infoFormat(i, value[i], pad + inc, inc);
 			}
-			text += printPad(undefined, "}", "\n");
+			text += infoLine(undefined, "}", "\n");
 		} else {
-			text += printPad(name, "\"" + value + "\"", "\n");
+			text += infoLine(name, "\"" + value + "\"", "\n");
 		}
 		return text;
 	}
 	
+	Ti.API.info("[TiTools]: " + stringRepeat("-", 50));
 	if(coreIsArray(message) == true) {
 		Ti.API.info("[TiTools]: " + jsonSerialize(message));
 	} else if(coreIsObject(message) == true) {
@@ -2290,8 +2292,15 @@ function utilsInfo(message, list) {
 		Ti.API.info("[TiTools]: " + message);
 	}
 	if(list != undefined) {
-		Ti.API.info(printList(undefined, list, 0, 2));
+		Ti.API.info("[TiTools]: " + stringRepeat("-", 50));
+		var text = infoFormat(undefined, list, 0, 2);
+		var lines = stringLines(text);
+		var count = lines.length - 1;
+		for(var i = 0; i < count; i++) {
+			Ti.API.info("[TiTools]: " + lines[i]);
+		}
 	}
+	Ti.API.info("[TiTools]: " + stringRepeat("-", 50));
 }
 function utilsAppropriateAny(params, defaults) {
 	if(params.any != undefined) {
@@ -2720,7 +2729,8 @@ var TiTools = {
 		paddingLeft: stringPaddingLeft,
 		paddingRight: stringPaddingRight,
 		repeat: stringRepeat,
-		format: stringFormat
+		format: stringFormat,
+		lines: stringLines
 	},
 	Date: {
 		now: dateNow,
