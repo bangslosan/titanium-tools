@@ -1131,8 +1131,15 @@ var _formPreload = {};
 
 //---------------------------------------------//
 
-function formCacheSet(id, value) {
-	_formPreload[id] = value;
+function formCacheSet(id, value, needPreprocessing) {
+	if(needPreprocessing == true) {
+		value = formCacheLoadJS(value);
+		if(value != undefined) {
+			_formPreload[id] = value;
+		}
+	} else {
+		_formPreload[id] = value;
+	}
 }
 function formCacheGet(id) {
 	return _formPreload[id];
