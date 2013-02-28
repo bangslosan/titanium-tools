@@ -8,7 +8,7 @@ function googleMapCurrentLocation(params) {
 			options: {
 				method: "GET",
 				url: "http://maps.googleapis.com/maps/api/geocode/json",
-				header: {
+				headers: {
 					"Content-Type": "application/json; charset=utf-8",
 					"Cache-Control": "no-cache, must-revalidate"
 				},

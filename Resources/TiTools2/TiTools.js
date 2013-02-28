@@ -312,9 +312,9 @@ TiToolsNetworkHttpClient.prototype.request = function() {
 						self.success.call(self, self);
 					}
 				} catch(error) {
-					if(coreIsFunction(self.loaded) == true) {
-						self.loaded.call(self, self);
-					}
+				}
+				if(coreIsFunction(self.loaded) == true) {
+					self.loaded.call(self, self);
 				}
 				self.handle = undefined;
 			},
@@ -324,9 +324,9 @@ TiToolsNetworkHttpClient.prototype.request = function() {
 						self.failure.call(self, self);
 					}
 				} catch(error) {
-					if(coreIsFunction(self.loaded) == true) {
-						self.loaded.call(self, self);
-					}
+				}
+				if(coreIsFunction(self.loaded) == true) {
+					self.loaded.call(self, self);
 				}
 				self.handle = undefined;
 			},
@@ -357,8 +357,8 @@ TiToolsNetworkHttpClient.prototype.request = function() {
 			case "POST": self.handle.open("POST", url); break;
 		}
 		if(headers != undefined) {
-			for(var i in args) {
-				self.handle.setRequestHeader(i, header[i]);
+			for(var i in headers) {
+				self.handle.setRequestHeader(i, headers[i]);
 			}
 		}
 		switch(method) {
