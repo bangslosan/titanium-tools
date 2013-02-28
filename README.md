@@ -48,3 +48,13 @@ TiTools
 	- yaCourier
 	- Medarhive
 	- Instablind
+	
+
+Need to do:
+1. HTTP request stack
+2. Improve XML view's pattern
+3. XMLUI parser 
+
+Need this plugins:
+1. Parse
+2. itsbeta
