@@ -917,7 +917,7 @@ function presetMerge(preset, paramsA, paramsB) {
 	function preprocess(params) {
 		function preprocessArgument(arg) {
 			if(coreIsString(arg) == true) {
-				arg = arg.replace(/TiTools.tr\(([A-Za-z0-9_\.]*)\)/g, function(str, p1, p2, offset, s) {
+				arg = arg.replace(/tr\(([A-Za-z0-9_\.]*)\)/g, function(str, p1, p2, offset, s) {
 					return coreTr(p1, p1);
 				});
 				return utilsStringToConst(arg, pathPreprocess);
@@ -1140,23 +1140,24 @@ function formCacheGet(id) {
 function formCacheRemove(id) {
 	delete _formPreload[id];
 }
-function formCacheLoad(filename) {
+function formCacheLoad(filename, params) {
 	var result = formCacheGet(filename);
 	if(result == undefined) {
-		loaderWithParams(filename, function(content) {
-			result = formCacheLoadJS(content)
+		var cached = true;
+		loaderWithFileName(filename, function(content) {
+			result = formCacheLoadJS(content, params, cached);
 		}, function(content) {
 			result = formCacheLoadXML(content);
 		}, function(content) {
 			result = formCacheLoadX(content);
 		});
-		if(result != undefined) {
+		if((cached == true) && (result != undefined)) {
 			formCacheSet(filename, result);
 		}
 	}
 	return result;
 }
-function formCacheLoadJS(content) {
+function formCacheLoadJS(content, params, cached) {
 	if(coreIsArray(content) == true) {
 		var result = [];
 		for(var i = 0; i < content.length; i++) {
@@ -1164,6 +1165,11 @@ function formCacheLoadJS(content) {
 			result.push(item);
 		}
 		return result;
+	} else if(coreIsFunction(content) == true) {
+		if(cached != undefined) {
+			cached = false;
+		}
+		return formCacheLoadJS(content(params), params, cached);
 	} else if(coreIsObject(content) == true) {
 		return formCacheLoadItemJS(content);
 	}
@@ -1414,7 +1420,7 @@ function formLoad(parent, filename, params) {
 			break;
 		}
 	}
-	var content = formCacheLoad(filename);
+	var content = formCacheLoad(filename, params);
 	if(content != undefined) {
 		formLoadJS(content, params, controller, parent, callback);
 	} else {
