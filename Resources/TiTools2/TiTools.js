@@ -2139,7 +2139,6 @@ function projectCreateTabGroup(params) {
 	var preset = undefined;
 	var style = {};
 	var tabs = [];
-	var args = undefined;
 	if(coreIsObject(params) == true) {
 		if(params.preset != undefined) {
 			preset = params.preset;
@@ -2149,9 +2148,6 @@ function projectCreateTabGroup(params) {
 		}
 		if(coreIsArray(params.tabs) != undefined) {
 			tabs = params.tabs;
-		}
-		if(params.args != undefined) {
-			args = params.args;
 		}
 	}
 	var tabgroup = uiCreateTabGroup(preset, style);
@@ -2170,7 +2166,6 @@ function projectCreateNavigationGroup(params) {
 	var preset = undefined;
 	var style = {};
 	var window = undefined;
-	var args = undefined;
 	if(coreIsObject(params) == true) {
 		if(params.preset != undefined) {
 			preset = params.preset;
@@ -2180,9 +2175,6 @@ function projectCreateNavigationGroup(params) {
 		}
 		if(coreIsObject(params.window) == true) {
 			window = projectCreateWindow(params.window.controller, params.window.params)
-		}
-		if(params.args != undefined) {
-			args = params.args;
 		}
 	}
 	return uiCreateNavigationGroup(preset, style, window);
