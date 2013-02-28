@@ -2646,7 +2646,10 @@ function pluginInvokeMethod(name, args, defaults) {
 	for(var i = 0; i < _plugin.length; i++) {
 		var plugin = _plugin[i];
 		if(coreIsFunction(plugin[name]) == false) {
-			return plugin[name].apply(this, args);
+			var result = plugin[name].apply(this, args);
+			if(result != defaults) {
+				return result;
+			}
 		}
 	}
 	return defaults;
