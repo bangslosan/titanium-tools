@@ -38,6 +38,22 @@ TiTools2.Project.initialize(
 
 //---------------------------------------------//
 
+var http = TiTools2.Google.Map.currentLocation({
+	position: {
+		latitude: 0,
+		longitude: 0
+	},
+	success: function(status, response) {
+		TiTools2.Utils.info("currentLocation:success", status, response);
+	},
+	failure: function(handle) {
+		TiTools2.Utils.info("currentLocation:failure", handle.status());
+	}
+});
+http.request();
+
+//---------------------------------------------//
+
 var window = TiTools2.Project.createWindow("main");
 window.open();
 

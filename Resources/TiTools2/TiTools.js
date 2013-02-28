@@ -1,6 +1,6 @@
-var underscore = require("TiTools2/ThirdParty/underscore")._;
-var underscoreString = require("TiTools2/ThirdParty/underscore.string");
-var moment = require("TiTools2/ThirdParty/moment");
+var thirdPartyUnderscore = require("TiTools2/ThirdParty/underscore")._;
+var thirdPartyUnderscoreString = require("TiTools2/ThirdParty/underscore.string");
+var thirdPartyMoment = require("TiTools2/ThirdParty/moment");
 
 //---------------------------------------------//
 
@@ -58,19 +58,19 @@ if(coreIsIPhone == true) {
 // TODO:NAMESPACE:CORE
 //---------------------------------------------//
 
-var coreIsBoolean = underscore.isBoolean;
-var coreIsNumber = underscore.isNumber;
-var coreIsString = underscore.isString;
-var coreIsDate = underscore.isDate;
-var coreIsArray = underscore.isArray;
-var coreIsRegExp = underscore.isRegExp;
-var coreIsFunction = underscore.isFunction;
-var coreIsEqual = underscore.isEqual;
-var coreIsEmpty = underscore.isEmpty;
-var coreIsNaN = underscore.isNaN;
+var coreIsBoolean = thirdPartyUnderscore.isBoolean;
+var coreIsNumber = thirdPartyUnderscore.isNumber;
+var coreIsString = thirdPartyUnderscore.isString;
+var coreIsDate = thirdPartyUnderscore.isDate;
+var coreIsArray = thirdPartyUnderscore.isArray;
+var coreIsRegExp = thirdPartyUnderscore.isRegExp;
+var coreIsFunction = thirdPartyUnderscore.isFunction;
+var coreIsEqual = thirdPartyUnderscore.isEqual;
+var coreIsEmpty = thirdPartyUnderscore.isEmpty;
+var coreIsNaN = thirdPartyUnderscore.isNaN;
 
 function coreIsObject(params) {
-	if(underscore.isObject(params) == true) {
+	if(thirdPartyUnderscore.isObject(params) == true) {
 		if((coreIsArray(params) == false) && (coreIsFunction(params) == false)) {
 			return true;
 		}
@@ -95,16 +95,16 @@ function coreLoadJS(filename) {
 // TODO:NAMESPACE:STRING
 //---------------------------------------------//
 
-var stringIsPrefix = underscoreString.startsWith;
-var stringIsSuffix = underscoreString.endsWith;
-var stringTrim = underscoreString.trim;
-var stringTrimLeft = underscoreString.ltrim;
-var stringTrimRight = underscoreString.rtrim;
-var stringPaddingLeft = underscoreString.lpad;
-var stringPaddingRight = underscoreString.rpad;
-var stringRepeat = underscoreString.repeat;
-var stringFormat = underscoreString.sprintf;
-var stringLines = underscoreString.lines;
+var stringIsPrefix = thirdPartyUnderscoreString.startsWith;
+var stringIsSuffix = thirdPartyUnderscoreString.endsWith;
+var stringTrim = thirdPartyUnderscoreString.trim;
+var stringTrimLeft = thirdPartyUnderscoreString.ltrim;
+var stringTrimRight = thirdPartyUnderscoreString.rtrim;
+var stringPaddingLeft = thirdPartyUnderscoreString.lpad;
+var stringPaddingRight = thirdPartyUnderscoreString.rpad;
+var stringRepeat = thirdPartyUnderscoreString.repeat;
+var stringFormat = thirdPartyUnderscoreString.sprintf;
+var stringLines = thirdPartyUnderscoreString.lines;
 
 function stringIsInt(str) {
 	return /^\d+$/.test(str);
@@ -121,14 +121,14 @@ function stringReplace(str, search, replace) {
 //---------------------------------------------//
 
 function dateNow(offset) {
-	var date = moment();
+	var date = thirdPartyMoment();
 	if(offset != undefined) {
 		date.add(offset);
 	}
 	return date;
 }
 function dateMake(params) {
-	var date = moment();
+	var date = thirdPartyMoment();
 	if(params != undefined) {
 		if(params.year != undefined) {
 			date.year(params.year);
@@ -153,7 +153,7 @@ function dateMake(params) {
 }
 function dateFormat(date, format) {
 	if(date == undefined) {
-		date = moment();
+		date = thirdPartyMoment();
 	}
 	return date.format(String);
 }
@@ -275,7 +275,298 @@ function fileSystemGetFile(filename) {
 // TODO:NAMESPACE:NETWORK
 //---------------------------------------------//
 
-function TiToolsNetworkHttpClient(params) {
+function networkUri(string) {
+	this.parts = {};
+	this.queryObject = new networkUriQuery();
+	this.hasAuthorityPrefix = null;
+	
+	if(string != undefined) {
+		this.parse(string);
+	}
+}
+networkUri.prototype.parse = function(string) {
+	var uriParser = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
+	var uriKeys = [ "source", "protocol", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "query", "anchor" ];
+	
+	this.parts = {};
+	
+	var uri = uriParser.exec(string);
+	if(uri.length > 0) {
+		var count = uriKeys.length;
+		for(var i = 0; i < count; i++) {
+			var item = uri[i];
+			var key = uriKeys[i];
+			if(item != undefined) {
+				this.parts[key] = item;
+			} else {
+				this.parts[key] = "";
+			}
+		}
+	}
+	this.queryObject = new networkUriQuery(this.parts.query);
+	this.hasAuthorityPrefix = null;
+}
+networkUri.prototype.authorityPrefix = function(value) {
+	if(value != undefined) {
+		this.hasAuthorityPrefix = value;
+	}
+	if(this.hasAuthorityPrefix === null) {
+		if(this.parts.source.indexOf("//") !== -1) {
+			return true;
+		}
+		return false;
+	} else {
+		return this.hasAuthorityPrefix;
+	}
+}
+networkUri.prototype.protocol = function(value) {
+	if(value != undefined) {
+		this.parts.protocol = value;
+	}
+	return this.parts.protocol;
+}
+networkUri.prototype.userInfo = function(value) {
+	if(value != undefined) {
+		this.parts.userInfo = value;
+	}
+	return this.parts.userInfo;
+}
+networkUri.prototype.host = function(value) {
+	if(value != undefined) {
+		this.parts.host = value;
+	}
+	return this.parts.host;
+}
+networkUri.prototype.port = function(value) {
+	if(value != undefined) {
+		this.parts.port = value;
+	}
+	return this.parts.port;
+}
+networkUri.prototype.path = function(value) {
+	if(value != undefined) {
+		this.parts.path = value;
+	}
+	return this.parts.path;
+}
+networkUri.prototype.query = function(value) {
+	if(value != undefined) {
+		this.queryObject = new networkUriQuery(value);
+	}
+	return this.queryObject;
+}
+networkUri.prototype.anchor = function(value) {
+	if(value != undefined) {
+		this.parts.anchor = value;
+	}
+	return this.parts.anchor;
+}
+networkUri.prototype.setAuthorityPrefix = function(value) {
+	this.authorityPrefix(value);
+	return this;
+}
+networkUri.prototype.setProtocol = function(value) {
+	this.protocol(value);
+	return this;
+}
+networkUri.prototype.setUserInfo = function(value) {
+	this.userInfo(value);
+	return this;
+}
+networkUri.prototype.setHost = function(value) {
+	this.host(value);
+	return this;
+}
+networkUri.prototype.setPort = function(value) {
+	this.port(value);
+	return this;
+}
+networkUri.prototype.setPath = function(value) {
+	this.path(value);
+	return this;
+}
+networkUri.prototype.setQuery = function(value) {
+	this.query(value);
+	return this;
+}
+networkUri.prototype.setAnchor = function(value) {
+	this.anchor(value);
+	return this;
+}
+networkUri.prototype.setQueryItem = function(key, value, index) {
+	if(arguments.length == 2) {
+		this.queryObject.set(key, value);
+	} else if(arguments.length == 3) {
+		this.queryObject.set(key, value, index);
+	}
+	return this;
+}
+networkUri.prototype.getQueryItem = function(key) {
+	return this.queryObject.get(key);
+}
+networkUri.prototype.removeQueryItem = function(key, value) {
+	if(arguments.length == 1) {
+		this.queryObject.remove(key);
+	} else if(arguments.length == 2) {
+		this.queryObject.remove(key, value);
+	}
+	return this;
+}
+networkUri.prototype.clearQuery = function() {
+	this.queryObject = new networkUriQuery("");
+	this.parts.query = "";
+	return this;
+}
+networkUri.prototype.scheme = function() {
+	var scheme = "";
+	var protocol = this.parts.protocol;
+	if(protocol.length > 0) {
+		scheme += protocol;
+		if(stringIsSuffix(protocol, ":") == false) {
+			scheme += ":";
+		}
+		scheme += "//";
+	} else {
+		if(this.authorityPrefix() == true) {
+			if(this.parts.host.length > 0) {
+				scheme += "//";
+			}
+		}
+	}
+	return scheme;
+}
+networkUri.prototype.origin = function() {
+	var scheme = this.scheme();
+	var userInfo = this.parts.userInfo;
+	var host = this.parts.host;
+	if((userInfo.length > 0) && (host.length > 0)) {
+		scheme += userInfo;
+		if(stringIsSuffix(userInfo, "@") == false) {
+			scheme += "@";
+		}
+	}
+	if(host.length > 0) {
+		scheme += this.parts.host;
+		var port = this.parts.port;
+		if(port.length > 0) {
+			scheme += ":" + port;
+		}
+	}
+	return scheme;
+}
+networkUri.prototype.toString = function() {
+	var string = this.origin();
+	var path = this.parts.path;
+	var query = this.queryObject.toString();
+	var anchor = this.parts.anchor;
+	if(path.length > 0) {
+		string += path;
+	} else {
+		var host = this.parts.host;
+		if(host.length > 0) {
+			if((query.length > 0) || (anchor.length > 0)) {
+				string += "/";
+			}
+		}
+	}
+	if(query.length > 0) {
+		if(query.indexOf("?") != 0) {
+			string += "?";
+		}
+		string += query;
+	}
+	if(anchor.length > 0) {
+		if(anchor.indexOf("#") != 0) {
+			string += "#";
+		}
+		string += anchor;
+	}
+	return string;
+}
+
+//---------------------------------------------//
+
+function networkUriQuery(query) {
+	this.params = [];
+	
+	if(query != undefined) {
+		this.parse(query);
+	}
+}
+networkUriQuery.prototype.decode = function(string) {
+	string = networkDecodeURIComponent(string);
+	return string.replace('+', ' ');
+}
+networkUriQuery.prototype.parse = function(query) {
+	this.params = [];
+	
+	if(query.length > 0) {
+		if(query.indexOf("?") === 0) {
+			query = query.substring(1);
+		}
+		var list = query.split(/[&;]/);
+		var count = list.length;
+		for(i = 0; i < count; i++) {
+			var item = list[i];
+			var pair = item.split("=");
+			this.params.push(pair);
+		}
+	}
+}
+networkUriQuery.prototype.set = function(key, value, index) {
+	var params = this.params;
+	if((arguments.length == 3) && (index != -1)) {
+		index = Math.min(index, params.length);
+		params.splice(index, 0, [key, value]);
+	} else if(arguments.length > 0) {
+		params.push([key, value]);
+	}
+	return this;
+};
+networkUriQuery.prototype.get = function(key) {
+	var params = this.params;
+	var count = params.length;
+	var find = this.decode(key);
+	for(var i = 0; i < count; i++) {
+		var item = params[i];
+		if(find == this.decode(item[0])) {
+			return item[1];
+		}
+	}
+};
+networkUriQuery.prototype.remove = function(key, value) {
+	var params = this.params;
+	var count = params.length;
+	var find = this.decode(key);
+	for(var i = 0; i < count; i++) {
+		var item = params[i];
+		if(find == this.decode(item[0])) {
+			params.splice(i, 1);
+			break;
+		}
+	}
+	return this;
+};
+networkUriQuery.prototype.toString = function() {
+	var string = "";
+	var params = this.params;
+	var count = params.length;
+	for(var i = 0; i < count; i++) {
+		var item = params[i];
+		if(string.length > 0) {
+			string += "&";
+		}
+		string += item.join("=");
+	}
+	if(string.length > 0) {
+		return "?" + string;
+	}
+	return string;
+};
+
+//---------------------------------------------//
+
+function networkHttpClient(params) {
 	this.handle = undefined;
 	this.options = params.options;
 	this.success = params.success;
@@ -285,7 +576,7 @@ function TiToolsNetworkHttpClient(params) {
 	this.sendProgress = params.sendProgress;
 	this.readProgress = params.readProgress;
 }
-TiToolsNetworkHttpClient.prototype.request = function() {
+networkHttpClient.prototype.request = function() {
 	if(this.handle == undefined) {
 		var self = this;
 		var options = self.options;
@@ -341,16 +632,14 @@ TiToolsNetworkHttpClient.prototype.request = function() {
 				}
 			}
 		});
-		if(args != undefined) {
-			var count = 0;
-			for(var i in args) {
-				if(count == 0) {
-					url += "?" + i + "=" + args[i];
-				} else {
-					url += "&" + i + "=" + args[i];
+		if(coreIsObject(args) == true) {
+			var uri = new networkUri(url);
+			if(args != undefined) {
+				for(var i in args) {
+					uri.setQueryItem(i, args[i]);
 				}
-				count++;
 			}
+			url = uri.toString();
 		}
 		switch(method) {
 			case "GET": self.handle.open("GET", url); break;
@@ -370,19 +659,19 @@ TiToolsNetworkHttpClient.prototype.request = function() {
 		}
 	}
 }
-TiToolsNetworkHttpClient.prototype.abort = function() {
+networkHttpClient.prototype.abort = function() {
 	if(this.handle != undefined) {
 		this.handle.abort();
 		this.handle = undefined;
 	}
 }
-TiToolsNetworkHttpClient.prototype.status = function(as) {
+networkHttpClient.prototype.status = function(as) {
 	if(this.handle != undefined) {
 		return this.handle.status;
 	}
 	return 0;
 }
-TiToolsNetworkHttpClient.prototype.response = function(as) {
+networkHttpClient.prototype.response = function(as) {
 	if(this.handle != undefined) {
 		switch(as) {
 			case "text": return this.handle.responseText;
@@ -397,6 +686,9 @@ TiToolsNetworkHttpClient.prototype.response = function(as) {
 
 //---------------------------------------------//
 
+function networkCreateUri(params) {
+	return new networkUri(params);
+}
 function networkCreateHttpClient(params) {
 	var handle = undefined;
 	if(Ti.Network.online == true) {
@@ -410,7 +702,7 @@ function networkCreateHttpClient(params) {
 					errorUnknownMethod("networkCreateHttpClient", options.method);
 				return;
 			}
-			handle = new TiToolsNetworkHttpClient(params);
+			handle = new networkHttpClient(params);
 		}
 	} else {
 		if(params.failure != undefined) {
@@ -419,6 +711,8 @@ function networkCreateHttpClient(params) {
 	}
 	return handle;
 }
+var networkDecodeURIComponent = Titanium.Network.decodeURIComponent;
+var networkEncodeURIComponent = Titanium.Network.encodeURIComponent;
 
 //---------------------------------------------//
 // TODO:NAMESPACE:JSON
@@ -2361,9 +2655,9 @@ function projectCreateWindow(controller, params) {
 // TODO:NAMESPACE:UTILS
 //---------------------------------------------//
 
-var utilsUnigueID = underscore.uniqueId;
-var utilsCombine = underscore.extend;
-var utilsClone = underscore.clone;
+var utilsUnigueID = thirdPartyUnderscore.uniqueId;
+var utilsCombine = thirdPartyUnderscore.extend;
+var utilsClone = thirdPartyUnderscore.clone;
 
 function utilsSleep(ms) {
 	var start = new Date().getTime();
@@ -2898,8 +3192,11 @@ var TiTools = {
 		getFile: fileSystemGetFile
 	},
 	Network: {
+		createUri: networkCreateUri,
 		isOnline: Ti.Network.online,
-		createClientHttp: networkCreateHttpClient
+		createClientHttp: networkCreateHttpClient,
+		decodeURIComponent: networkDecodeURIComponent,
+		encodeURIComponent: networkEncodeURIComponent
 	},
 	JSON: {
 		serialize: jsonSerialize,
@@ -3104,9 +3401,9 @@ var TiTools = {
 		thisNotFunction: errorThisNotFunction
 	},
 	ThirdParty: {
-		underscore: underscore,
-		underscoreString: underscoreString,
-		moment: moment
+		underscore: thirdPartyUnderscore,
+		underscoreString: thirdPartyUnderscoreString,
+		moment: thirdPartyMoment
 	}
 };
 

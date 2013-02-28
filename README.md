@@ -66,7 +66,7 @@ TiTools
 	Types description:
 		TiToolsNetworkHttpClient: = {
 			handle: Ti.Network.HTTPClient
-			params: Object = {
+			options: Object = {
 				method: String = "POST"/"GET"
 				url: String
 				args: Object = {
