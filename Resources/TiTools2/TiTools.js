@@ -2819,7 +2819,7 @@ var TiTools = {
 		createPhoneCallDialog: uiCreatePhoneCallDialog,
 		createActivityIndicator: uiCreateActivityIndicator,
 		ThirdParty: {
-			ceatePaintView: uiThirdPartyCreatePaintView
+			createPaintView: uiThirdPartyCreatePaintView
 		}
 	},
 	Loader: {
@@ -2918,6 +2918,7 @@ var TiTools = {
 		loadController: projectLoadController,
 		loadForm: projectLoadForm,
 		createTabGroup: projectCreateTabGroup,
+		createNavigationGroup: projectCreateNavigationGroup,
 		createWindow: projectCreateWindow
 	},
 	Utils: {

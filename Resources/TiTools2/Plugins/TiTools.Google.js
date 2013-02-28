@@ -4,7 +4,7 @@ var TiTools2 = require("TiTools2/TiTools");
 
 function googleMapCurrentLocation(params) {
 	try {
-		TiTools2.Network.createHTTPClient({
+		var http = TiTools2.Network.createHTTPClient({
 			reguest : {
 				method : "GET",
 				url : "http://maps.googleapis.com/maps/api/geocode/json",
@@ -65,10 +65,11 @@ function googleMapCurrentLocation(params) {
 			params.except();
 		}
 	}
+	return http;
 }
 function googleMapPaveRoute(params) {
 	try {
-		TiTools2.Network.createHTTPClient({
+		var http = TiTools2.Network.createHTTPClient({
 			reguest : {
 				method : "GET",
 				url : "http://maps.google.com/",
@@ -121,6 +122,7 @@ function googleMapPaveRoute(params) {
 			params.except();
 		}
 	}
+	return http;
 }
 
 //---------------------------------------------//
