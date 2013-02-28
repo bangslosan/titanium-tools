@@ -939,7 +939,7 @@ function presetMerge(preset, paramsA, paramsB) {
 	}
 	
 	var result = utilsClone(paramsA);
-	if(preset != "") {
+	if(preset != undefined) {
 		if(coreIsArray(preset) == true) {
 			var storage = {};
 			var count = preset.length;
