@@ -1,4 +1,4 @@
-var TiTools = undefined;
+var TiTools2 = undefined;
 
 //---------------------------------------------//
 
