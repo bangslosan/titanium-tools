@@ -1141,19 +1141,24 @@ function formCacheRemove(id) {
 	delete _formPreload[id];
 }
 function formCacheLoad(filename, params) {
-	var result = formCacheGet(filename);
-	if(result == undefined) {
-		var cached = true;
-		loaderWithFileName(filename, function(content) {
-			result = formCacheLoadJS(content, params, cached);
-		}, function(content) {
-			result = formCacheLoadXML(content);
-		}, function(content) {
-			result = formCacheLoadX(content);
-		});
-		if((cached == true) && (result != undefined)) {
-			formCacheSet(filename, result);
+	var result = undefined;
+	if(coreIsString(filename) == true) {
+		result = formCacheGet(filename);
+		if(result == undefined) {
+			var cached = true;
+			loaderWithFileName(filename, function(content) {
+				result = formCacheLoadJS(content, params, cached);
+			}, function(content) {
+				result = formCacheLoadXML(content);
+			}, function(content) {
+				result = formCacheLoadX(content);
+			});
+			if((cached == true) && (result != undefined)) {
+				formCacheSet(filename, result);
+			}
 		}
+	} else if(coreIsFunction(filename) == true) {
+		result = formCacheLoadJS(filename(params), params);
 	}
 	return result;
 }
