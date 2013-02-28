@@ -62,7 +62,6 @@ var coreIsBoolean = underscore.isBoolean;
 var coreIsNumber = underscore.isNumber;
 var coreIsString = underscore.isString;
 var coreIsDate = underscore.isDate;
-var coreIsObject = underscore.isObject;
 var coreIsArray = underscore.isArray;
 var coreIsRegExp = underscore.isRegExp;
 var coreIsFunction = underscore.isFunction;
@@ -70,6 +69,14 @@ var coreIsEqual = underscore.isEqual;
 var coreIsEmpty = underscore.isEmpty;
 var coreIsNaN = underscore.isNaN;
 
+function coreIsObject(params) {
+	if(underscore.isObject(params) == true) {
+		if((coreIsArray(params) == false) && (coreIsFunction(params) == false)) {
+			return true;
+		}
+	}
+	return false;
+}
 function coreTr(key, defaults) {
 	if(coreIsFunction(L) == true) {
 		return L(key, defaults);
@@ -1006,6 +1013,8 @@ function presetLoadJS(content) {
 			errorPresetUnsupportedFormat("presetLoadJS", content);
 		}
 		presetSet(content.id, content.style);
+	} else {
+		errorPresetUnsupportedFormat("presetLoadJS", content);
 	}
 }
 function presetLoadXML(content) {
@@ -2100,24 +2109,28 @@ var _project = {
 
 function projectInitialize(params) {
 	if(params != undefined) {
-		projectLoadPreset(params.presets);
-		projectLoadPrefab(params.prefabs);
-		projectLoadController(params.controllers);
-		projectLoadForm(params.forms);
+		if(params.presets != undefined) {
+			projectLoadPreset(params.presets);
+		}
+		if(params.prefabs != undefined) {
+			projectLoadPrefab(params.prefabs);
+		}
+		if(params.controllers != undefined) {
+			projectLoadController(params.controllers);
+		}
+		if(params.forms != undefined) {
+			projectLoadForm(params.forms);
+		}
 		if(params.geo != undefined) {
 			geoConfigure(params.geo);
 		}
 	}
 }
 function projectLoadPreset(presets) {
-	if(presets != undefined) {
-		presetLoad(presets);
-	}
+	presetLoad(presets);
 }
 function projectLoadPrefab(prefabs) {
-	if(prefabs != undefined) {
-		prefabLoad(prefabs);
-	}
+	prefabLoad(prefabs);
 }
 function projectLoadController(controllers) {
 	function initControllers(list) {
@@ -2132,17 +2145,15 @@ function projectLoadController(controllers) {
 		}
 	}
 	
-	if(controllers != undefined) {
-		if(coreIsObject(controllers) == true) {
-			var temp = utilsAppropriatePlatform(controllers, controllers);
-			if(temp != undefined) {
-				initControllers(temp);
-			} else {
-				errorUnknownPlatform("projectLoadController", controllers);
-			}
-		} else if(coreIsArray(controllers) == true) {
-			initControllers(controllers);
+	if(coreIsObject(controllers) == true) {
+		var temp = utilsAppropriatePlatform(controllers, controllers);
+		if(temp != undefined) {
+			initControllers(temp);
+		} else {
+			errorUnknownPlatform("projectLoadController", controllers);
 		}
+	} else if(coreIsArray(controllers) == true) {
+		initControllers(controllers);
 	}
 }
 function projectLoadForm(forms) {
@@ -2153,17 +2164,15 @@ function projectLoadForm(forms) {
 		}
 	}
 	
-	if(forms != undefined) {
-		if(coreIsObject(forms) == true) {
-			var temp = utilsAppropriatePlatform(forms, forms);
-			if(coreIsArray(temp) == true) {
-				initForms(temp);
-			} else {
-				errorUnknownPlatform("projectLoadForm", forms);
-			}
-		} else if(coreIsArray(forms) == true) {
-			initForms(forms);
+	if(coreIsObject(forms) == true) {
+		var temp = utilsAppropriatePlatform(forms, forms);
+		if(coreIsArray(temp) == true) {
+			initForms(temp);
+		} else {
+			errorUnknownPlatform("projectLoadForm", forms);
 		}
+	} else if(coreIsArray(forms) == true) {
+		initForms(forms);
 	}
 }
 function projectCreateTabGroup(params) {
