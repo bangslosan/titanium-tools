@@ -97,16 +97,16 @@ TiTools
 				repeat:
 				format:
 				lines:
-			},
+			}
 			Date: {
 				now:
 				make:
 				format:
-			},
+			}
 			Global: {
 				set:
 				get:
-			},
+			}
 			Screen: {
 				UNKNOWN:
 				SMALL:
@@ -118,46 +118,46 @@ TiTools
 				resolution:
 				dpi:
 				mode:
-			},
+			}
 			Geo: {
 				configure:
 				currentPosition:
 				distance:
-			},
+			}
 			Path: {
 				resources:
 				controllers:
 				preprocess:
-			},
+			}
 			FileSystem: {
 				getFile:
-			},
+			}
 			Network: {
 				isOnline:
 				createClientHttp:
-			},
+			}
 			JSON: {
 				serialize:
 				deserialize:
-			},
+			}
 			XML: {
 				Private: {
 					deserializeNode:
-				},
+				}
 				serialize:
 				deserialize:
 				getNode:
 				findNode:
 				mergeNodeAttributes:
-			},
+			}
 			CSV: {
 				serialize:
 				deserialize:
-			},
+			}
 			UI: {
 				Private: {
 					createParams:
-				},
+				}
 				currentTab:
 				createTabGroup:
 				createTab:
@@ -195,20 +195,21 @@ TiTools
 				ThirdParty: {
 					createPaintView:
 				}
-			},
+			}
 			Loader: {
 				Private: {
 					withParams:
 					withFileName:
+					withString:
 				}
-			},
+			}
 			Preset: {
 				Private: {
 					loadJS:
 					loadXML:
 					loadItemXML:
 					loadX:
-				},
+				}
 				set:
 				get:
 				remove:
@@ -216,21 +217,24 @@ TiTools
 				applyByName:
 				apply:
 				load:
-			},
+				parse:
+			}
 			Prefab: {
 				Private: {
 					loadJS:
 					loadXML:
 					loadItemXML:
 					loadX:
-				},
+				}
 				set:
 				get:
 				remove:
 				load:
-			},
+				parse:
+			}
 			Form: {
 				Private: {
+					loadAppendCallback:
 					loadJS:
 					loadItemJS:
 					Control: {
@@ -266,7 +270,7 @@ TiTools
 						appendOther:
 						controlHttpClient:
 					}
-				},
+				}
 				Cache: {
 					Private: {
 						loadJS:
@@ -274,18 +278,20 @@ TiTools
 						loadXML:
 						loadItemXML:
 						loadX:
-					},
+					}
 					set:
 					get:
 					remove:
 					load:
-				},
+					parse:
+				}
 				load:
-			},
+				parse:
+			}
 			Project: {
 				Private: {
 					createWindowStyle:
-				},
+				}
 				initialize:
 				loadPreset:
 				loadPrefab:
@@ -294,7 +300,7 @@ TiTools
 				createTabGroup:
 				createNavigationGroup:
 				createWindow:
-			},
+			}
 			Utils: {
 				info:
 				sleep:
@@ -305,15 +311,15 @@ TiTools
 				appropriatePlatform:
 				appropriateScreen:
 				stringToConst:
-			},
+			}
 			Plugin: {
 				Private: {
 					loadWithPath:
 					invokeMethod:
-				},
+				}
 				isLoad:
 				load:
-			},
+			}
 			Error: {
 				notFound:
 				unknownExtension:
@@ -330,7 +336,7 @@ TiTools
 				prefabUnsupportedFormat:
 				thisNotValue:
 				thisNotFunction:
-			},
+			}
 			ThirdParty: {
 				underscore:
 				underscoreString:
@@ -445,15 +451,19 @@ TiTools
 		TiTools2.Preset.applyByName:
 		TiTools2.Preset.apply:
 		TiTools2.Preset.load:
+		TiTools2.Preset.parse:
 		TiTools2.Prefab.set:
 		TiTools2.Prefab.get:
 		TiTools2.Prefab.remove:
 		TiTools2.Prefab.load:
+		TiTools2.Prefab.parse:
 		TiTools2.Form.Cache.set:
 		TiTools2.Form.Cache.get:
 		TiTools2.Form.Cache.remove:
 		TiTools2.Form.Cache.load:
+		TiTools2.Form.Cache.parse:
 		TiTools2.Form.load:
+		TiTools2.Form.parse:
 		TiTools2.Project.initialize:
 		TiTools2.Project.loadPreset:
 		TiTools2.Project.loadPrefab:
@@ -497,6 +507,7 @@ TiTools
 		TiTools2.UI.Private.createParams:
 		TiTools2.Loader.Private.withParams:
 		TiTools2.Loader.Private.withFileName:
+		TiTools2.Loader.Private.withString:
 		TiTools2.Preset.Private.loadJS:
 		TiTools2.Preset.Private.loadXML:
 		TiTools2.Preset.Private.loadItemXML:
@@ -505,6 +516,7 @@ TiTools
 		TiTools2.Prefab.Private.loadXML:
 		TiTools2.Prefab.Private.loadItemXML:
 		TiTools2.Prefab.Private.loadX:
+		TiTools2.Form.Private.loadAppendCallback:
 		TiTools2.Form.Private.loadJS:
 		TiTools2.Form.Private.loadItemJS:
 		TiTools2.Form.Private.Control.controlBindStyle:

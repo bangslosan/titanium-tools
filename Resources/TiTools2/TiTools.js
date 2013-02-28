@@ -286,14 +286,15 @@ function TiToolsNetworkHttpClient(params) {
 	this.readProgress = params.readProgress;
 }
 TiToolsNetworkHttpClient.prototype.start = function() {
-	if(this.handle != undefined) {
+	if(this.handle == undefined) {
 		var self = this;
-		var request = this.reguest;
+		var request = self.request;
+		var method = request.method;
 		var url = request.url;
-		var args = reguest.args;
-		var headers = reguest.headers;
+		var args = request.args;
+		var headers = request.headers;
 		
-		this.handle = Ti.Network.createHttpClient({
+		self.handle = Ti.Network.createHTTPClient({
 			cache: request.cache,
 			timeout: request.timeout,
 			tlsVersion: request.tlsVersion,
@@ -308,35 +309,35 @@ TiToolsNetworkHttpClient.prototype.start = function() {
 			onload: function(event) {
 				try {
 					if(coreIsFunction(self.success) == true) {
-						self.success(self);
+						self.success.call(self, self);
 					}
 				} catch(error) {
 					if(coreIsFunction(self.loaded) == true) {
-						self.loaded(self);
+						self.loaded.call(self, self);
 					}
 				}
-				this.handle = undefined;
+				self.handle = undefined;
 			},
 			onerror: function(event) {
 				try {
 					if(coreIsFunction(self.failure) == true) {
-						self.failure(self);
+						self.failure.call(self, self);
 					}
 				} catch(error) {
 					if(coreIsFunction(self.loaded) == true) {
-						self.loaded(self);
+						self.loaded.call(self, self);
 					}
 				}
-				this.handle = undefined;
+				self.handle = undefined;
 			},
 			onsendstream: function(event) {
 				if(coreIsFunction(self.sendProgress) == true) {
-					self.sendProgress(self, event.progress);
+					self.sendProgress.call(self, self, event.progress);
 				}
 			},
 			ondatastream: function(event) {
 				if(coreIsFunction(self.readProgress) == true) {
-					self.readProgress(self, event.progress);
+					self.readProgress.call(self, self, event.progress);
 				}
 			}
 		});
@@ -351,23 +352,23 @@ TiToolsNetworkHttpClient.prototype.start = function() {
 				count++;
 			}
 		}
-		switch(reguest.method) {
-			case "GET": this.handle.open("GET", url); break;
-			case "POST": this.handle.open("POST", url); break;
+		switch(method) {
+			case "GET": self.handle.open("GET", url); break;
+			case "POST": self.handle.open("POST", url); break;
 		}
 		if(headers != undefined) {
 			var count = headers.length;
 			for(var i = 0; i < count; i++) {
 				var header = headers[i];
-				this.handle.setRequestHeader(header.type, header.value);
+				self.handle.setRequestHeader(header.type, header.value);
 			}
 		}
-		switch(this.reguest.method) {
-			case "GET": this.handle.send(); break;
-			case "POST": this.handle.send(reguest.post); break;
+		switch(method) {
+			case "GET": self.handle.send(); break;
+			case "POST": self.handle.send(request.post); break;
 		}
-		if(coreIsFunction(this.loading) == true) {
-			this.loading(this.handle);
+		if(coreIsFunction(self.loading) == true) {
+			self.loading.call(self, self);
 		}
 	}
 }
@@ -377,19 +378,38 @@ TiToolsNetworkHttpClient.prototype.stop = function() {
 		this.handle = undefined;
 	}
 }
+TiToolsNetworkHttpClient.prototype.status = function(as) {
+	if(this.handle != undefined) {
+		return this.handle.status;
+	}
+	return 0;
+}
+TiToolsNetworkHttpClient.prototype.response = function(as) {
+	if(this.handle != undefined) {
+		switch(as) {
+			case "text": return this.handle.responseText;
+			case "json": return jsonDeserialize(this.handle.responseText);
+			case "xml": return xmlDeserialize(this.handle.responseXML);
+			case "raw:xml": return this.handle.responseXML;
+		}
+		return this.handle.responseData;
+	}
+	return undefined;
+}
 
 //---------------------------------------------//
 
 function networkCreateHttpClient(params) {
 	var handle = undefined;
 	if(Ti.Network.online == true) {
-		if(coreIsObject(params.reguest) == true) {
-			switch(params.reguest.method) {
+		var request = params.request;
+		if(coreIsObject(request) == true) {
+			switch(request.method) {
 				case "GET":
 				case "POST":
 				break;
 				default:
-					errorUnknownMethod("networkCreateHttpClient", params.reguest.method);
+					errorUnknownMethod("networkCreateHttpClient", request.method);
 				return;
 			}
 			handle = new TiToolsNetworkHttpClient(params);
@@ -420,10 +440,14 @@ function jsonDeserialize(string) {
 function xmlSerialize(node) {
 	return "";
 }
-function xmlDeserialize(string) {
-	var xml = Ti.XML.parseString(string);
-	if(xml != undefined) {
-		return xmlDeserializeNode(xml);
+function xmlDeserialize(data) {
+	if(coreIsString(data) == true) {
+		var xml = Ti.XML.parseString(data);
+		if(xml != undefined) {
+			return xmlDeserializeNode(xml);
+		}
+	} else {
+		return xmlDeserializeNode(data);
 	}
 	return undefined;
 }
@@ -902,6 +926,34 @@ function loaderWithFileName(filename, callbackJs, callbackXml, callbackX) {
 		}
 	}
 }
+function loaderWithString(format, data, callbackJs, callbackXml, callbackX) {
+	switch(format) {
+		case "js":
+			if(callbackJs != undefined) {
+				callbackJs(data);
+			}
+		break;
+		case "json":
+			var content = jsonDeserialize(data);
+			if(callbackXml != undefined) {
+				callbackXml(content);
+			}
+		break;
+		case "xml":
+			var content = xmlDeserialize(data);
+			if(callbackXml != undefined) {
+				callbackXml(content);
+			}
+		break;
+		default:
+			if(callbackX != undefined) {
+				callbackX(filename)
+			} else {
+				errorUnknownExtension("loaderWithFileName", filename);
+			}
+		break;
+	}
+}
 
 //---------------------------------------------//
 // TODO:NAMESPACE:PRESET
@@ -912,7 +964,7 @@ var _preset = {};
 //---------------------------------------------//
 
 function presetSet(id, value) {
-	_preset[id] = value;
+	_preset[id] = presetPreprocess(value);
 }
 function presetGet(id) {
 	return _preset[id];
@@ -921,30 +973,6 @@ function presetRemove(id) {
 	delete _preset[id];
 }
 function presetMerge(preset, paramsA, paramsB) {
-	function preprocess(params) {
-		function preprocessArgument(arg) {
-			if(coreIsString(arg) == true) {
-				arg = arg.replace(/tr\(([A-Za-z0-9_\.]*)\)/g, function(str, p1, p2, offset, s) {
-					return coreTr(p1, p1);
-				});
-				return utilsStringToConst(arg, pathPreprocess);
-			}
-			return arg;
-		}
-		
-		for(var i in params) {
-			var value = params[i];
-			if(coreIsArray(value) == true) {
-				params[i] = preprocess(value);
-			} else if(coreIsObject(value) == true) {
-				params[i] = preprocess(value);
-			} else if(coreIsString(value) == true) {
-				params[i] = preprocessArgument(value);
-			}
-		}
-		return params;
-	}
-	
 	var result = utilsClone(paramsA);
 	if(preset != undefined) {
 		if(coreIsArray(preset) == true) {
@@ -974,7 +1002,30 @@ function presetMerge(preset, paramsA, paramsB) {
 	if(paramsB != undefined) {
 		result = utilsCombine(paramsB, result);
 	}
-	return preprocess(result);
+	return result;
+}
+function presetPreprocess(params) {
+	function preprocessArgument(arg) {
+		if(coreIsString(arg) == true) {
+			arg = arg.replace(/tr\(([A-Za-z0-9_\.]*)\)/g, function(str, p1, p2, offset, s) {
+				return coreTr(p1, p1);
+			});
+			return utilsStringToConst(arg, pathPreprocess);
+		}
+		return arg;
+	}
+	
+	for(var i in params) {
+		var value = params[i];
+		if(coreIsArray(value) == true) {
+			params[i] = presetPreprocess(value);
+		} else if(coreIsObject(value) == true) {
+			params[i] = presetPreprocess(value);
+		} else if(coreIsString(value) == true) {
+			params[i] = preprocessArgument(value);
+		}
+	}
+	return params;
 }
 function presetApplyByName(object, name) {
 	var params = {};
@@ -1002,6 +1053,9 @@ function presetApply(object, params) {
 }
 function presetLoad(params) {
 	loaderWithParams(params, presetLoadJS, presetLoadXML, presetLoadX);
+}
+function presetParse(format, data) {
+	loaderWithString(params, data, presetLoadJS, presetLoadXML, presetLoadX);
 }
 function presetLoadJS(content) {
 	if(coreIsArray(content) == true) {
@@ -1075,6 +1129,9 @@ function prefabRemove(id) {
 }
 function prefabLoad(params) {
 	loaderWithParams(params, prefabLoadJS, prefabLoadXML, prefabLoadX);
+}
+function prefabParse(format, data) {
+	loaderWithString(params, data, prefabLoadJS, prefabLoadXML, prefabLoadX);
 }
 function prefabLoadJS(content) {
 	if(coreIsArray(content) == true) {
@@ -1175,6 +1232,28 @@ function formCacheLoad(filename, params) {
 		}
 	} else if(coreIsFunction(filename) == true) {
 		result = formCacheLoadJS(filename(params), params);
+	}
+	return result;
+}
+function formCacheParse(key, data, format, params) {
+	var result = undefined;
+	if(coreIsString(data) == true) {
+		if(key != undefined) {
+			result = formCacheGet(key);
+		}
+		if(result == undefined) {
+			var cached = true;
+			loaderWithString(format, data, function(content) {
+				result = formCacheLoadJS(content, params, cached);
+			}, function(content) {
+				result = formCacheLoadXML(content);
+			}, function(content) {
+				result = formCacheLoadX(content);
+			});
+			if((cached == true) && (result != undefined)) {
+				formCacheSet(key, result);
+			}
+		}
 	}
 	return result;
 }
@@ -1417,35 +1496,48 @@ function formCacheLoadX(filename) {
 // TODO:NAMESPACE:FORM
 //---------------------------------------------//
 
-function formLoad(parent, filename, params) {
-	var controller = {};
-	var callback = undefined;
+function formLoadAppendCallback(parent) {
+	var result = undefined;
 	if(parent != undefined) {
 		switch(parent.tiClassName) {
-			case "TabGroup": callback = formAppendTabGroup; break;
-			case "Tab": callback = formAppendTab; break;
-			case "NavigationGroup": callback = formAppendNavigationGroup; break;
-			case "Window": callback = formAppendWindow; break;
-			case "ScrollableView": callback = formAppendScrollableView; break;
-			case "TableView": callback = formAppendTableView; break;
-			case "TableViewSection": callback = formAppendTableViewSection; break;
-			case "PickerColumn": callback = formAppendTableViewRow; break;
+			case "TabGroup": result = formAppendTabGroup; break;
+			case "Tab": result = formAppendTab; break;
+			case "NavigationGroup": result = formAppendNavigationGroup; break;
+			case "Window": result = formAppendWindow; break;
+			case "ScrollableView": result = formAppendScrollableView; break;
+			case "TableView": result = formAppendTableView; break;
+			case "TableViewSection": result = formAppendTableViewSection; break;
+			case "PickerColumn": result = formAppendTableViewRow; break;
 			case "HttpClient": break;
 			default:
-				var temp = pluginInvokeMethod("formLoad", [ parent, filename, params ]);
+				var temp = pluginInvokeMethod("formLoadAppendCallback", [ parent, filename, params ]);
 				if(coreIsFunction(temp) == true) {
-					control = temp;
+					result = temp;
 				} else {
-					callback = formAppendOther;
+					result = formAppendOther;
 				}
 			break;
 		}
 	}
+	return result;
+}
+function formLoad(parent, filename, params) {
+	var controller = {};
 	var content = formCacheLoad(filename, params);
 	if(content != undefined) {
-		formLoadJS(content, params, controller, parent, callback);
+		formLoadJS(content, params, controller, parent, formLoadAppendCallback(parent));
 	} else {
 		errorNotFound("formLoad", filename);
+	}
+	return controller;
+}
+function formParse(parent, key, data, format, params) {
+	var controller = {};
+	var content = formCacheParse(key, data, format, params);
+	if(content != undefined) {
+		formLoadJS(content, params, controller, parent, formLoadAppendCallback(parent));
+	} else {
+		errorNotFound("formParse", data);
 	}
 	return controller;
 }
@@ -2329,7 +2421,10 @@ function utilsInfo(message, list) {
 		var lines = stringLines(text);
 		var count = lines.length - 1;
 		for(var i = 0; i < count; i++) {
-			Ti.API.info("[TiTools]: " + lines[i]);
+			var line = lines[i];
+			if(line.length > 0) {
+				Ti.API.info("[TiTools]: " + line);
+			}
 		}
 	}
 	Ti.API.info("[TiTools]: " + stringRepeat("-", 50));
@@ -2871,11 +2966,13 @@ var TiTools = {
 	Loader: {
 		Private: {
 			withParams: loaderWithParams,
-			withFileName: loaderWithFileName
+			withFileName: loaderWithFileName,
+			withString: loaderWithString
 		}
 	},
 	Preset: {
 		Private: {
+			preprocess: presetPreprocess,
 			loadJS: presetLoadJS,
 			loadXML: presetLoadXML,
 			loadItemXML: presetLoadItemXML,
@@ -2887,7 +2984,8 @@ var TiTools = {
 		merge: presetMerge,
 		applyByName: presetApplyByName,
 		apply: presetApply,
-		load: presetLoad
+		load: presetLoad,
+		parse: presetParse
 	},
 	Prefab: {
 		Private: {
@@ -2899,10 +2997,12 @@ var TiTools = {
 		set: prefabSet,
 		get: prefabGet,
 		remove: prefabRemove,
-		load: prefabLoad
+		load: prefabLoad,
+		parse: prefabParse
 	},
 	Form: {
 		Private: {
+			loadAppendCallback: formLoadAppendCallback,
 			loadJS: formLoadJS,
 			loadItemJS: formLoadItemJS,
 			Control: {
@@ -2950,9 +3050,11 @@ var TiTools = {
 			set: formCacheSet,
 			get: formCacheGet,
 			remove: formCacheRemove,
-			load: formCacheLoad
+			load: formCacheLoad,
+			parse: formCacheParse
 		},
-		load: formLoad
+		load: formLoad,
+		parse: formParse
 	},
 	Project: {
 		Private: {
