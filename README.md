@@ -317,16 +317,17 @@ TiTools
 			Error: {
 				notFound:
 				unknownExtension:
+				unsupportedPlatform:
 				unknownPlatform:
+				unsupportedScreen:
 				unknownScreen:
+				unsupportedClassName:
+				unknownClassName:
 				unknownMethod:
 				presetNotFound:
 				presetUnsupportedFormat:
 				prefabNotFound:
 				prefabUnsupportedFormat:
-				unsupportedPlatform:
-				unsupportedClassName:
-				unknownClassName:
 				thisNotValue:
 				thisNotFunction:
 			},
@@ -474,16 +475,17 @@ TiTools
 		TiTools2.Plugin.load:
 		TiTools2.Error.notFound:
 		TiTools2.Error.unknownExtension:
+		TiTools2.Error.unsupportedPlatform:
 		TiTools2.Error.unknownPlatform:
+		TiTools2.Error.unsupportedScreen:
 		TiTools2.Error.unknownScreen:
+		TiTools2.Error.unsupportedClassName:
+		TiTools2.Error.unknownClassName:
 		TiTools2.Error.unknownMethod:
 		TiTools2.Error.presetNotFound:
 		TiTools2.Error.presetUnsupportedFormat:
 		TiTools2.Error.prefabNotFound:
 		TiTools2.Error.prefabUnsupportedFormat:
-		TiTools2.Error.unsupportedPlatform:
-		TiTools2.Error.unsupportedClassName:
-		TiTools2.Error.unknownClassName:
 		TiTools2.Error.thisNotValue:
 		TiTools2.Error.thisNotFunction:
 		TiTools2.ThirdParty.underscore:

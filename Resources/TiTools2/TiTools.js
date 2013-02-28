@@ -769,13 +769,13 @@ function uiCreatePhoneCallDialog(params) {
 	var buttonYes = params.buttonYes;
 	var buttonNo = params.buttonNo;
 	if(message == undefined) {
-		message = coreTr("TITOOLS_ALERT_REQUEST_CALL") + "\n" + params.phone;
+		message = coreTr("TITOOLS_ALERT_REQUEST_CALL", "Call to phone?") + "\n" + params.phone;
 	}
 	if(buttonYes == undefined) {
-		buttonYes = coreTr("TITOOLS_ALERT_YES");
+		buttonYes = coreTr("TITOOLS_ALERT_YES", "Yes");
 	}
 	if(buttonNo == undefined) {
-		buttonNo = coreTr("TITOOLS_ALERT_NO");
+		buttonNo = coreTr("TITOOLS_ALERT_NO", "No");
 	}
 	var alert = uiCreateAlertDialog(undefined, {
 		message: message,
@@ -793,7 +793,7 @@ function uiCreatePhoneCallDialog(params) {
 			}
 		}
 	});
-	alert.show();
+	return alert;
 }
 function uiCreateActivityIndicator(preset, params) {
 	return Ti.UI.createActivityIndicator(uiCreateParams(preset, params, "ActivityIndicator"));
@@ -1494,6 +1494,7 @@ function formLoadItemJS(content, params, controller, parent, callback) {
 		case "AlertDialog": control = formControlOther(uiCreateAlertDialog, content, params, controller, parent, callback); break;
 		case "EmailDialog": control = formControlOther(uiCreateEmailDialog, content, params, controller, parent, callback); break;
 		case "OptionDialog": control = formControlOther(uiCreateOptionDialog, content, params, controller, parent, callback); break;
+		case "PhoneCallDialog": control = formControlOther(uiCreatePhoneCallDialog, content, params, controller, parent, callback); break;
 		case "HttpClient": control = formControlHttpClient(content, params, controller, parent); break;
 		default:
 			var temp = pluginInvokeMethod("formLoadItem", [ content, params, controller, parent, callback ]);
@@ -2656,46 +2657,49 @@ function pluginInvokeMethod(name, args, defaults) {
 //---------------------------------------------//
 
 function errorNotFound(func, file) {
-	utilsInfo(coreTr("TITOOLS_ERROR_NOT_FOUND"), stringFormat(" - In %s\n - File %s\n", func, file));
+	utilsInfo(coreTr("TITOOLS_ERROR_NOT_FOUND", "Not found"), stringFormat(" - In %s\n - File %s\n", func, file));
 }
 function errorUnknownExtension(func, file) {
-	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_EXTENSION"), stringFormat(" - In %s\n - File %s\n", func, file));
-}
-function errorUnknownPlatform(func, platform) {
-	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_PLATFORM"), stringFormat(" - In %s\n - Platform %s\n", func, jsonSerialize(platform)));
-}
-function errorUnknownScreen(func, screen) {
-	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_SCREEN"), stringFormat(" - In %s\n - Screen %s\n", func, jsonSerialize(screen)));
-}
-function errorUnknownMethod(func, method) {
-	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_METHOD"), stringFormat(" - In %s\n - Method %s\n", func, method));
-}
-function errorPresetNotFound(func, preset) {
-	utilsInfo(coreTr("TITOOLS_ERROR_PRESET_NOT_FOUND"), stringFormat(" - In %s\n - Preset %s\n", func, preset));
-}
-function errorPresetUnsupportedFormat(func, preset) {
-	utilsInfo(coreTr("TITOOLS_ERROR_PRESET_UNSUPPORTED_FORMAT"), stringFormat(" - In %s\n - Preset %s\n", func, jsonSerialize(preset)));
-}
-function errorPrefabNotFound(func, prefab) {
-	utilsInfo(coreTr("TITOOLS_ERROR_PREFAB_NOT_FOUND"), stringFormat(" - In %s\n - Prefab %s\n", func, prefab));
-}
-function errorPrefabUnsupportedFormat(func, prefab) {
-	utilsInfo(coreTr("TITOOLS_ERROR_PREFAB_UNSUPPORTED_FORMAT"), stringFormat(" - In %s\n - File %s\n", Prefab, jsonSerialize(prefab)));
+	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_EXTENSION", "Unknown extension"), stringFormat(" - In %s\n - File %s\n", func, file));
 }
 function errorUnsupportedPlatform(func, platform) {
-	utilsInfo(coreTr("TITOOLS_ERROR_UNSUPPORTED_PLATFORM"), stringFormat(" - In %s\n - Platform %s\n", func, platform));
+	utilsInfo(coreTr("TITOOLS_ERROR_UNSUPPORTED_PLATFORM", "Unsupported platform"), stringFormat(" - In %s\n - Platform %s\n", func, platform));
+}
+function errorUnknownPlatform(func, platform) {
+	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_PLATFORM", "Unknown platform"), stringFormat(" - In %s\n - Platform %s\n", func, jsonSerialize(platform)));
+}
+function errorUnsupportedScreen(func, screen) {
+	utilsInfo(coreTr("TITOOLS_ERROR_UNSUPPORTED_SCREEN", "Unsupported screen"), stringFormat(" - In %s\n - Screen %s\n", func, screen));
+}
+function errorUnknownScreen(func, screen) {
+	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_SCREEN", "Unknown screen"), stringFormat(" - In %s\n - Screen %s\n", func, jsonSerialize(screen)));
 }
 function errorUnsupportedClassName(func, tiClassName) {
-	utilsInfo(coreTr("TITOOLS_ERROR_UNSUPPORTED_CLASS_NAME"), stringFormat(" - In %s\n - ClassName %s\n", func, tiClassName));
+	utilsInfo(coreTr("TITOOLS_ERROR_UNSUPPORTED_CLASS_NAME", "Unsupported class name"), stringFormat(" - In %s\n - ClassName %s\n", func, tiClassName));
 }
 function errorUnknownClassName(func, tiClassName) {
-	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_CLASS_NAME"), stringFormat(" - In %s\n - ClassName %s\n", func, tiClassName));
+	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_CLASS_NAME", "Unknown class name"), stringFormat(" - In %s\n - ClassName %s\n", func, tiClassName));
+}
+function errorUnknownMethod(func, method) {
+	utilsInfo(coreTr("TITOOLS_ERROR_UNKNOWN_METHOD", "Unknown method"), stringFormat(" - In %s\n - Method %s\n", func, method));
+}
+function errorPresetNotFound(func, preset) {
+	utilsInfo(coreTr("TITOOLS_ERROR_PRESET_NOT_FOUND", "Preset not found"), stringFormat(" - In %s\n - Preset %s\n", func, preset));
+}
+function errorPresetUnsupportedFormat(func, preset) {
+	utilsInfo(coreTr("TITOOLS_ERROR_PRESET_UNSUPPORTED_FORMAT", "Unsupported preset format"), stringFormat(" - In %s\n - Preset %s\n", func, jsonSerialize(preset)));
+}
+function errorPrefabNotFound(func, prefab) {
+	utilsInfo(coreTr("TITOOLS_ERROR_PREFAB_NOT_FOUND", "Prefab not found"), stringFormat(" - In %s\n - Prefab %s\n", func, prefab));
+}
+function errorPrefabUnsupportedFormat(func, prefab) {
+	utilsInfo(coreTr("TITOOLS_ERROR_PREFAB_UNSUPPORTED_FORMAT", "Unsupported prefab format"), stringFormat(" - In %s\n - File %s\n", Prefab, jsonSerialize(prefab)));
 }
 function errorThisNotValue(func, name) {
-	utilsInfo(coreTr("TITOOLS_ERROR_THIS_NOT_VALUE"), stringFormat(" - In %s\n - Value name %s\n", func, name));
+	utilsInfo(coreTr("TITOOLS_ERROR_THIS_NOT_VALUE", "This is not value"), stringFormat(" - In %s\n - Value name %s\n", func, name));
 }
 function errorThisNotFunction(func, name) {
-	utilsInfo(coreTr("TITOOLS_ERROR_THIS_NOT_FUNCTION"), stringFormat(" - In %s\n - Function name %s\n", func, name));
+	utilsInfo(coreTr("TITOOLS_ERROR_THIS_NOT_FUNCTION", "This is not function"), stringFormat(" - In %s\n - Function name %s\n", func, name));
 }
 
 //---------------------------------------------//
@@ -2955,16 +2959,17 @@ var TiTools = {
 	Error: {
 		notFound: errorNotFound,
 		unknownExtension: errorUnknownExtension,
+		unsupportedPlatform: errorUnsupportedPlatform,
 		unknownPlatform: errorUnknownPlatform,
+		unsupportedScreen: errorUnsupportedScreen,
+		unsupportedClassName: errorUnsupportedClassName,
+		unknownClassName: errorUnknownClassName,
 		unknownScreen: errorUnknownScreen,
 		unknownMethod: errorUnknownMethod,
 		presetNotFound: errorPresetNotFound,
 		presetUnsupportedFormat: errorPresetUnsupportedFormat,
 		prefabNotFound: errorPrefabNotFound,
 		prefabUnsupportedFormat: errorPrefabUnsupportedFormat,
-		unsupportedPlatform: errorUnsupportedPlatform,
-		unsupportedClassName: errorUnsupportedClassName,
-		unknownClassName: errorUnknownClassName,
 		thisNotValue: errorThisNotValue,
 		thisNotFunction: errorThisNotFunction
 	},
