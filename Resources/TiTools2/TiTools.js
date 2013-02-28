@@ -764,18 +764,30 @@ function uiCreateEmailDialog(preset, params) {
 function uiCreateOptionDialog(preset, params) {
 	return Ti.UI.createOptionDialog(uiCreateParams(preset, params, "OptionDialog"));
 }
-function uiCreatePhoneCallDialog(phone) {
+function uiCreatePhoneCallDialog(params) {
+	var message = params.message;
+	var buttonYes = params.buttonYes;
+	var buttonNo = params.buttonNo;
+	if(message == undefined) {
+		message = coreTr("TITOOLS_ALERT_REQUEST_CALL") + "\n" + params.phone;
+	}
+	if(buttonYes == undefined) {
+		buttonYes = coreTr("TITOOLS_ALERT_YES");
+	}
+	if(buttonNo == undefined) {
+		buttonNo = coreTr("TITOOLS_ALERT_NO");
+	}
 	var alert = uiCreateAlertDialog(undefined, {
-		message: coreTr("TITOOLS_ALERT_REQUEST_CALL") + "\n" + phone,
+		message: message,
 		buttonNames: [
-			coreTr("TITOOLS_ALERT_CALL"),
-			coreTr("TITOOLS_ALERT_NO")
+			buttonYes,
+			buttonNo
 		],
 		cancel: 1
 	});
 	alert.addEventListener("click", function(event) {
 		if(event.index == 0) {
-			var number = phone.replace(/([^0-9])+/g, "");
+			var number = params.phone.replace(/([^0-9])+/g, "");
 			if(number.length > 0) {
 				Ti.Platform.openURL("tel:" + number);
 			}

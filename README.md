@@ -15,46 +15,324 @@ TiTools
 	iOs and	Android.
 
 2. Installation
-=============================	
-		Just copy the project and import it as regular project. 
-
-3. Description of the main modules
 =============================
-	Object      : 
-	String      : 
-	DateTime    :  
-	Storage     : 
-	Locate      : 
-	Filesystem  : 
-	Platform    : 
-	HTML        : 
-	HTTP        : 
-	JSON        : 
-	XML         : 
-	CSV         : 
-	Utils       : 
-	GeoLocation : 
-	UI : 
-	{
-		Controls : 
-		Loader   : 
-		Prefab   : 
-		Preset   : 
-	}
+		Just copy the project and import it as regular project.
 
-4. Projects created with TiTools
+3. Projects created with TiTools
 =============================
 	- VSK
 	- yaCourier
 	- Medarhive
 	- Instablind
+	- KrasnayPolayna-Mobile
+	- Chelyabinsk Invest Bank
 	
+4. Description TiTools
+=============================
+	TiTools: {
+		Object:
+		String:
+		DateTime:
+		Storage:
+		Locate:
+		Filesystem:
+		Platform:
+		HTML:
+		HTTP:
+		JSON:
+		XML:
+		CSV:
+		Utils:
+		GeoLocation:
+		UI: {
+			Controls:
+			Loader:
+			Prefab:
+			Preset:
+		}
+	}
 
-Need to do:
-1. HTTP request stack
-2. Improve XML view's pattern
-3. XMLUI parser 
-
-Need this plugins:
-1. Parse
-2. itsbeta
+5. Description TiTools2
+=============================
+	Need to do:
+		1. HTTP request stack
+		2. Improve XML view's pattern
+		3. XMLUI parser
+	
+	Need this plugins:
+		1. Parse
+		2. itsbeta
+	
+	Module description:
+		TiTools2: {
+			tr:
+			loadJS:
+			isSimulator:
+			isAndroid:
+			isIOS:
+			isIPhone:
+			isIPad:
+			isBoolean:
+			isNumber:
+			isString:
+			isDate:
+			isObject:
+			isArray:
+			isRegExp:
+			isFunction:
+			isEqual:
+			isEmpty:
+			isNaN:
+			String: {
+				isInt:
+				isFloat:
+				replace:
+				isPrefix:
+				isSuffix:
+				trim:
+				trimLeft:
+				trimRight:
+				paddingLeft:
+				paddingRight:
+				repeat:
+				format:
+				lines:
+			},
+			Date: {
+				now:
+				make:
+				format:
+			},
+			Global: {
+				set:
+				get:
+			},
+			Screen: {
+				UNKNOWN:
+				SMALL:
+				NORMAL:
+				LARGE:
+				EXTRA_LARGE:
+				width:
+				height:
+				resolution:
+				dpi:
+				mode:
+			},
+			Geo: {
+				configure:
+				currentPosition:
+				distance:
+			},
+			Path: {
+				resources:
+				controllers:
+				preprocess:
+			},
+			FileSystem: {
+				getFile:
+			},
+			Network: {
+				isOnline:
+				createClientHttp:
+			},
+			JSON: {
+				serialize:
+				deserialize:
+			},
+			XML: {
+				Private: {
+					deserializeNode:
+				},
+				serialize:
+				deserialize:
+				getNode:
+				findNode:
+				mergeNodeAttributes:
+			},
+			CSV: {
+				serialize:
+				deserialize:
+			},
+			UI: {
+				Private: {
+					createParams:
+				},
+				currentTab:
+				createTabGroup:
+				createTab:
+				createNavigationGroup:
+				createWindow:
+				createView:
+				createScrollView:
+				createScrollableView:
+				createImageView:
+				createMaskedImage:
+				createButton:
+				createButtonBar:
+				createLabel:
+				createSwitch:
+				createSlider:
+				createSearchBar:
+				createProgressBar:
+				createTextField:
+				createTextArea:
+				createTableView:
+				createTableViewSection:
+				createTableViewRow:
+				createPicker:
+				createPickerColumn:
+				createPickerRow:
+				createWebView:
+				createMapView:
+				createMapViewAnnotation:
+				createFacebookLoginButton:
+				createAlertDialog:
+				createEmailDialog:
+				createOptionDialog:
+				createPhoneCallDialog:
+				createActivityIndicator:
+				ThirdParty: {
+					createPaintView:
+				}
+			},
+			Loader: {
+				Private: {
+					withParams:
+					withFileName:
+				}
+			},
+			Preset: {
+				Private: {
+					loadJS:
+					loadXML:
+					loadItemXML:
+					loadX:
+				},
+				set:
+				get:
+				remove:
+				merge:
+				applyByName:
+				apply:
+				load:
+			},
+			Prefab: {
+				Private: {
+					loadJS:
+					loadXML:
+					loadItemXML:
+					loadX:
+				},
+				set:
+				get:
+				remove:
+				load:
+			},
+			Form: {
+				Private: {
+					loadJS:
+					loadItemJS:
+					Control: {
+						controlBindStyle:
+						controlBindFunction:
+						controlTabGroup:
+						appendTabGroup:
+						controlTab:
+						appendTab:
+						controlNavigationGroup:
+						appendNavigationGroup:
+						controlWindow:
+						appendWindow:
+						controlView:
+						controlScrollView:
+						controlScrollableView:
+						appendScrollableView:
+						controlTableView:
+						appendTableView:
+						appendTableViewHeader:
+						appendTableViewFooter:
+						controlTableViewSection:
+						appendTableViewSection:
+						appendTableViewSectionHeader:
+						appendTableViewSectionFooter:
+						controlTableViewRow:
+						appendTableViewRow:
+						controlPicker:
+						appendPicker:
+						controlPickerColumn:
+						appendPickerColumn:
+						controlOther:
+						appendOther:
+						controlHttpClient:
+					}
+				},
+				Cache: {
+					Private: {
+						loadJS:
+						loadItemJS:
+						loadXML:
+						loadItemXML:
+						loadX:
+					},
+					set:
+					get:
+					remove:
+					load:
+				},
+				load:
+			},
+			Project: {
+				Private: {
+					createWindowStyle:
+				},
+				initialize:
+				loadPreset:
+				loadPrefab:
+				loadController:
+				loadForm:
+				createTabGroup:
+				createNavigationGroup:
+				createWindow:
+			},
+			Utils: {
+				info:
+				sleep:
+				unigueID:
+				combine:
+				clone:
+				appropriateAny:
+				appropriatePlatform:
+				appropriateScreen:
+				stringToConst:
+			},
+			Plugin: {
+				Private: {
+					loadWithPath:
+					invokeMethod:
+				},
+				isLoad:
+				load:
+			},
+			Error: {
+				notFound:
+				unknownExtension:
+				unknownPlatform:
+				unknownScreen:
+				unknownMethod:
+				presetNotFound:
+				presetUnsupportedFormat:
+				prefabNotFound:
+				prefabUnsupportedFormat:
+				unsupportedPlatform:
+				unsupportedClassName:
+				unknownClassName:
+				thisNotValue:
+				thisNotFunction:
+			},
+			ThirdParty: {
+				underscore:
+				underscoreString:
+				moment:
+			}
+		}
