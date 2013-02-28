@@ -63,6 +63,42 @@ TiTools
 		1. Parse
 		2. itsbeta
 	
+	Types description:
+		TiToolsNetworkHttpClient: = {
+			handle: Ti.Network.HTTPClient
+			params: Object = {
+				method: String = "POST"/"GET"
+				url: String
+				args: Object = {
+					"name": "value"
+				}
+				headers: Object = {
+					"name": "value"
+				}
+				cache: Ti.Network.HTTPClient.cache
+				timeout: Ti.Network.HTTPClient.timeout
+				tlsVersion: Ti.Network.HTTPClient.tlsVersion
+				autoEncodeUrl: Ti.Network.HTTPClient.autoEncodeUrl
+				autoRedirect: Ti.Network.HTTPClient.autoRedirect
+				bubbleParent: Ti.Network.HTTPClient.bubbleParent
+				enableKeepAlive: Ti.Network.HTTPClient.enableKeepAlive
+				validatesSecureCertificate: Ti.Network.HTTPClient.validatesSecureCertificate
+				withCredentials: Ti.Network.HTTPClient.withCredentials
+				username: Ti.Network.HTTPClient.username
+				password: Ti.Network.HTTPClient.password
+			}
+			success: Function(TiToolsNetworkHttpClient http)
+			failure: Function(TiToolsNetworkHttpClient http)
+			loading: Function(TiToolsNetworkHttpClient http)
+			loaded: Function(TiToolsNetworkHttpClient http)
+			sendProgress: Function(TiToolsNetworkHttpClient http, Number progress)
+			readProgress: Function(TiToolsNetworkHttpClient http, Number progress)
+		}
+		TiToolsNetworkHttpClient.Prototype.request: Function()
+		TiToolsNetworkHttpClient.Prototype.abort: Function()
+		TiToolsNetworkHttpClient.Prototype.status: Function()
+		TiToolsNetworkHttpClient.Prototype.response: Function(String mode = "text"/"json"/"xml"/"raw:xml")
+	
 	Module description:
 		TiTools2: {
 			tr:

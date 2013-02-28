@@ -277,7 +277,7 @@ function fileSystemGetFile(filename) {
 
 function TiToolsNetworkHttpClient(params) {
 	this.handle = undefined;
-	this.request = params.request;
+	this.params = params.request;
 	this.success = params.success;
 	this.failure = params.failure;
 	this.loading = params.loading;
@@ -285,27 +285,27 @@ function TiToolsNetworkHttpClient(params) {
 	this.sendProgress = params.sendProgress;
 	this.readProgress = params.readProgress;
 }
-TiToolsNetworkHttpClient.prototype.start = function() {
+TiToolsNetworkHttpClient.prototype.request = function() {
 	if(this.handle == undefined) {
 		var self = this;
-		var request = self.request;
-		var method = request.method;
-		var url = request.url;
-		var args = request.args;
-		var headers = request.headers;
+		var params = self.params;
+		var method = params.method;
+		var url = params.url;
+		var args = params.args;
+		var headers = params.headers;
 		
 		self.handle = Ti.Network.createHTTPClient({
-			cache: request.cache,
-			timeout: request.timeout,
-			tlsVersion: request.tlsVersion,
-			autoEncodeUrl: request.autoEncodeUrl,
-			autoRedirect: request.autoRedirect,
-			bubbleParent: request.bubbleParent,
-			enableKeepAlive: request.enableKeepAlive,
-			validatesSecureCertificate: request.validatesSecureCertificate,
-			withCredentials: request.withCredentials,
-			username: request.username,
-			password: request.password,
+			cache: params.cache,
+			timeout: params.timeout,
+			tlsVersion: params.tlsVersion,
+			autoEncodeUrl: params.autoEncodeUrl,
+			autoRedirect: params.autoRedirect,
+			bubbleParent: params.bubbleParent,
+			enableKeepAlive: params.enableKeepAlive,
+			validatesSecureCertificate: params.validatesSecureCertificate,
+			withCredentials: params.withCredentials,
+			username: params.username,
+			password: params.password,
 			onload: function(event) {
 				try {
 					if(coreIsFunction(self.success) == true) {
@@ -357,22 +357,20 @@ TiToolsNetworkHttpClient.prototype.start = function() {
 			case "POST": self.handle.open("POST", url); break;
 		}
 		if(headers != undefined) {
-			var count = headers.length;
-			for(var i = 0; i < count; i++) {
-				var header = headers[i];
-				self.handle.setRequestHeader(header.type, header.value);
+			for(var i in args) {
+				self.handle.setRequestHeader(i, header[i]);
 			}
 		}
 		switch(method) {
 			case "GET": self.handle.send(); break;
-			case "POST": self.handle.send(request.post); break;
+			case "POST": self.handle.send(params.post); break;
 		}
 		if(coreIsFunction(self.loading) == true) {
 			self.loading.call(self, self);
 		}
 	}
 }
-TiToolsNetworkHttpClient.prototype.stop = function() {
+TiToolsNetworkHttpClient.prototype.abort = function() {
 	if(this.handle != undefined) {
 		this.handle.abort();
 		this.handle = undefined;
