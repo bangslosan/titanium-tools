@@ -277,7 +277,7 @@ function fileSystemGetFile(filename) {
 
 function TiToolsNetworkHttpClient(params) {
 	this.handle = undefined;
-	this.params = params.request;
+	this.options = params.options;
 	this.success = params.success;
 	this.failure = params.failure;
 	this.loading = params.loading;
@@ -288,24 +288,24 @@ function TiToolsNetworkHttpClient(params) {
 TiToolsNetworkHttpClient.prototype.request = function() {
 	if(this.handle == undefined) {
 		var self = this;
-		var params = self.params;
-		var method = params.method;
-		var url = params.url;
-		var args = params.args;
-		var headers = params.headers;
+		var options = self.options;
+		var method = options.method;
+		var url = options.url;
+		var args = options.args;
+		var headers = options.headers;
 		
 		self.handle = Ti.Network.createHTTPClient({
-			cache: params.cache,
-			timeout: params.timeout,
-			tlsVersion: params.tlsVersion,
-			autoEncodeUrl: params.autoEncodeUrl,
-			autoRedirect: params.autoRedirect,
-			bubbleParent: params.bubbleParent,
-			enableKeepAlive: params.enableKeepAlive,
-			validatesSecureCertificate: params.validatesSecureCertificate,
-			withCredentials: params.withCredentials,
-			username: params.username,
-			password: params.password,
+			cache: options.cache,
+			timeout: options.timeout,
+			tlsVersion: options.tlsVersion,
+			autoEncodeUrl: options.autoEncodeUrl,
+			autoRedirect: options.autoRedirect,
+			bubbleParent: options.bubbleParent,
+			enableKeepAlive: options.enableKeepAlive,
+			validatesSecureCertificate: options.validatesSecureCertificate,
+			withCredentials: options.withCredentials,
+			username: options.username,
+			password: options.password,
 			onload: function(event) {
 				try {
 					if(coreIsFunction(self.success) == true) {
@@ -363,7 +363,7 @@ TiToolsNetworkHttpClient.prototype.request = function() {
 		}
 		switch(method) {
 			case "GET": self.handle.send(); break;
-			case "POST": self.handle.send(params.post); break;
+			case "POST": self.handle.send(options.post); break;
 		}
 		if(coreIsFunction(self.loading) == true) {
 			self.loading.call(self, self);
@@ -400,14 +400,14 @@ TiToolsNetworkHttpClient.prototype.response = function(as) {
 function networkCreateHttpClient(params) {
 	var handle = undefined;
 	if(Ti.Network.online == true) {
-		var request = params.request;
-		if(coreIsObject(request) == true) {
-			switch(request.method) {
+		var options = params.options;
+		if(coreIsObject(options) == true) {
+			switch(options.method) {
 				case "GET":
 				case "POST":
 				break;
 				default:
-					errorUnknownMethod("networkCreateHttpClient", request.method);
+					errorUnknownMethod("networkCreateHttpClient", options.method);
 				return;
 			}
 			handle = new TiToolsNetworkHttpClient(params);
@@ -2173,7 +2173,7 @@ function formControlHttpClient(content, params, controller, parent) {
 	}
 	
 	var args = {
-		request: content.request
+		options: content.options
 	}
 	var binds = content.bind;
 	if(coreIsObject(binds) == true) {

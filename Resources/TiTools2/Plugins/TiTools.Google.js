@@ -5,7 +5,7 @@ var TiTools2 = require("TiTools2/TiTools");
 function googleMapCurrentLocation(params) {
 	try {
 		var http = TiTools2.Network.createClientHttp({
-			params: {
+			options: {
 				method: "GET",
 				url: "http://maps.googleapis.com/maps/api/geocode/json",
 				header: {
@@ -61,7 +61,7 @@ function googleMapCurrentLocation(params) {
 function googleMapPaveRoute(params) {
 	try {
 		var http = TiTools2.Network.createClientHttp({
-			params: {
+			options: {
 				method: "GET",
 				url: "http://maps.google.com/",
 				args: {
