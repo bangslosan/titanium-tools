@@ -753,9 +753,11 @@ function xmlDeserializeNode(node) {
 	switch(node.nodeType) {
 		case node.ELEMENT_NODE:
 			var attributes = node.attributes;
-			for(var i = 0; i < attributes.length; i++) {
-				var attribute = attributes.item(i);
-				result.attributes[attribute.nodeName] = attribute.nodeValue;
+			if(attributes != undefined) {
+				for(var i = 0; i < attributes.length; i++) {
+					var attribute = attributes.item(i);
+					result.attributes[attribute.nodeName] = attribute.nodeValue;
+				}
 			}
 		break;
 	}
@@ -1358,7 +1360,7 @@ function presetLoadJS(content) {
 		if((coreIsString(content.id) == false) || (coreIsObject(content.style) == false)) {
 			errorPresetUnsupportedFormat("presetLoadJS", content);
 		}
-		presetSet(content.id, content.style);
+		presetSet(content.id, presetPreprocess(content.style));
 	} else {
 		errorPresetUnsupportedFormat("presetLoadJS", content);
 	}
@@ -1388,7 +1390,7 @@ function presetLoadItemXML(content) {
 		if(styles.length > 0) {
 			return {
 				id: content.attributes.id,
-				style: xmlMergeNodeAttributes(styles)
+				style: presetPreprocess(xmlMergeNodeAttributes(styles))
 			};
 		} else {
 			errorPresetUnsupportedFormat("presetLoadItemXML", preset);
@@ -1582,6 +1584,9 @@ function formCacheLoadItemJS(content) {
 				errorPrefabUnsupportedFormat("formCacheLoadItemJS", content.prefab);
 			}
 		}
+		if(content.style != undefined) {
+			content.style = presetPreprocess(content.style);
+		}
 		if(content.preset != undefined) {
 			if(content.style != undefined) {
 				content.style = presetMerge(content.preset, content.style);
@@ -1658,13 +1663,13 @@ function formCacheLoadXML(content) {
 			}
 			var views = xmlFindNode(content, "Views");
 			if(views.length == 1) {
-				var items = xmlFindNode(content, "Item");
-				if(items.length == 1) {
-					result.views = formCacheLoadItemXML(items[0]);
-				} else if(items.length > 1) {
-					result.views = [];
-					for(var i = 0; i < items.length; i++) {
-						var item = formCacheLoadItemXML(items[i]);
+				var childs = views.childs;
+				var count = childs.length;
+				if(count == 1) {
+					result.views = formCacheLoadItemXML(childs[0]);
+				} else {
+					for(var i = 0; i < count; i++) {
+						var item = formCacheLoadItemXML(childs[i]);
 						if(item != undefined) {
 							result.views.push(item);
 						}
@@ -1672,11 +1677,11 @@ function formCacheLoadXML(content) {
 				}
 			}
 		break;
-		case "Item":
-			result = formCacheLoadItemXML(content);
-		break;
 		default:
-			var temp = pluginInvokeMethod("formLoadXML", [ content ]);
+			var temp = formCacheLoadItemXML(content);
+			if(temp == undefined) {
+				var temp = pluginInvokeMethod("formLoadXML", [ content ]);
+			}
 			if(temp != undefined) {
 				result = temp;
 			}
@@ -1685,21 +1690,17 @@ function formCacheLoadXML(content) {
 	return result;
 }
 function formCacheLoadItemXML(content) {
-	function getItems(node, name) {
+	function getItems(node, group) {
 		var result = [];
-		var list = xmlFindNode(node, name);
-		var count = list.length;
-		for(var i = 0; i < count; i++) {
-			result.push(formCacheLoadItemXML(list[i]));
-		}
-		return result;
-	}
-	function getItemsWithGroup(node, group, name) {
 		var item = xmlGetNode(node, group);
 		if(item != undefined) {
-			return getItems(item, name);
+			var childs = item.childs;
+			var count = childs.length;
+			for(var i = 0; i < count; i++) {
+				result.push(formCacheLoadItemXML(childs[i]));
+			}
 		}
-		return [];
+		return result;
 	}
 	function getItem(node, name) {
 		var item = xmlGetNode(node, name);
@@ -1710,74 +1711,74 @@ function formCacheLoadItemXML(content) {
 	}
 	
 	var result = {};
-	switch(content.name) {
-		case "View":
-		case "Item":
-			if(coreIsString(content.attributes.class) == true) {
-				result.class = content.attributes.class;
-			}
-			if(coreIsString(content.attributes.id) == true) {
-				result.id = content.attributes.id;
-			}
-			if(coreIsString(content.attributes.preset) == true) {
-				result.preset = content.attributes.preset;
-			}
-			var styles = xmlFindNode(content, "Style");
-			if(styles.length > 0) {
-				result.style = xmlMergeNodeAttributes(styles);
-			} else {
-				result.style = {};
-			}
-			var binds = xmlFindNode(content, "Bind");
-			if(binds.length > 0) {
-				result.bind = xmlMergeNodeAttributes(binds);
-			} else {
-				result.bind = {};
-			}
-			switch(result.class) {
-				case "TabGroup":
-					result.tabs = getItemsWithGroup(content, "Tabs", "View");
-				break;
-				case "Tab":
-					result.window = getItem(content, "Window");
-					result.subviews = getItems(content, "Views", "View");
-				break;
-				case "NavigationGroup":
-					result.window = getItem(content, "Window");
-					result.windows = getItemsWithGroup(content, "Windows", "View");
-				break;
-				case "TableView":
-					result.header = getItem(content, "Header");
-					result.footer = getItem(content, "Footer");
-					result.search = getItem(content, "Search");
-					result.sections = getItemsWithGroup(content, "Sections", "View");
-					result.rows = getItemsWithGroup(content, "Rows", "View");
-				break;
-				case "TableViewSection":
-					result.header = getItem(content, "Header");
-					result.footer = getItem(content, "Footer");
-					result.rows = getItemsWithGroup(content, "Rows", "View");
-				break;
-				case "Picker":
-					result.columns = getItemsWithGroup(content, "Columns", "View");
-					result.rows = getItemsWithGroup(content, "Rows", "View");
-				break;
-				case "PickerColumn":
-					result.rows = getItemsWithGroup(content, "Rows", "View");
-				break;
-				default:
-					result.subviews = getItems(content, "View");
-				break;
-			}
-			result.items = getItems(content, "Item");
+	if(coreIsString(content.attributes.class) == true) {
+		result.class = content.attributes.class;
+	} else {
+		result.class = content.name;
+	}
+	if(coreIsString(content.attributes.id) == true) {
+		result.id = content.attributes.id;
+	}
+	if(coreIsString(content.attributes.preset) == true) {
+		result.preset = content.attributes.preset;
+	}
+	var styles = xmlFindNode(content, "Style");
+	if(styles.length > 0) {
+		result.style = xmlMergeNodeAttributes(styles);
+	} else {
+		result.style = {};
+	}
+	if(result.style != undefined) {
+		result.style = presetPreprocess(result.style);
+	}
+	if(result.preset != undefined) {
+		if(result.style != undefined) {
+			result.style = presetMerge(result.preset, result.style);
+		}
+		delete result.preset;
+	}
+	var binds = xmlFindNode(content, "Bind");
+	if(binds.length > 0) {
+		result.bind = xmlMergeNodeAttributes(binds);
+	} else {
+		result.bind = {};
+	}
+	switch(result.class) {
+		case "TabGroup":
+			result.tabs = getItems(content, "Tabs");
+		break;
+		case "Tab":
+			result.window = getItem(content, "Window");
+			result.subviews = getItems(content, "SubViews");
+		break;
+		case "NavigationGroup":
+			result.window = getItem(content, "Window");
+			result.windows = getItems(content, "Windows");
+		break;
+		case "TableView":
+			result.header = getItem(content, "Header");
+			result.footer = getItem(content, "Footer");
+			result.search = getItem(content, "Search");
+			result.sections = getItems(content, "Sections");
+			result.rows = getItems(content, "Rows");
+		break;
+		case "TableViewSection":
+			result.header = getItem(content, "Header");
+			result.footer = getItem(content, "Footer");
+			result.rows = getItems(content, "Rows");
+		break;
+		case "Picker":
+			result.columns = getItems(content, "Columns");
+			result.rows = getItems(content, "Rows");
+		break;
+		case "PickerColumn":
+			result.rows = getItems(content, "Rows");
 		break;
 		default:
-			var temp = pluginInvokeMethod("formCacheLoadItemXML", [ content ]);
-			if(temp != undefined) {
-				result = temp;
-			}
+			result.subviews = getItems(content, "SubViews");
 		break;
 	}
+	result.items = getItems(content, "Items");
 	return result;
 }
 function formCacheLoadX(filename) {

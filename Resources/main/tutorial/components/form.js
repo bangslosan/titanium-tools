@@ -32,6 +32,14 @@ module.exports = {
 				title: "Tables",
 				category: "tables"
 			}
+		},
+		{
+			class: "TableViewRow",
+			style: {
+				height: 48,
+				title: "XML",
+				category: "xml"
+			}
 		}
 	]
 };

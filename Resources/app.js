@@ -30,6 +30,7 @@ TiTools2.Project.initialize(
 			"tutorial.components.standarts": "main/tutorial/components/standarts/cont.js",
 			"tutorial.components.dialogs": "main/tutorial/components/dialogs/cont.js",
 			"tutorial.components.tables": "main/tutorial/components/tables/cont.js",
+			"tutorial.components.xml": "main/tutorial/components/xml/cont.js",
 			"tutorial.network": "main/tutorial/network/cont.js",
 			"tutorial.more": "main/tutorial/more/cont.js"
 		}
