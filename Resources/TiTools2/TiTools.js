@@ -1695,9 +1695,7 @@ function formCacheLoadItemJS(content) {
 			content.style = presetPreprocess(content.style);
 		}
 		if (content.preset != undefined) {
-			if (content.style != undefined) {
-				content.style = presetMerge(content.preset, content.style);
-			}
+			content.style = presetMerge(content.preset, content.style);
 			delete content.preset;
 		}
 		if (content.root != undefined) {
@@ -1842,9 +1840,7 @@ function formCacheLoadItemXML(content) {
 		result.style = presetPreprocess(result.style);
 	}
 	if (result.preset != undefined) {
-		if (result.style != undefined) {
-			result.style = presetMerge(result.preset, result.style);
-		}
+		result.style = presetMerge(result.preset, result.style);
 		delete result.preset;
 	}
 	var binds = xmlFindNode(content, "Bind");
