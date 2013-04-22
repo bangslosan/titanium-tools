@@ -58,6 +58,9 @@ function googleMapCurrentLocation(params) {
 		},
 		failure: params.failure
 	});
+	if(http != undefined) {
+		http.request();
+	}
 	return http;
 }
 function googleMapPaveRoute(params) {
@@ -119,6 +122,9 @@ function googleMapPaveRoute(params) {
 		},
 		failure: params.failure
 	});
+	if(http != undefined) {
+		http.request();
+	}
 	return http;
 }
 

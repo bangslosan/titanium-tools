@@ -39,7 +39,7 @@ TiTools2.Project.initialize(
 
 //---------------------------------------------//
 
-var http = TiTools2.Google.Map.currentLocation({
+TiTools2.Google.Map.currentLocation({
 	position: {
 		latitude: 0,
 		longitude: 0
@@ -48,10 +48,9 @@ var http = TiTools2.Google.Map.currentLocation({
 		TiTools2.Utils.info("currentLocation:success", status, response);
 	},
 	failure: function(handle) {
-		TiTools2.Utils.info("currentLocation:failure", handle.status());
+		TiTools2.Utils.info("currentLocation:failure");
 	}
 });
-http.request();
 
 //---------------------------------------------//
 

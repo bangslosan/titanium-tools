@@ -61,7 +61,7 @@ module.exports = {
 	items: [
 		{
 			class: "AlertDialog",
-			id: "alertDialog",
+			name: "alertDialog",
 			style: {
 				title: "AlertDialog",
 				message: "AlertDialog Text",
@@ -70,7 +70,7 @@ module.exports = {
 		},
 		{
 			class: "EmailDialog",
-			id: "emailDialog",
+			name: "emailDialog",
 			style: {
 				subject: "Hello from TiTools",
 				messageBody: "<b>EmailDialog Message Body</b>"
@@ -78,7 +78,7 @@ module.exports = {
 		},
 		{
 			class: "OptionDialog",
-			id: "optionDialog",
+			name: "optionDialog",
 			style: {
 				title: "OptionDialog",
 				options: ["Confirm", "Cancel"],
