@@ -250,14 +250,14 @@ function geoDistance(a, b) {
 //---------------------------------------------//
 
 function pathResources() {
-	var resourcesPath = utilsAppropriatePlatform({
+	return utilsAppropriatePlatform({
 		ios : Ti.Filesystem.resourcesDirectory,
 		android : "file:///android_asset/Resources/"
 	});
 }
 
 function pathControllers() {
-	var resourcesPath = utilsAppropriatePlatform({
+	return utilsAppropriatePlatform({
 		ios : Ti.Filesystem.resourcesDirectory,
 		android : ""
 	});
@@ -1391,6 +1391,7 @@ function presetPreprocess(params) {
 			params[i] = presetPreprocess(value);
 		} else if (coreIsString(value) == true) {
 			params[i] = preprocessArgument(value);
+			utilsInfo("presetPreprocess", params[i]);
 		}
 	}
 	return params;
