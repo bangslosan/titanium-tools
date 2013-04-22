@@ -10,17 +10,17 @@ TiTools2.Project.initialize(
 	{
 		presets: {
 			iphone: [
-				"presets/iphone/common.js"
+				"presets/iphone/standart.js"
 			],
 			ipad: [
-				"presets/ipad/common.js"
+				"presets/ipad/standart.js"
 			],
 			android: {
 				small: [
-					"presets/small/common.js"
+					"presets/small/standart.js"
 				],
 				any: [
-					"presets/common.js"
+					"presets/standart.js"
 				]
 			}
 		},

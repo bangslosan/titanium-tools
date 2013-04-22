@@ -12,7 +12,7 @@ function onInitController(window, params) {
 	
 	wnd = window;
 	form = TiTools2.Form.load(window, "main/tutorial/components/form.js", {
-		onSelectCategory: onSelectCategory
+		"onSelectCategory": onSelectCategory
 	});
 }
 

@@ -2,7 +2,7 @@ module.exports = [
 	{
 		name : "Window",
 		style : {
-			backgroundColor : "#afafaf"
+			backgroundColor : "#ff0000"
 		}
 	}
 ]
