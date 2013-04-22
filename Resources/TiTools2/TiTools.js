@@ -1391,7 +1391,6 @@ function presetPreprocess(params) {
 			params[i] = presetPreprocess(value);
 		} else if (coreIsString(value) == true) {
 			params[i] = preprocessArgument(value);
-			utilsInfo("presetPreprocess", params[i]);
 		}
 	}
 	return params;
