@@ -59,7 +59,7 @@ function googleMapCurrentLocation(params) {
 		failure: params.failure
 	});
 	if(http != undefined) {
-		http.request();
+		http.run();
 	}
 	return http;
 }
@@ -123,7 +123,7 @@ function googleMapPaveRoute(params) {
 		failure: params.failure
 	});
 	if(http != undefined) {
-		http.request();
+		http.run();
 	}
 	return http;
 }

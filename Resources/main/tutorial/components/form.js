@@ -2,9 +2,7 @@ module.exports = {
 	class: "TableView",
 	preset: "Window",
 	style: {
-		layout: "vertical",
-		width: Ti.UI.FILL,
-		height: Ti.UI.FILL
+		layout: "vertical"
 	},
 	bind: {
 		click: "onSelectCategory"

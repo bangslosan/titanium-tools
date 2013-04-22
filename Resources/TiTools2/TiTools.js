@@ -590,7 +590,7 @@ function networkHttpClient(params) {
 	this.readProgress = params.readProgress;
 }
 
-networkHttpClient.prototype.request = function() {
+networkHttpClient.prototype.run = function() {
 	if (this.handle == undefined) {
 		var self = this;
 		var options = self.options;
@@ -765,7 +765,7 @@ function xmlDeserialize(data) {
 	if (coreIsString(data) == true) {
 		var xml = Ti.XML.parseString(data);
 		if (xml != undefined) {
-			return xmlDeserializeNode(xml);
+			return xmlDeserializeNode(xml.documentElement);
 		}
 	} else {
 		return xmlDeserializeNode(data);
@@ -781,7 +781,6 @@ function xmlDeserializeNode(node) {
 		childs : []
 	};
 	switch(node.nodeType) {
-		case node.DOCUMENT_NODE:
 		case node.ELEMENT_NODE:
 			var attributes = node.attributes;
 			if (attributes != undefined) {
@@ -1114,6 +1113,18 @@ function uiCreateTableViewSection(preset, params) {
 
 function uiCreateTableViewRow(preset, params) {
 	return Ti.UI.createTableViewRow(uiCreateParams(preset, params, "TableViewRow"));
+}
+
+function uiCreateListView(preset, params) {
+	return Ti.UI.createListView(uiCreateParams(preset, params, "ListView"));
+}
+
+function uiCreateListViewSection(preset, params) {
+	return Ti.UI.createListViewSection(uiCreateParams(preset, params, "ListViewSection"));
+}
+
+function uiCreateListViewRow(preset, params) {
+	return Ti.UI.createListViewRow(uiCreateParams(preset, params, "ListViewRow"));
 }
 
 function uiCreatePicker(preset, params) {
@@ -2023,6 +2034,15 @@ function formLoadItemJS(content, params, controller, parent, callback) {
 		case "TableViewRow":
 			control = formControlTableViewRow(content, params, controller, parent, callback);
 			break;
+		case "ListView":
+			control = formControlListView(content, params, controller, parent, callback);
+			break;
+		case "ListViewSection":
+			control = formControlListViewSection(content, params, controller, parent, callback);
+			break;
+		case "ListViewRow":
+			control = formControlListViewRow(content, params, controller, parent, callback);
+			break;
 		case "Picker":
 			control = formControlPicker(content, params, controller, parent, callback);
 			break;
@@ -2551,7 +2571,7 @@ function formControlTableViewRow(content, params, controller, parent, callback) 
 		if (coreIsArray(subviews) == true) {
 			var count = subviews.length;
 			for (var i = 0; i < count; i++) {
-				formLoadItemJS(subviews[i], params, controller, control, formAppendTableViewRow);
+				formLoadItemJS(subviews[i], params, controller, control, formAppendOther);
 			}
 		}
 		if (coreIsFunction(callback) == true) {
@@ -2565,16 +2585,91 @@ function formControlTableViewRow(content, params, controller, parent, callback) 
 	return control;
 }
 
-function formAppendTableViewRow(parent, child) {
+function formControlListView(content, params, controller, parent, callback) {
+	var style = formControlBindStyle(content.style, params);
+	var control = uiCreateListView(content.preset, style);
+	if (control != undefined) {
+		if (coreIsFunction(callback) == true) {
+			callback(parent, control);
+		}
+		var sections = content.sections;
+		if (coreIsArray(sections) == true) {
+			var data = [];
+			var count = sections.length;
+			for (var i = 0; i < count; i++) {
+				data.push(formLoadItemJS(sections[i], params, controller, control));
+			}
+			control.appendSection(data);
+		}
+		var bind = content.bind;
+		if (coreIsObject(bind) == true) {
+			formControlBindFunction(bind, params, control);
+		}
+	}
+	return control;
+}
+
+function formAppendListView(parent, child) {
 	switch(child.tiClassName) {
-		case "PickerRow":
+		case "ListViewSection":
 			child.superview = parent;
-			parent.addRow(child);
+			parent.appendSection(child);
 			break;
 		default:
-			errorUnsupportedClassName("formAppendTableViewRow", child.tiClassName);
+			errorUnsupportedClassName("formAppendListView", child.tiClassName);
 			break;
 	}
+}
+
+function formControlListViewSection(content, params, controller, parent, callback) {
+	var style = formControlBindStyle(content.style, params);
+	var control = uiCreateListViewSection(content.preset, style);
+	if (control != undefined) {
+		if (coreIsFunction(callback) == true) {
+			callback(parent, control);
+		}
+		var items = content.items;
+		if (coreIsArray(items) == true) {
+			var data = [];
+			var count = items.length;
+			for (var i = 0; i < count; i++) {
+				data.push(formLoadItemJS(items[i], params, controller, control));
+			}
+			parent.appendItems(data);
+		}
+		var bind = content.bind;
+		if (coreIsObject(bind) == true) {
+			formControlBindFunction(bind, params, control);
+		}
+	}
+	return control;
+}
+
+function formAppendListViewSection(parent, child) {
+	switch(child.tiClassName) {
+		case "ListViewRow":
+			child.superview = parent;
+			parent.appendItems([ child ]);
+			break;
+		default:
+			errorUnsupportedClassName("formAppendListViewSection", child.tiClassName);
+			break;
+	}
+}
+
+function formControlListViewRow(content, params, controller, parent, callback) {
+	var style = formControlBindStyle(content.style, params);
+	var control = uiCreateListViewRow(content.preset, style);
+	if (control != undefined) {
+		if (coreIsFunction(callback) == true) {
+			callback(parent, control);
+		}
+		var bind = content.bind;
+		if (coreIsObject(bind) == true) {
+			formControlBindFunction(bind, params, control);
+		}
+	}
+	return control;
 }
 
 function formControlPicker(content, params, controller, parent, callback) {
@@ -2671,12 +2766,8 @@ function formControlOther(createFunction, content, params, controller, parent, c
 }
 
 function formAppendOther(parent, child) {
-	switch(child.tiClassName) {
-		default:
-			child.superview = parent;
-			parent.add(child);
-			break;
-	}
+	child.superview = parent;
+	parent.add(child);
 }
 
 function formControlHttpClient(content, params, controller, parent) {
@@ -3699,6 +3790,9 @@ var TiTools = {
 		createTableView : uiCreateTableView,
 		createTableViewSection : uiCreateTableViewSection,
 		createTableViewRow : uiCreateTableViewRow,
+		createListView : createListView,
+		createListViewSection : createListViewSection,
+		createListViewRow : createListViewRow,
 		createPicker : uiCreatePicker,
 		createPickerColumn : uiCreatePicker,
 		createPickerRow : uiCreatePicker,
