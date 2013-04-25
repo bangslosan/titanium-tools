@@ -1394,6 +1394,13 @@ function presetPreprocess(params) {
 		return arg;
 	}
 
+	var ids = {
+		textid: "text",
+		titleid: "title",
+		promptid: "prompt",
+		messageid: "message",
+		titlepromptid: "titleprompt"
+	};
 	for (var i in params) {
 		var value = params[i];
 		if (coreIsArray(value) == true) {
@@ -1401,7 +1408,12 @@ function presetPreprocess(params) {
 		} else if (coreIsObject(value) == true) {
 			params[i] = presetPreprocess(value);
 		} else if (coreIsString(value) == true) {
-			params[i] = preprocessArgument(value);
+			if(ids[i] != undefined) {
+				params[ids[i]] = t2.tr(value);
+				delete params[i];
+			} else {
+				params[i] = preprocessArgument(value);
+			}
 		}
 	}
 	return params;
