@@ -1685,19 +1685,30 @@ function formCacheLoadJS(content, params, cached) {
 }
 
 function formCacheLoadItemJS(content) {
+	function prefabWithName(name) {
+		var result = content;
+		if (coreIsString(name) == true) {
+			var prefab = prefabGet(name);
+			if (prefab != undefined) {
+				content = utilsCombine(content, prefab);
+			} else {
+				errorPrefabNotFound("formCacheLoadItemJS", name);
+			}
+		}
+		return content;
+	}
+	
 	if (coreIsObject(content) == true) {
 		if (content.prefab != undefined) {
-			if (coreIsString(content.prefab) == true) {
-				var prefab = prefabGet(content.prefab);
-				if (prefab != undefined) {
-					content = utilsCombine(content, prefab);
-				} else {
-					errorPrefabNotFound("formCacheLoadItemJS", content.prefab);
-				}
-				delete content.prefab;
+			if (coreIsObject(content.prefab) == true) {
+				content = prefabWithName(content.prefab.name);
+				content.params = content.prefab.params;
+			} else if (coreIsString(content.prefab) == true) {
+				content = prefabWithName(content.prefab);
 			} else {
 				errorPrefabUnsupportedFormat("formCacheLoadItemJS", content.prefab);
 			}
+			delete content.prefab;
 		}
 		if (content.style != undefined) {
 			content.style = presetPreprocess(content.style);
@@ -2018,117 +2029,121 @@ function formLoadItemJS(content, params, controller, parent, callback) {
 	}
 
 	var control = undefined;
+	var finalParams = params;
+	if (content.params != undefined) {
+		finalParams = utilsCombine(params, content.params);
+	}
 	switch(content.class) {
 		case "TabGroup":
-			control = formControlTabGroup(content, params, controller, parent, callback);
+			control = formControlTabGroup(content, finalParams, controller, parent, callback);
 			break;
 		case "Tab":
-			control = formControlTab(content, params, controller, parent, callback);
+			control = formControlTab(content, finalParams, controller, parent, callback);
 			break;
 		case "NavigationGroup":
-			control = formControlNavigationGroup(content, params, controller, parent, callback);
+			control = formControlNavigationGroup(content, finalParams, controller, parent, callback);
 			break;
 		case "Window":
-			control = formControlWindow(content, params, controller, parent, callback);
+			control = formControlWindow(content, finalParams, controller, parent, callback);
 			break;
 		case "View":
-			control = formControlView(content, params, controller, parent, callback);
+			control = formControlView(content, finalParams, controller, parent, callback);
 			break;
 		case "ScrollView":
-			control = formControlScrollView(content, params, controller, parent, callback);
+			control = formControlScrollView(content, finalParams, controller, parent, callback);
 			break;
 		case "ScrollableView":
-			control = formControlScrollableView(content, params, controller, parent, callback);
+			control = formControlScrollableView(content, finalParams, controller, parent, callback);
 			break;
 		case "TableView":
-			control = formControlTableView(content, params, controller, parent, callback);
+			control = formControlTableView(content, finalParams, controller, parent, callback);
 			break;
 		case "TableViewSection":
-			control = formControlTableViewSection(content, params, controller, parent, callback);
+			control = formControlTableViewSection(content, finalParams, controller, parent, callback);
 			break;
 		case "TableViewRow":
-			control = formControlTableViewRow(content, params, controller, parent, callback);
+			control = formControlTableViewRow(content, finalParams, controller, parent, callback);
 			break;
 		case "ListView":
-			control = formControlListView(content, params, controller, parent, callback);
+			control = formControlListView(content, finalParams, controller, parent, callback);
 			break;
 		case "ListSection":
-			control = formControlListSection(content, params, controller, parent, callback);
+			control = formControlListSection(content, finalParams, controller, parent, callback);
 			break;
 		case "Picker":
-			control = formControlPicker(content, params, controller, parent, callback);
+			control = formControlPicker(content, finalParams, controller, parent, callback);
 			break;
 		case "PickerColumn":
-			control = formControlPickerColumn(content, params, controller, parent, callback);
+			control = formControlPickerColumn(content, finalParams, controller, parent, callback);
 			break;
 		case "PickerRow":
-			control = formControlOther(uiCreatePickerRow, content, params, controller, parent, callback);
+			control = formControlOther(uiCreatePickerRow, content, finalParams, controller, parent, callback);
 			break;
 		case "Label":
-			control = formControlOther(uiCreateLabel, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateLabel, content, finalParams, controller, parent, callback);
 			break;
 		case "TextField":
-			control = formControlOther(uiCreateTextField, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateTextField, content, finalParams, controller, parent, callback);
 			break;
 		case "TextArea":
-			control = formControlOther(uiCreateTextArea, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateTextArea, content, finalParams, controller, parent, callback);
 			break;
 		case "ImageView":
-			control = formControlOther(uiCreateImageView, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateImageView, content, finalParams, controller, parent, callback);
 			break;
 		case "MaskedImage":
-			control = formControlOther(uiCreateMaskedImage, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateMaskedImage, content, finalParams, controller, parent, callback);
 			break;
 		case "Button":
-			control = formControlOther(uiCreateButton, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateButton, content, finalParams, controller, parent, callback);
 			break;
 		case "ButtonBar":
-			control = formControlOther(uiCreateButtonBar, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateButtonBar, content, finalParams, controller, parent, callback);
 			break;
 		case "Switch":
-			control = formControlOther(uiCreateSwitch, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateSwitch, content, finalParams, controller, parent, callback);
 			break;
 		case "Slider":
-			control = formControlOther(uiCreateSlider, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateSlider, content, finalParams, controller, parent, callback);
 			break;
 		case "SearchBar":
-			control = formControlOther(uiCreateSearchBar, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateSearchBar, content, finalParams, controller, parent, callback);
 			break;
 		case "ProgressBar":
-			control = formControlOther(uiCreateProgressBar, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateProgressBar, content, finalParams, controller, parent, callback);
 			break;
 		case "WebView":
-			control = formControlOther(uiCreateWebView, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateWebView, content, finalParams, controller, parent, callback);
 			break;
 		case "MapView":
-			control = formControlOther(uiCreateMapView, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateMapView, content, finalParams, controller, parent, callback);
 			break;
 		case "ActivityIndicator":
-			control = formControlOther(uiCreateActivityIndicator, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateActivityIndicator, content, finalParams, controller, parent, callback);
 			break;
 		case "FacebookLoginButton":
-			control = formControlOther(uiCreateFacebookLoginButton, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateFacebookLoginButton, content, finalParams, controller, parent, callback);
 			break;
 		case "PaintView":
-			control = formControlOther(uiThirdPartyCreatePaintView, content, params, controller, parent, callback);
+			control = formControlOther(uiThirdPartyCreatePaintView, content, finalParams, controller, parent, callback);
 			break;
 		case "AlertDialog":
-			control = formControlOther(uiCreateAlertDialog, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateAlertDialog, content, finalParams, controller, parent, callback);
 			break;
 		case "EmailDialog":
-			control = formControlOther(uiCreateEmailDialog, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateEmailDialog, content, finalParams, controller, parent, callback);
 			break;
 		case "OptionDialog":
-			control = formControlOther(uiCreateOptionDialog, content, params, controller, parent, callback);
+			control = formControlOther(uiCreateOptionDialog, content, finalParams, controller, parent, callback);
 			break;
 		case "PhoneCallDialog":
-			control = formControlOther(uiCreatePhoneCallDialog, content, params, controller, parent, callback);
+			control = formControlOther(uiCreatePhoneCallDialog, content, finalParams, controller, parent, callback);
 			break;
 		case "HttpClient":
-			control = formControlHttpClient(content, params, controller, parent);
+			control = formControlHttpClient(content, finalParams, controller, parent);
 			break;
 		default:
-			var temp = pluginInvokeMethod("formLoadItem", [content, params, controller, parent, callback]);
+			var temp = pluginInvokeMethod("formLoadItem", [content, finalParams, controller, parent, callback]);
 			if (temp != undefined) {
 				control = temp;
 			} else {
@@ -2140,7 +2155,7 @@ function formLoadItemJS(content, params, controller, parent, callback) {
 	if (coreIsArray(items) == true) {
 		var count = items.length;
 		for (var i = 0; i < count; i++) {
-			formLoadItemJS(items[i], params, controller, control);
+			formLoadItemJS(items[i], finalParams, controller, control);
 		}
 	}
 	var name = content.name;
@@ -2209,7 +2224,13 @@ function formControlBindFunction(binds, params, control) {
 	if (coreIsObject(params) == true) {
 		if (coreIsEmpty(binds) == false) {
 			for (var i in binds) {
-				var bind = params[binds[i]];
+				var bind = binds[i];
+				while(bind != undefined) {
+					bind = params[bind];
+					if (coreIsFunction(bind) == true) {
+						break;
+					}
+				}
 				if (coreIsFunction(bind) == true) {
 					control.addEventListener(i, bind);
 				} else {
