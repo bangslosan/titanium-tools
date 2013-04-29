@@ -1123,10 +1123,6 @@ function uiCreateListSection(preset, params) {
 	return Ti.UI.createListSection(uiCreateParams(preset, params, "ListSection"));
 }
 
-function uiCreateListRow(preset, params) {
-	return Ti.UI.createListItem(uiCreateParams(preset, params, "ListRow"));
-}
-
 function uiCreatePicker(preset, params) {
 	return Ti.UI.createPicker(uiCreateParams(preset, params, "Picker"));
 }
@@ -2054,9 +2050,6 @@ function formLoadItemJS(content, params, controller, parent, callback) {
 		case "ListSection":
 			control = formControlListSection(content, params, controller, parent, callback);
 			break;
-		case "ListRow":
-			control = formControlListRow(content, params, controller, parent, callback);
-			break;
 		case "Picker":
 			control = formControlPicker(content, params, controller, parent, callback);
 			break;
@@ -2603,16 +2596,17 @@ function formControlListView(content, params, controller, parent, callback) {
 	var style = formControlBindStyle(content.style, params);
 	var control = uiCreateListView(content.preset, style);
 	if (control != undefined) {
-		if (coreIsFunction(callback) == true) {
-			callback(parent, control);
-		}
 		var sections = content.sections;
 		if (coreIsArray(sections) == true) {
+			var data = [];
 			var count = sections.length;
 			for (var i = 0; i < count; i++) {
-				var section = formLoadItemJS(sections[i], params, controller, control);
-				control.appendSection(section);
+				data.push(formLoadItemJS(sections[i], params, controller, control));
 			}
+			control.setSections(data);
+		}
+		if (coreIsFunction(callback) == true) {
+			callback(parent, control);
 		}
 		var bind = content.bind;
 		if (coreIsObject(bind) == true) {
@@ -2638,17 +2632,12 @@ function formControlListSection(content, params, controller, parent, callback) {
 	var style = formControlBindStyle(content.style, params);
 	var control = uiCreateListSection(content.preset, style);
 	if (control != undefined) {
-		if (coreIsFunction(callback) == true) {
-			callback(parent, control);
-		}
 		var rows = content.rows;
 		if (coreIsArray(rows) == true) {
-			var data = [];
-			var count = rows.length;
-			for (var i = 0; i < count; i++) {
-				data.push(formLoadItemJS(rows[i], params, controller, control));
-			}
-			control.appendItems(data);
+			control.setItems(rows);
+		}
+		if (coreIsFunction(callback) == true) {
+			callback(parent, control);
 		}
 		var bind = content.bind;
 		if (coreIsObject(bind) == true) {
@@ -2659,30 +2648,7 @@ function formControlListSection(content, params, controller, parent, callback) {
 }
 
 function formAppendListSection(parent, child) {
-	switch(child.tiClassName) {
-		case "ListRow":
-			child.superview = parent;
-			parent.appendItems([ child ]);
-			break;
-		default:
-			errorUnsupportedClassName("formAppendListSection", child.tiClassName);
-			break;
-	}
-}
-
-function formControlListRow(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
-	var control = uiCreateListRow(content.preset, style);
-	if (control != undefined) {
-		if (coreIsFunction(callback) == true) {
-			callback(parent, control);
-		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
-		}
-	}
-	return control;
+	parent.appendItems([ child ]);
 }
 
 function formControlPicker(content, params, controller, parent, callback) {
@@ -3805,7 +3771,6 @@ var TiTools = {
 		createTableViewRow : uiCreateTableViewRow,
 		createListView : uiCreateListView,
 		createListSection : uiCreateListSection,
-		createListRow : uiCreateListRow,
 		createPicker : uiCreatePicker,
 		createPickerColumn : uiCreatePicker,
 		createPickerRow : uiCreatePicker,
@@ -3892,7 +3857,6 @@ var TiTools = {
 				appendListView : formAppendListView,
 				controlListSection : formControlListSection,
 				appendListSection : formAppendListSection,
-				controlListRow : formControlListRow,
 				controlPicker : formControlPicker,
 				appendPicker : formAppendPicker,
 				controlPickerColumn : formControlPickerColumn,

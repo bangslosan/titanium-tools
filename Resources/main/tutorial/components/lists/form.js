@@ -2,6 +2,31 @@ module.exports = {
 	class: "ListView",
 	preset: "Window",
 	style: {
+		defaultItemTemplate: "template",
+		templates: {
+			template: {
+				childTemplates: [
+					{
+						type: "Ti.UI.Label",
+						bindId: "row_title",
+						properties: {
+							top: 0,
+							left: "60dp",
+							color: "black"
+						}
+					},
+					{
+						type: "Ti.UI.Label",
+						bindId: "row_subtitle",
+						properties: {
+							left: "60dp",
+							top: "25dp",
+							color: "gray"
+						}
+					}
+				]
+			}
+		}
 	},
 	sections: [
 		{
@@ -11,24 +36,27 @@ module.exports = {
 			},
 			rows: [
 				{
-					class: "ListRow",
-					style: {
-						height: 48,
-						title: "Row 1"
+					row_title: {
+						text: "Title 1"
+					},
+					row_subtitle: {
+						text: "SubTitle 1"
 					}
 				},
 				{
-					class: "ListRow",
-					style: {
-						height: 48,
-						title: "Row 2"
+					row_title: {
+						text: "Title 2"
+					},
+					row_subtitle: {
+						text: "SubTitle 2"
 					}
 				},
 				{
-					class: "ListRow",
-					style: {
-						height: 48,
-						title: "Row 3"
+					row_title: {
+						text: "Title 3"
+					},
+					row_subtitle: {
+						text: "SubTitle 3"
 					}
 				}
 			]
@@ -40,17 +68,19 @@ module.exports = {
 			},
 			rows: [
 				{
-					class: "ListRow",
-					style: {
-						height: 48,
-						title: "Row 1"
+					row_title: {
+						text: "Title 1"
+					},
+					row_subtitle: {
+						text: "SubTitle 1"
 					}
 				},
 				{
-					class: "ListRow",
-					style: {
-						height: 48,
-						title: "Row 2"
+					row_title: {
+						text: "Title 2"
+					},
+					row_subtitle: {
+						text: "SubTitle 2"
 					}
 				}
 			]
