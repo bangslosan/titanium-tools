@@ -1,31 +1,31 @@
 module.exports = {
-	class: "TableView",
+	class: "ListView",
 	preset: "Window",
 	style: {
 	},
 	sections: [
 		{
-			class: "TableViewSection",
+			class: "ListSection",
 			style: {
 				headerTitle: "Section 1"
 			},
 			rows: [
 				{
-					class: "TableViewRow",
+					class: "ListRow",
 					style: {
 						height: 48,
 						title: "Row 1"
 					}
 				},
 				{
-					class: "TableViewRow",
+					class: "ListRow",
 					style: {
 						height: 48,
 						title: "Row 2"
 					}
 				},
 				{
-					class: "TableViewRow",
+					class: "ListRow",
 					style: {
 						height: 48,
 						title: "Row 3"
@@ -34,20 +34,20 @@ module.exports = {
 			]
 		},
 		{
-			class: "TableViewSection",
+			class: "ListSection",
 			style: {
 				headerTitle: "Section 2"
 			},
 			rows: [
 				{
-					class: "TableViewRow",
+					class: "ListRow",
 					style: {
 						height: 48,
 						title: "Row 1"
 					}
 				},
 				{
-					class: "TableViewRow",
+					class: "ListRow",
 					style: {
 						height: 48,
 						title: "Row 2"
