@@ -1735,6 +1735,11 @@ function formCacheLoadItemJS(content) {
 				content.rows[i] = formCacheLoadItemJS(content.rows[i]);
 			}
 		}
+		if (content.datasets != undefined) {
+			for (var i = 0; i < content.datasets.length; i++) {
+				content.datasets[i] = formCacheLoadItemJS(content.datasets[i]);
+			}
+		}
 		if (content.subviews != undefined) {
 			for (var i = 0; i < content.subviews.length; i++) {
 				content.subviews[i] = formCacheLoadItemJS(content.subviews[i]);
@@ -1885,7 +1890,7 @@ function formCacheLoadItemXML(content) {
 			result.sections = getItems(content, "Sections");
 			break;
 		case "ListSection":
-			result.rows = getItems(content, "Rows");
+			result.datasets = getItems(content, "DataSets");
 			break;
 		case "Picker":
 			result.columns = getItems(content, "Columns");
@@ -2161,30 +2166,41 @@ function formLoadItemJS(content, params, controller, parent, callback) {
 //---------------------------------------------//
 
 function formControlBindStyle(styles, params) {
-	var result = styles;
+	function bindString(string) {
+		return string.replace(/<%\s*([A-Za-z0-9_\.]*)\s*%>/g, function(str, p1, p2, offset, s) {
+			var value = params[p1];
+			if (value != undefined) {
+				if (coreIsFunction(value) == true) {
+					return value(params);
+				}
+				return value;
+			} else {
+				errorThisNotValue("formControlBindStyle", p1);
+			}
+			return p1;
+		});
+	}
+	var result = undefined;
 	if (coreIsObject(params) == true) {
-		if (coreIsEmpty(styles) == false) {
+		if (coreIsArray(styles) == true) {
+			result = [];
+		} else if (coreIsObject(styles) == true) {
 			result = {};
+		}
+		if (result != undefined) {
 			for (var i in styles) {
 				var style = styles[i];
-				if (coreIsString(style) == true) {
-					result[i] = style.replace(/<%\s*([A-Za-z0-9_\.]*)\s*%>/g, function(str, p1, p2, offset, s) {
-						var value = params[p1];
-						if (value != undefined) {
-							if (coreIsFunction(value) == true) {
-								return value(params);
-							}
-							return value;
-						} else {
-							errorThisNotValue("formControlBindStyle", p1);
-						}
-						return p1;
-					});
+				if ((coreIsArray(style) == true) || (coreIsObject(style) == true)) {
+					result[i] = formControlBindStyle(style, params);
+				} else if (coreIsString(style) == true) {
+					result[i] = bindString(style);
 				} else {
 					result[i] = style;
 				}
 			}
 		}
+	} else {
+		result = styles;
 	}
 	return result;
 }
@@ -2632,9 +2648,11 @@ function formControlListSection(content, params, controller, parent, callback) {
 	var style = formControlBindStyle(content.style, params);
 	var control = uiCreateListSection(content.preset, style);
 	if (control != undefined) {
-		var rows = content.rows;
-		if (coreIsArray(rows) == true) {
-			control.setItems(rows);
+		var datasets = content.datasets;
+		if (coreIsArray(datasets) == true) {
+			datasets = formControlBindStyle(datasets, params);
+			datasets = presetMerge(undefined, datasets);
+			control.setItems(datasets);
 		}
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);

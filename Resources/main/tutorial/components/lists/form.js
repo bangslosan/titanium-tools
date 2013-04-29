@@ -34,7 +34,7 @@ module.exports = {
 			style: {
 				headerTitle: "Section 1"
 			},
-			rows: [
+			datasets: [
 				{
 					row_title: {
 						text: "Title 1"
@@ -66,7 +66,7 @@ module.exports = {
 			style: {
 				headerTitle: "Section 2"
 			},
-			rows: [
+			datasets: [
 				{
 					row_title: {
 						text: "Title 1"
