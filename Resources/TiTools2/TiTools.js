@@ -1400,6 +1400,9 @@ function presetMerge(preset, paramsA, paramsB) {
 			result = utilsCombine(storage, result);
 		} else if (coreIsString(preset) == true) {
 			var storage = presetGet(preset);
+			if(preset == "Label.XS") {
+				storage = presetGet(preset);
+			}
 			if (storage != undefined) {
 				result = utilsCombine(storage, result);
 			} else {
@@ -2220,9 +2223,9 @@ function formControlBindStyle(styles, params) {
 			var value = params[p1];
 			if (value != undefined) {
 				if (coreIsFunction(value) == true) {
-					return value(params);
+					value = value(params);
 				} else if (coreIsString(value) == true) {
-					return bindString(value);
+					value = bindString(value);
 				}
 				return value;
 			} else {
@@ -3034,8 +3037,11 @@ function projectCreateWindow(controller, params) {
 //---------------------------------------------//
 
 var utilsUnigueID = thirdPartyUnderscore.uniqueId;
-var utilsCombine = thirdPartyUnderscore.extend;
 var utilsClone = thirdPartyUnderscore.clone;
+
+function utilsCombine(a, b) {
+	return thirdPartyUnderscore.extend(utilsClone(a), b);
+}
 
 function utilsSleep(ms) {
 	var start = new Date().getTime();
@@ -3978,8 +3984,8 @@ var TiTools = {
 		info : utilsInfo,
 		sleep : utilsSleep,
 		unigueID : utilsUnigueID,
-		combine : utilsCombine,
 		clone : utilsClone,
+		combine : utilsCombine,
 		appropriateAny : utilsAppropriateAny,
 		appropriatePlatform : utilsAppropriatePlatform,
 		appropriateScreen : utilsAppropriateScreen,
