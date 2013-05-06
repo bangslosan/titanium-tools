@@ -621,13 +621,13 @@ networkHttpClient.prototype.run = function() {
 			password : options.password,
 			onload : function(event) {
 				try {
+					if (coreIsFunction(self.loaded) == true) {
+						self.loaded.call(self, self);
+					}
 					if (coreIsFunction(self.success) == true) {
 						self.success.call(self, self);
 					}
 				} catch(error) {
-				}
-				if (coreIsFunction(self.loaded) == true) {
-					self.loaded.call(self, self);
 				}
 				if (queue != undefined) {
 					queue.pop();
@@ -639,13 +639,13 @@ networkHttpClient.prototype.run = function() {
 			},
 			onerror : function(event) {
 				try {
+					if (coreIsFunction(self.loaded) == true) {
+						self.loaded(self);
+					}
 					if (coreIsFunction(self.failure) == true) {
 						self.failure(self);
 					}
 				} catch(error) {
-				}
-				if (coreIsFunction(self.loaded) == true) {
-					self.loaded(self);
 				}
 				if (queue != undefined) {
 					queue.pop();
@@ -697,7 +697,7 @@ networkHttpClient.prototype.run = function() {
 				break;
 		}
 		if (coreIsFunction(self.loading) == true) {
-			self.loading.call(self, self);
+			self.loading(self, self);
 		}
 	}
 }
