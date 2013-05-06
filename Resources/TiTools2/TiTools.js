@@ -579,8 +579,9 @@ networkUriQuery.prototype.toString = function() {
 
 //---------------------------------------------//
 
-function networkHttpClient(params) {
+function networkHttpClient(queue, params) {
 	this.handle = undefined;
+	this.queue = queue;
 	this.options = params.options;
 	this.success = params.success;
 	this.failure = params.failure;
@@ -591,8 +592,15 @@ function networkHttpClient(params) {
 }
 
 networkHttpClient.prototype.run = function() {
+	if (this.queue != undefined) {
+		if(this.queue.length > 0) {
+			this.queue.push(this);
+			return;
+		}
+	}
 	if (this.handle == undefined) {
 		var self = this;
+		var queue = self.queue;
 		var options = self.options;
 		var method = options.method;
 		var url = options.url;
@@ -621,6 +629,12 @@ networkHttpClient.prototype.run = function() {
 				if (coreIsFunction(self.loaded) == true) {
 					self.loaded.call(self, self);
 				}
+				if (queue != undefined) {
+					queue.pop();
+					if(queue.length > 0) {
+						queue[0].run();
+					}
+				}
 				self.handle = undefined;
 			},
 			onerror : function(event) {
@@ -632,6 +646,12 @@ networkHttpClient.prototype.run = function() {
 				}
 				if (coreIsFunction(self.loaded) == true) {
 					self.loaded(self);
+				}
+				if (queue != undefined) {
+					queue.pop();
+					if(queue.length > 0) {
+						queue[0].run();
+					}
 				}
 				self.handle = undefined;
 			},
@@ -709,6 +729,12 @@ networkHttpClient.prototype.response = function(as) {
 	}
 	return undefined;
 }
+
+//---------------------------------------------//
+
+var _networkQueue = {
+};
+
 //---------------------------------------------//
 
 function networkCreateUri(params) {
@@ -728,7 +754,15 @@ function networkCreateHttpClient(params) {
 					errorUnknownMethod("networkCreateHttpClient", options.method);
 					return;
 			}
-			handle = new networkHttpClient(params);
+			var queueList = undefined;
+			var queueName = params.queue;
+			if(coreIsString(queueName) == true) {
+				if(coreIsArray(_networkQueue[queueName]) == false) {
+					_networkQueue[queueName] = [];
+				}
+				queueList = _networkQueue[queueName];
+			}
+			handle = new networkHttpClient(queueList, params);
 		}
 	} else {
 		if (params.failure != undefined) {
@@ -2187,6 +2221,8 @@ function formControlBindStyle(styles, params) {
 			if (value != undefined) {
 				if (coreIsFunction(value) == true) {
 					return value(params);
+				} else if (coreIsString(value) == true) {
+					return bindString(value);
 				}
 				return value;
 			} else {
@@ -2789,25 +2825,28 @@ function formAppendOther(parent, child) {
 }
 
 function formControlHttpClient(content, params, controller, parent) {
-	function formControlHttpClientBind(name) {
-		if (coreIsFunction(binds[name]) == true) {
-			args[name] = params[name];
-		} else {
-			errorThisNotFunction("formControlHttpClientBind", name);
+	function formControlHttpClientBind(names) {
+		for(var i in names) {
+			var name = names[i];
+			if (coreIsFunction(binds[name]) == true) {
+				args[name] = params[name];
+			} else {
+				errorThisNotFunction("formControlHttpClientBind", name);
+			}
 		}
 	}
 
 	var args = {
+		queue: content.queue,
 		options : content.options
 	}
 	var binds = content.bind;
 	if (coreIsObject(binds) == true) {
-		formControlHttpClientBind("success");
-		formControlHttpClientBind("failure");
-		formControlHttpClientBind("loading");
-		formControlHttpClientBind("loaded");
-		formControlHttpClientBind("sendProgress");
-		formControlHttpClientBind("readProgress");
+		formControlHttpClientBind([
+			"success", "failure",
+			"loading", "loaded",
+			"sendProgress", "readProgress"
+		]);
 	}
 	return networkCreateHttpClient(args);
 }
