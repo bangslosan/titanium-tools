@@ -25,6 +25,7 @@ var screenHeight = Ti.Platform.displayCaps.platformHeight;
 var screenResolution = screenWidth * screenHeight;
 var screenDpi = Ti.Platform.displayCaps.dpi;
 var screenMode = SCREEN_UNKNOWN;
+var screenIsRetina = false;
 
 //---------------------------------------------//
 
@@ -33,14 +34,17 @@ if (coreIsIPhone == true) {
 		screenMode = SCREEN_SMALL;
 	} else if ((screenWidth == 640) && (screenHeight == 960)) {
 		screenMode = SCREEN_NORMAL;
+		screenIsRetina = true;
 	} else if ((screenWidth == 640) && (screenHeight == 1036)) {
 		screenMode = SCREEN_LARGE;
+		screenIsRetina = true;
 	}
 } else if (coreIsIPad == true) {
 	if ((screenWidth == 1024) && (screenHeight == 768)) {
 		screenMode = SCREEN_SMALL;
 	} else if ((screenWidth == 2048) && (screenHeight == 1536)) {
 		screenMode = SCREEN_NORMAL;
+		screenIsRetina = true;
 	}
 } else if (coreIsAndroid == true) {
 	if (screenDpi <= 120) {
@@ -112,8 +116,22 @@ function stringIsInt(str) {
 	return /^\d+$/.test(str);
 }
 
+function stringToInt(str) {
+	if(coreIsString(str) == true) {
+		return parseInt(str);
+	}
+	return 0;
+}
+
 function stringIsFloat(str) {
 	return /^\d*\.\d+$|^\d+\.\d*$/.test(str);
+}
+
+function stringToFloat(str) {
+	if(coreIsString(str) == true) {
+		return parseFloat(str.replace(',', '.'));
+	}
+	return 0;
 }
 
 function stringReplace(str, search, replace) {
@@ -205,15 +223,15 @@ function geoCurrentPosition(params) {
 			if (event.success == true) {
 				if (params.success != undefined) {
 					params.success({
-						longitude : event.coords.longitude,
-						latitude : event.coords.latitude
+						longitude: event.coords.longitude,
+						latitude: event.coords.latitude
 					});
 				}
 			} else if (event.error != undefined) {
 				if (params.failure != undefined) {
 					params.failure({
-						code : event.code,
-						message : event.error
+						code: event.code,
+						message: event.error
 					});
 				}
 			}
@@ -251,25 +269,27 @@ function geoDistance(a, b) {
 
 function pathResources() {
 	return utilsAppropriatePlatform({
-		ios : Ti.Filesystem.resourcesDirectory,
-		android : "file:///android_asset/Resources/"
+		ios: Ti.Filesystem.resourcesDirectory,
+		android: "file:///android_asset/Resources/"
 	});
 }
 
 function pathControllers() {
 	return utilsAppropriatePlatform({
-		ios : Ti.Filesystem.resourcesDirectory,
-		android : ""
+		ios: Ti.Filesystem.resourcesDirectory,
+		android: ""
 	});
 }
 
 function pathPreprocess(path) {
+	var keys = {
+		"ResourcesPath": pathResources(),
+		"ControllersPath": pathControllers()
+	};
 	return path.replace(/%([A-Za-z_]*)%/g, function(str, p1, p2, offset, s) {
-		switch(p1) {
-			case "ResourcesPath":
-				return pathResources();
-			case "ControllersPath":
-				return pathControllers();
+		var value = keys[p1];
+		if(value != undefined) {
+			return value;
 		}
 		return p1;
 	});
@@ -591,114 +611,130 @@ function networkHttpClient(queue, params) {
 	this.readProgress = params.readProgress;
 }
 
-networkHttpClient.prototype.run = function() {
-	if (this.queue != undefined) {
-		if(this.queue.length > 0) {
-			this.queue.push(this);
+networkHttpClient.prototype.run = function(index) {
+	var queue = this.queue;
+	if (queue != undefined) {
+		if(queue.length > 0) {
+			if(coreIsNumber(index) == true) {
+				queue.splice(index, 0, this)
+			} else {
+				queue.push(this);
+			}
 			return;
 		}
 	}
 	if (this.handle == undefined) {
-		var self = this;
-		var queue = self.queue;
-		var options = self.options;
-		var method = options.method;
-		var url = options.url;
-		var args = options.args;
-		var headers = options.headers;
-
-		self.handle = Ti.Network.createHTTPClient({
-			cache : options.cache,
-			timeout : options.timeout,
-			tlsVersion : options.tlsVersion,
-			autoEncodeUrl : options.autoEncodeUrl,
-			autoRedirect : options.autoRedirect,
-			bubbleParent : options.bubbleParent,
-			enableKeepAlive : options.enableKeepAlive,
-			validatesSecureCertificate : options.validatesSecureCertificate,
-			withCredentials : options.withCredentials,
-			username : options.username,
-			password : options.password,
-			onload : function(event) {
-				try {
-					if (coreIsFunction(self.loaded) == true) {
-						self.loaded.call(self, self);
-					}
-					if (coreIsFunction(self.success) == true) {
-						self.success.call(self, self);
-					}
-				} catch(error) {
-				}
-				if (queue != undefined) {
-					queue.pop();
-					if(queue.length > 0) {
-						queue[0].run();
+		this.request();
+	}
+}
+networkHttpClient.prototype.request = function() {
+	var self = this;
+	var queue = self.queue;
+	var options = self.options;
+	var method = options.method;
+	var url = options.url;
+	var args = options.args;
+	var headers = options.headers;
+	
+	function next(needsRemove, needsRun) {
+		if (queue != undefined) {
+			if(queue.length > 0) {
+				if(needsRemove == true) {
+					if(queue[0] == self) {
+						queue.splice(0, 1);
 					}
 				}
-				self.handle = undefined;
-			},
-			onerror : function(event) {
-				try {
-					if (coreIsFunction(self.loaded) == true) {
-						self.loaded(self);
-					}
-					if (coreIsFunction(self.failure) == true) {
-						self.failure(self);
-					}
-				} catch(error) {
-				}
-				if (queue != undefined) {
-					queue.pop();
-					if(queue.length > 0) {
-						queue[0].run();
-					}
-				}
-				self.handle = undefined;
-			},
-			onsendstream : function(event) {
-				if (coreIsFunction(self.sendProgress) == true) {
-					self.sendProgress(self, event.progress);
-				}
-			},
-			ondatastream : function(event) {
-				if (coreIsFunction(self.readProgress) == true) {
-					self.readProgress(self, event.progress);
+				if(needsRun == true) {
+					queue[0].request();
 				}
 			}
-		});
-		if (coreIsObject(args) == true) {
-			var uri = new networkUri(url);
-			if (args != undefined) {
-				for (var i in args) {
-					uri.setQueryItem(i, args[i]);
+		}
+	}
+	
+	self.handle = Ti.Network.createHTTPClient({
+		cache: options.cache,
+		timeout: options.timeout,
+		tlsVersion: options.tlsVersion,
+		autoEncodeUrl: options.autoEncodeUrl,
+		autoRedirect: options.autoRedirect,
+		bubbleParent: options.bubbleParent,
+		enableKeepAlive: options.enableKeepAlive,
+		validatesSecureCertificate: options.validatesSecureCertificate,
+		withCredentials: options.withCredentials,
+		username: options.username,
+		password: options.password,
+		onload: function(event) {
+			if (coreIsFunction(self.loaded) == true) {
+				self.loaded(self);
+			}
+			try {
+				if (coreIsFunction(self.loaded) == true) {
+					self.loaded(self);
 				}
+				if (coreIsFunction(self.success) == true) {
+					self.success(self);
+				}
+			} catch(error) {
 			}
-			url = uri.toString();
-		}
-		switch(method) {
-			case "GET":
-				self.handle.open("GET", url);
-				break;
-			case "POST":
-				self.handle.open("POST", url);
-				break;
-		}
-		if (headers != undefined) {
-			for (var i in headers) {
-				self.handle.setRequestHeader(i, headers[i]);
+			self.handle = undefined;
+			next(true, true);
+		},
+		onerror: function(event) {
+			try {
+				if (coreIsFunction(self.loaded) == true) {
+					self.loaded(self);
+				}
+				if (coreIsFunction(self.failure) == true) {
+					self.failure(self);
+				}
+			} catch(error) {
+			}
+			self.handle = undefined;
+			next(true, false);
+		},
+		onsendstream: function(event) {
+			if (coreIsFunction(self.sendProgress) == true) {
+				self.sendProgress(self, event.progress);
+			}
+		},
+		ondatastream: function(event) {
+			if (coreIsFunction(self.readProgress) == true) {
+				self.readProgress(self, event.progress);
 			}
 		}
-		switch(method) {
-			case "GET":
-				self.handle.send();
-				break;
-			case "POST":
-				self.handle.send(options.post);
-				break;
+	});
+	if (coreIsObject(args) == true) {
+		var uri = new networkUri(url);
+		if (args != undefined) {
+			for (var i in args) {
+				uri.setQueryItem(i, args[i]);
+			}
 		}
-		if (coreIsFunction(self.loading) == true) {
-			self.loading(self, self);
+		url = uri.toString();
+	}
+	switch(method) {
+		case "GET":
+			self.handle.open("GET", url);
+			break;
+		case "POST":
+			self.handle.open("POST", url);
+			break;
+	}
+	if (headers != undefined) {
+		for (var i in headers) {
+			self.handle.setRequestHeader(i, headers[i]);
 		}
+	}
+	switch(method) {
+		case "GET":
+			self.handle.send();
+			break;
+		case "POST":
+			self.handle.send(options.post);
+			break;
+	}
+	if (coreIsFunction(self.loading) == true) {
+		self.loading(self, self);
 	}
 }
 networkHttpClient.prototype.abort = function() {
@@ -809,10 +845,10 @@ function xmlDeserialize(data) {
 
 function xmlDeserializeNode(node) {
 	var result = {
-		name : node.nodeName,
-		value : stringTrim(node.nodeValue),
-		attributes : {},
-		childs : []
+		name: node.nodeName,
+		value: stringTrim(node.nodeValue),
+		attributes: {},
+		childs: []
 	};
 	switch(node.nodeType) {
 		case node.ELEMENT_NODE:
@@ -869,8 +905,7 @@ function xmlMergeNodeAttributes(nodes) {
 	var result = {};
 	var count = nodes.length;
 	for (var i = 0; i < count; i++) {
-		var node = nodes[i];
-		result = utilsCombine(node.attributes, result);
+		result = utilsCombine(nodes[i].attributes, result);
 	}
 	return result;
 }
@@ -904,7 +939,7 @@ function csvSerialize(csv) {
 			} else {
 				cur = cur.toString();
 			}
-			out += (j < row.length - 1) ? cur + "," : cur;
+			out += (j < row.length - 1) ? cur + ",": cur;
 		}
 		out += "\n";
 	}
@@ -997,8 +1032,8 @@ function uiCreateParams(preset, params, tiClassName) {
 		combined = params;
 	}
 	return presetMerge(preset, combined, {
-		uid : utilsUnigueID(),
-		tiClassName : tiClassName
+		uid: utilsUnigueID(),
+		tiClassName: tiClassName
 	});
 }
 
@@ -1014,7 +1049,7 @@ function uiCreateTab(preset, params, window) {
 	var args = undefined;
 	if (window != undefined) {
 		args = [params, {
-			window : window
+			window: window
 		}]
 	} else {
 		args = params;
@@ -1023,15 +1058,16 @@ function uiCreateTab(preset, params, window) {
 }
 
 function uiCreateNavigationGroup(preset, params, window) {
+	var self = undefined;
 	if (coreIsIPhone == true) {
 		var args = [params, {
-			window : window
+			window: window
 		}];
-		return Ti.UI.iPhone.createNavigationGroup(uiCreateParams(preset, args, "NavigationGroup"));
+		self = Ti.UI.iPhone.createNavigationGroup(uiCreateParams(preset, args, "NavigationGroup"));
 	} else {
 		errorUnsupportedPlatform("uiCreateNavigationGroup", "only iOS");
 	}
-	return undefined;
+	return self;
 }
 
 function uiCreateWindow(preset, params) {
@@ -1109,6 +1145,17 @@ function uiCreateButtonBar(preset, params) {
 	return Ti.UI.createButtonBar(uiCreateParams(preset, params, "ButtonBar"));
 }
 
+function uiCreateToolbar(preset, params, views) {
+	var self = undefined;
+	if (coreIsIOS == true) {
+		var args = utilsCombine(params, { items: views });
+		self = Ti.UI.iOS.createToolbar(uiCreateParams(preset, args, "Toolbar"));
+	} else {
+		errorUnsupportedPlatform("uiCreateToolbar", "only iOS");
+	}
+	return self;
+}
+
 function uiCreateLabel(preset, params) {
 	return Ti.UI.createLabel(uiCreateParams(preset, params, "Label"));
 }
@@ -1130,11 +1177,25 @@ function uiCreateProgressBar(preset, params) {
 }
 
 function uiCreateTextField(preset, params) {
-	return Ti.UI.createTextField(uiCreateParams(preset, params, "TextField"));
+	var self = Ti.UI.createTextField(uiCreateParams(preset, params, "TextField"));
+	self.addEventListener("focus", function(event) {
+		TiTools.UI.currentFocus = event.source;
+	});
+	self.addEventListener("blur", function(event) {
+		TiTools.UI.currentFocus = undefined;
+	});
+	return self;
 }
 
 function uiCreateTextArea(preset, params) {
-	return Ti.UI.createTextArea(uiCreateParams(preset, params, "TextArea"));
+	var self = Ti.UI.createTextArea(uiCreateParams(preset, params, "TextArea"));
+	self.addEventListener("focus", function(event) {
+		TiTools.UI.currentFocus = event.source;
+	});
+	self.addEventListener("blur", function(event) {
+		TiTools.UI.currentFocus = undefined;
+	});
+	return self;
 }
 
 function uiCreateTableView(preset, params) {
@@ -1211,9 +1272,9 @@ function uiCreatePhoneCallDialog(params) {
 		buttonNo = coreTr("TITOOLS_ALERT_NO", "No");
 	}
 	var alert = uiCreateAlertDialog(undefined, {
-		message : message,
-		buttonNames : [buttonYes, buttonNo],
-		cancel : 1
+		message: message,
+		buttonNames: [buttonYes, buttonNo],
+		cancel: 1
 	});
 	alert.addEventListener("click", function(event) {
 		if (event.index == 0) {
@@ -1354,7 +1415,34 @@ function loaderWithString(format, data, callbackJs, callbackXml, callbackX) {
 			if (callbackX != undefined) {
 				callbackX(data);
 			} else {
-				errorUnknownExtension("loaderWithFileName", filename);
+				errorUnknownExtension("loaderWithFileName", data);
+			}
+			break;
+	}
+}
+
+function loaderWithData(format, data, callbackJs, callbackXml, callbackX) {
+	switch(format) {
+		case "js":
+			if (callbackJs != undefined) {
+				callbackJs(data);
+			}
+			break;
+		case "json":
+			if (callbackXml != undefined) {
+				callbackXml(data);
+			}
+			break;
+		case "xml":
+			if (callbackXml != undefined) {
+				callbackXml(data);
+			}
+			break;
+		default:
+			if (callbackX != undefined) {
+				callbackX(data);
+			} else {
+				errorUnknownExtension("loaderWithData", data);
 			}
 			break;
 	}
@@ -1422,6 +1510,11 @@ function presetPreprocess(params) {
 			arg = arg.replace(/tr\(([A-Za-z0-9_\.]*)\)/g, function(str, p1, p2, offset, s) {
 				return coreTr(p1, p1);
 			});
+			if(stringIsInt(arg) == true) {
+				return stringToInt(arg);
+			} else if(stringIsFloat(arg) == true) {
+				return stringToFloat(arg);
+			}
 			return utilsStringToConst(arg, pathPreprocess);
 		}
 		return arg;
@@ -1526,8 +1619,8 @@ function presetLoadItemXML(content) {
 		var styles = xmlFindNode(content, "Style");
 		if (styles.length > 0) {
 			return {
-				name : content.attributes.name,
-				style : presetPreprocess(xmlMergeNodeAttributes(styles))
+				name: content.attributes.name,
+				style: presetPreprocess(xmlMergeNodeAttributes(styles))
 			};
 		} else {
 			errorPresetUnsupportedFormat("presetLoadItemXML", preset);
@@ -1613,8 +1706,8 @@ function prefabLoadItemXML(content) {
 				data.push(item);
 			}
 			return {
-				name : content.attributes.name,
-				prefab : data
+				name: content.attributes.name,
+				prefab: data
 			};
 		} else {
 			errorPresetUnsupportedFormat("prefabLoadItemXML", preset);
@@ -1656,13 +1749,13 @@ function formCacheRemove(name) {
 	delete _formPreload[name];
 }
 
-function formCacheLoad(filename, params) {
+function formCacheLoad(data, params) {
 	var result = undefined;
-	if (coreIsString(filename) == true) {
-		result = formCacheGet(filename);
+	if (coreIsString(data) == true) {
+		result = formCacheGet(data);
 		if (result == undefined) {
 			var cached = true;
-			loaderWithFileName(filename, function(content) {
+			loaderWithFileName(data, function(content) {
 				result = formCacheLoadJS(content, params, cached);
 			}, function(content) {
 				result = formCacheLoadXML(content);
@@ -1670,16 +1763,26 @@ function formCacheLoad(filename, params) {
 				result = formCacheLoadX(content);
 			});
 			if ((cached == true) && (result != undefined)) {
-				formCacheSet(filename, result);
+				formCacheSet(data, result);
 			}
 		}
-	} else if (coreIsFunction(filename) == true) {
-		result = formCacheLoadJS(filename(params), params);
+	} else if (coreIsFunction(data) == true) {
+		result = formCacheLoadJS(data(params), params);
+	} else if (coreIsObject(data) == true) {
+		result = formCacheLoadJS(data, params);
 	}
 	return result;
 }
 
 function formCacheParse(key, data, format, params) {
+	function formCacheParseCallback(callback) {
+		if (coreIsFunction(data) == true) {
+			result = callback(data(params));
+		} else if (coreIsObject(data) == true) {
+			result = callback(data);
+		}
+	}
+	
 	var result = undefined;
 	if (coreIsString(data) == true) {
 		if (key != undefined) {
@@ -1698,6 +1801,16 @@ function formCacheParse(key, data, format, params) {
 				formCacheSet(key, result);
 			}
 		}
+	} else {
+		loaderWithData(format, data, function() {
+			formCacheParseCallback(formCacheLoadJS);
+		}, function() {
+			formCacheParseCallback(formCacheLoadXML);
+		}, function() {
+			formCacheParseCallback(function(data) {
+				return formCacheLoadX(data, format);
+			});
+		});
 	}
 	return result;
 }
@@ -1762,6 +1875,9 @@ function formCacheLoadItemJS(content) {
 		}
 		if (content.footer != undefined) {
 			content.footer = formCacheLoadItemJS(content.footer);
+		}
+		if (content.search != undefined) {
+			content.search = formCacheLoadItemJS(content.search);
 		}
 		if (content.tabs != undefined) {
 			for (var i = 0; i < content.tabs.length; i++) {
@@ -1880,29 +1996,33 @@ function formCacheLoadItemXML(content) {
 	}
 
 	var result = {};
-	if (coreIsString(content.attributes.class) == true) {
-		result.class = content.attributes.class;
+	var attributes = content.attributes;
+	if (coreIsString(attributes.class) == true) {
+		result.class = attributes.class;
+		delete attributes.class;
 	} else {
 		result.class = content.name;
 	}
-	if (coreIsString(content.attributes.name) == true) {
-		result.name = content.attributes.name;
+	if (coreIsString(attributes.name) == true) {
+		result.name = attributes.name;
+		delete attributes.name;
 	}
-	if (coreIsString(content.attributes.preset) == true) {
-		result.preset = content.attributes.preset;
+	if (coreIsString(attributes.preset) == true) {
+		result.preset = attributes.preset;
+		delete attributes.preset;
 	}
 	var styles = xmlFindNode(content, "Style");
 	if (styles.length > 0) {
-		result.style = xmlMergeNodeAttributes(styles);
+		result.style = utilsCombine(attributes, xmlMergeNodeAttributes(styles));
 	} else {
-		result.style = {};
-	}
-	if (result.style != undefined) {
-		result.style = presetPreprocess(result.style);
+		result.style = attributes;
 	}
 	if (result.preset != undefined) {
 		result.style = presetMerge(result.preset, result.style);
 		delete result.preset;
+	}
+	if (result.style != undefined) {
+		result.style = presetPreprocess(result.style);
 	}
 	var binds = xmlFindNode(content, "Bind");
 	if (binds.length > 0) {
@@ -1988,13 +2108,16 @@ function formLoadAppendCallback(parent) {
 			case "TableViewSection":
 				result = formAppendTableViewSection;
 				break;
+			case "Picker":
+				result = formAppendPicker;
+				break;
 			case "PickerColumn":
-				result = formAppendTableViewRow;
+				result = formAppendPickerColumn;
 				break;
 			case "HttpClient":
 				break;
 			default:
-				var temp = pluginInvokeMethod("formLoadAppendCallback", [parent, filename, params]);
+				var temp = pluginInvokeMethod("formLoadAppendCallback", parent);
 				if (coreIsFunction(temp) == true) {
 					result = temp;
 				} else {
@@ -2006,11 +2129,13 @@ function formLoadAppendCallback(parent) {
 	return result;
 }
 
-function formLoad(parent, filename, params) {
+function formLoad(parent, data, params) {
 	var controller = {};
-	var content = formCacheLoad(filename, params);
+	var content = formCacheLoad(data, params);
 	if (content != undefined) {
-		formLoadJS(content, params, controller, parent, formLoadAppendCallback(parent));
+		var links = [];
+		formLoadJS(content, params, controller, links, parent, formLoadAppendCallback(parent));
+		formLoadExplicitLink(controller, links, parent);
 	} else {
 		errorNotFound("formLoad", filename);
 	}
@@ -2021,17 +2146,19 @@ function formParse(parent, key, data, format, params) {
 	var controller = {};
 	var content = formCacheParse(key, data, format, params);
 	if (content != undefined) {
-		formLoadJS(content, params, controller, parent, formLoadAppendCallback(parent));
+		var links = [];
+		formLoadJS(content, params, controller, links, parent, formLoadAppendCallback(parent));
+		formLoadExplicitLink(controller, links, parent);
 	} else {
 		errorNotFound("formParse", data);
 	}
 	return controller;
 }
 
-function formLoadJS(content, params, controller, parent, callback) {
+function formLoadJS(content, params, controller, links, parent, callback) {
 	if (coreIsArray(content) == true) {
 		for (var i = 0; i < content.length; i++) {
-			formLoadJS(content[i], params, controller, parent, callback);
+			formLoadJS(content[i], params, controller, links, parent, callback);
 		}
 	} else if (coreIsObject(content) == true) {
 		if (content.views != undefined) {
@@ -2041,146 +2168,227 @@ function formLoadJS(content, params, controller, parent, callback) {
 			if (content.prefabs != undefined) {
 				prefabLoadJS(content.prefabs);
 			}
-			formLoadItemJS(content.views, params, controller, parent, callback);
+			formLoadItemJS(content.views, params, controller, links, parent, callback);
 		} else {
-			formLoadItemJS(content, params, controller, parent, callback);
+			formLoadItemJS(content, params, controller, links, parent, callback);
 		}
 	}
 }
 
-function formLoadItemJS(content, params, controller, parent, callback) {
-	function storeControl(store, name, control) {
-		if (store[name] == undefined) {
-			store[name] = control;
-		} else if (coreIsArray(store[name]) == true) {
-			store[name].push(control);
+function formLoadLink(store, name, control) {
+	if (store[name] == undefined) {
+		store[name] = control;
+	} else if (coreIsArray(store[name]) == true) {
+		store[name].push(control);
+	} else {
+		store[name] = [controller[name], control];
+	}
+}
+
+function formLoadImplicitLink(controller, links, content, control, parent) {
+	var name = content.name;
+	if (coreIsString(name) == true) {
+		var target = content.target;
+		if (coreIsString(target) == true) {
+			var explicit = true;
+			switch(target) {
+				case "parent":
+					if(parent != undefined) {
+						formLoadLink(parent, name, control);
+						explicit = false;
+					}
+					break;
+			}
+			if(explicit == true) {
+				links.push({
+					name: name,
+					target: target,
+					control: control,
+					parent: parent
+				});
+			}
 		} else {
-			store[name] = [controller[name], control];
+			formLoadLink(controller, name, control);
 		}
 	}
+}
 
-	function storeControlInTarget(store, target, name, control) {
-		if (store[target] != undefined) {
-			storeControl(store[target], name, control);
+function formLoadExplicitLink(controller, links, owner) {
+	if(links.length > 0) {
+		while(true) {
+			var link = links.pop();
+			if(link == undefined) {
+				break;
+			}
+			formLoadExplicitControlLink(controller, links, owner, link);
 		}
 	}
+}
 
+function formLoadExplicitControlLink(controller, links, owner, link) {
+	var result = undefined;
+	var name = link.name;
+	var target = link.target;
+	var control = link.control;
+	var parent = link.parent;
+	switch(target) {
+		case "parent":
+			var superview = control.superview;
+			if(superview != undefined) {
+				formLoadLink(superview, name, control);
+				result = superview;
+			}
+			break;
+		case "owner":
+			explicit = false;
+			if(owner != undefined) {
+				formLoadLink(owner, name, control);
+				result = owner;
+			}
+			break;
+		default:
+			var store = controller[target];
+			if(store == undefined) {
+				var length = links.length;
+				for(var i = 0; i < length; i++) {
+					var parent = links[i];
+					if(parent.name == target) {
+						links.splice(i, 1);
+						store = formLoadExplicitControlLink(controller, links, parent);
+						break;
+					}
+				}
+			}
+			if(store != undefined) {
+				formLoadLink(store, name, control);
+				result = store;
+			}
+			break;
+	}
+	return result;
+}
+
+function formLoadItemJS(content, params, controller, links, parent, callback) {
 	var control = undefined;
 	var finalParams = params;
 	if (content.params != undefined) {
 		finalParams = utilsCombine(params, content.params);
 	}
+	var style = formControlBindStyle(content.style, params);
 	switch(content.class) {
 		case "TabGroup":
-			control = formControlTabGroup(content, finalParams, controller, parent, callback);
+			control = formControlTabGroup(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "Tab":
-			control = formControlTab(content, finalParams, controller, parent, callback);
+			control = formControlTab(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "NavigationGroup":
-			control = formControlNavigationGroup(content, finalParams, controller, parent, callback);
+			control = formControlNavigationGroup(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "Window":
-			control = formControlWindow(content, finalParams, controller, parent, callback);
+			control = formControlWindow(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "View":
-			control = formControlView(content, finalParams, controller, parent, callback);
+			control = formControlView(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "ScrollView":
-			control = formControlScrollView(content, finalParams, controller, parent, callback);
+			control = formControlScrollView(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "ScrollableView":
-			control = formControlScrollableView(content, finalParams, controller, parent, callback);
+			control = formControlScrollableView(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "TableView":
-			control = formControlTableView(content, finalParams, controller, parent, callback);
+			control = formControlTableView(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "TableViewSection":
-			control = formControlTableViewSection(content, finalParams, controller, parent, callback);
+			control = formControlTableViewSection(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "TableViewRow":
-			control = formControlTableViewRow(content, finalParams, controller, parent, callback);
+			control = formControlTableViewRow(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "ListView":
-			control = formControlListView(content, finalParams, controller, parent, callback);
+			control = formControlListView(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "ListSection":
-			control = formControlListSection(content, finalParams, controller, parent, callback);
+			control = formControlListSection(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "Picker":
-			control = formControlPicker(content, finalParams, controller, parent, callback);
+			control = formControlPicker(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "PickerColumn":
-			control = formControlPickerColumn(content, finalParams, controller, parent, callback);
+			control = formControlPickerColumn(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "PickerRow":
-			control = formControlOther(uiCreatePickerRow, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreatePickerRow, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "Label":
-			control = formControlOther(uiCreateLabel, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateLabel, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "TextField":
-			control = formControlOther(uiCreateTextField, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateTextField, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "TextArea":
-			control = formControlOther(uiCreateTextArea, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateTextArea, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "ImageView":
-			control = formControlOther(uiCreateImageView, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateImageView, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "MaskedImage":
-			control = formControlOther(uiCreateMaskedImage, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateMaskedImage, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "Button":
-			control = formControlOther(uiCreateButton, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateButton, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "ButtonBar":
-			control = formControlOther(uiCreateButtonBar, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateButtonBar, content, style, finalParams, controller, links, parent, callback);
+			break;
+		case "Toolbar":
+			control = formControlToolbar(content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "Switch":
-			control = formControlOther(uiCreateSwitch, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateSwitch, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "Slider":
-			control = formControlOther(uiCreateSlider, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateSlider, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "SearchBar":
-			control = formControlOther(uiCreateSearchBar, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateSearchBar, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "ProgressBar":
-			control = formControlOther(uiCreateProgressBar, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateProgressBar, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "WebView":
-			control = formControlOther(uiCreateWebView, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateWebView, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "MapView":
-			control = formControlOther(uiCreateMapView, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateMapView, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "ActivityIndicator":
-			control = formControlOther(uiCreateActivityIndicator, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateActivityIndicator, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "FacebookLoginButton":
-			control = formControlOther(uiCreateFacebookLoginButton, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateFacebookLoginButton, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "PaintView":
-			control = formControlOther(uiThirdPartyCreatePaintView, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiThirdPartyCreatePaintView, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "AlertDialog":
-			control = formControlOther(uiCreateAlertDialog, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateAlertDialog, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "EmailDialog":
-			control = formControlOther(uiCreateEmailDialog, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateEmailDialog, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "OptionDialog":
-			control = formControlOther(uiCreateOptionDialog, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreateOptionDialog, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "PhoneCallDialog":
-			control = formControlOther(uiCreatePhoneCallDialog, content, finalParams, controller, parent, callback);
+			control = formControlOther(uiCreatePhoneCallDialog, content, style, finalParams, controller, links, parent, callback);
 			break;
 		case "HttpClient":
-			control = formControlHttpClient(content, finalParams, controller, parent);
+			control = formControlHttpClient(content, style, finalParams, controller, links, parent);
 			break;
 		default:
-			var temp = pluginInvokeMethod("formLoadItem", [content, finalParams, controller, parent, callback]);
+			var temp = pluginInvokeMethod("formLoadItem", [content, style, finalParams, controller, links, parent, callback]);
 			if (temp != undefined) {
 				control = temp;
 			} else {
@@ -2188,27 +2396,20 @@ function formLoadItemJS(content, params, controller, parent, callback) {
 			}
 			break;
 	}
-	var items = content.items;
-	if (coreIsArray(items) == true) {
-		var count = items.length;
-		for (var i = 0; i < count; i++) {
-			formLoadItemJS(items[i], finalParams, controller, control);
+	if(control != undefined) {
+		var bind = content.bind;
+		if (coreIsObject(bind) == true) {
+			formControlBindFunction(bind, finalParams, control);
 		}
-	}
-	var name = content.name;
-	if (name != undefined) {
-		storeControl(controller, name, control);
-		var target = content.target;
-		if (target != "") {
-			switch(target) {
-				case "parent":
-					storeControl(parent, name, control);
-					break;
-				default:
-					storeControlInTarget(controller, target, name, control);
-					break;
+		var items = content.items;
+		if (coreIsArray(items) == true) {
+			var count = items.length;
+			for (var i = 0; i < count; i++) {
+				formLoadItemJS(items[i], finalParams, controller, links, control);
 			}
 		}
+		formLoadImplicitLink(controller, links, content, control, parent);
+		control.fireEvent("titools::create");
 	}
 	return control;
 }
@@ -2260,50 +2461,43 @@ function formControlBindStyle(styles, params) {
 }
 
 function formControlBindFunction(binds, params, control) {
-	if (coreIsObject(params) == true) {
-		if (coreIsEmpty(binds) == false) {
-			for (var i in binds) {
-				var bind = binds[i];
-				while(bind != undefined) {
-					bind = params[bind];
-					if (coreIsFunction(bind) == true) {
-						break;
-					}
-				}
+	if (coreIsEmpty(binds) == false) {
+		for (var i in binds) {
+			var bind = binds[i];
+			while(bind != undefined) {
 				if (coreIsFunction(bind) == true) {
-					control.addEventListener(i, bind);
-				} else {
-					errorThisNotFunction("formControlBindFunction", bind);
+					break;
 				}
+				bind = params[bind];
+			}
+			if (coreIsFunction(bind) == true) {
+				control.addEventListener(i, bind);
+			} else {
+				errorThisNotFunction("formControlBindFunction", bind);
 			}
 		}
 	}
 }
 
-function formControlTabGroup(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
+function formControlTabGroup(content, style, params, controller, links, parent, callback) {
 	var control = uiCreateTabGroup(content.preset, style);
 	if (control != undefined) {
 		var tabs = content.tabs;
 		if (coreIsArray(tabs) == true) {
 			var count = tabs.length;
 			for (var i = 0; i < count; i++) {
-				formLoadItemJS(tabs[i], params, controller, control, formAppendTabGroup);
+				formLoadItemJS(tabs[i], params, controller, links, control, formAppendTabGroup);
 			}
 		}
 		var subviews = content.subviews;
 		if (coreIsArray(subviews) == true) {
 			var count = subviews.length;
 			for (var i = 0; i < count; i++) {
-				formLoadItemJS(subviews[i], params, controller, control, formAppendOther);
+				formLoadItemJS(subviews[i], params, controller, links, control, formAppendOther);
 			}
 		}
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
-		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
 		}
 	}
 	return control;
@@ -2322,11 +2516,10 @@ function formAppendTabGroup(parent, child) {
 	}
 }
 
-function formControlTab(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
+function formControlTab(content, style, params, controller, links, parent, callback) {
 	var window = content.window;
 	if (coreIsObject(window) == true) {
-		window = formLoadItemJS(root, params, controller, control);
+		window = formLoadItemJS(root, params, controller, links);
 	}
 	var control = uiCreateTab(content.preset, style, window);
 	if (control != undefined) {
@@ -2334,15 +2527,11 @@ function formControlTab(content, params, controller, parent, callback) {
 		if (coreIsArray(subviews) == true) {
 			var count = subviews.length;
 			for (var i = 0; i < count; i++) {
-				formLoadItemJS(subviews[i], params, controller, control, formAppendTab);
+				formLoadItemJS(subviews[i], params, controller, links, control, formAppendTab);
 			}
 		}
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
-		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
 		}
 	}
 	return control;
@@ -2361,27 +2550,25 @@ function formAppendTab(parent, child) {
 	}
 }
 
-function formControlNavigationGroup(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
+function formControlNavigationGroup(content, style, params, controller, links, parent, callback) {
 	var window = content.window;
 	if (coreIsObject(window) == true) {
-		window = formLoadItemJS(root, params, controller, control);
+		window = formLoadItemJS(root, params, controller, links);
 	}
 	var control = uiCreateNavigationGroup(content.preset, style, window);
 	if (control != undefined) {
+		if(window != undefined) {
+			window.superview = control;
+		}
 		var windows = content.windows;
 		if (coreIsArray(windows) == true) {
 			var count = windows.length;
 			for (var i = 0; i < count; i++) {
-				formLoadItemJS(windows[i], params, controller, control, formAppendNavigationGroup);
+				formLoadItemJS(windows[i], params, controller, links, control, formAppendNavigationGroup);
 			}
 		}
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
-		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
 		}
 	}
 	return control;
@@ -2396,130 +2583,98 @@ function formAppendNavigationGroup(parent, child) {
 	}
 }
 
-function formControlWindow(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
+function formControlWindow(content, style, params, controller, links, parent, callback) {
 	var control = uiCreateWindow(content.preset, style);
 	if (control != undefined) {
 		var subviews = content.subviews;
 		if (coreIsArray(subviews) == true) {
 			var count = subviews.length;
 			for (var i = 0; i < count; i++) {
-				formLoadItemJS(subviews[i], params, controller, control, formAppendWindow);
+				formLoadItemJS(subviews[i], params, controller, links, control, formAppendWindow);
 			}
 		}
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
-		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
 		}
 	}
 	return control;
 }
 
 function formAppendWindow(parent, child) {
-	switch(child.tiClassName) {
-		default:
-			child.superview = parent;
-			parent.add(child);
-			break;
-	}
+	child.superview = parent;
+	parent.add(child);
 }
 
-function formControlView(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
+function formControlView(content, style, params, controller, links, parent, callback) {
 	var control = uiCreateView(content.preset, style);
 	if (control != undefined) {
 		var subviews = content.subviews;
 		if (coreIsArray(subviews) == true) {
 			var count = subviews.length;
 			for (var i = 0; i < count; i++) {
-				formLoadItemJS(subviews[i], params, controller, control, formAppendOther);
+				formLoadItemJS(subviews[i], params, controller, links, control, formAppendOther);
 			}
 		}
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
 		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
-		}
 	}
 	return control;
 }
 
-function formControlScrollView(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
+function formControlScrollView(content, style, params, controller, links, parent, callback) {
 	var control = uiCreateScrollView(content.preset, style);
 	if (control != undefined) {
 		var subviews = content.subviews;
 		if (coreIsArray(subviews) == true) {
 			var count = subviews.length;
 			for (var i = 0; i < count; i++) {
-				formLoadItemJS(subviews[i], params, controller, control, formAppendOther);
+				formLoadItemJS(subviews[i], params, controller, links, control, formAppendOther);
 			}
 		}
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
 		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
-		}
 	}
 	return control;
 }
 
-function formControlScrollableView(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
+function formControlScrollableView(content, style, params, controller, links, parent, callback) {
 	var control = uiCreateScrollableView(content.preset, style);
 	if (control != undefined) {
 		var subviews = content.subviews;
 		if (coreIsArray(subviews) == true) {
 			var count = subviews.length;
 			for (var i = 0; i < count; i++) {
-				formLoadItemJS(subviews[i], params, controller, control, formAppendScrollableView);
+				formLoadItemJS(subviews[i], params, controller, links, control, formAppendScrollableView);
 			}
 		}
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
-		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
 		}
 	}
 	return control;
 }
 
 function formAppendScrollableView(parent, child) {
-	switch(child.tiClassName) {
-		default:
-			child.superview = parent;
-			parent.addView(child);
-			break;
-	}
+	child.superview = parent;
+	parent.addView(child);
 }
 
-function formControlTableView(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
+function formControlTableView(content, style, params, controller, links, parent, callback) {
 	var control = uiCreateTableView(content.preset, style);
 	if (control != undefined) {
-		if (coreIsFunction(callback) == true) {
-			callback(parent, control);
-		}
 		var header = content.header;
 		if (coreIsObject(header) == true) {
-			formLoadItemJS(header, params, controller, control, formAppendTableViewHeader);
+			formLoadItemJS(header, params, controller, links, control, formAppendTableViewHeader);
 		}
 		var footer = content.footer;
 		if (coreIsObject(footer) == true) {
-			formLoadItemJS(footer, params, controller, control, formAppendTableViewFooter);
+			formLoadItemJS(footer, params, controller, links, control, formAppendTableViewFooter);
 		}
 		var search = content.search;
 		if (coreIsObject(search) == true) {
-			formLoadItemJS(search, params, controller, control, formAppendTableView);
+			formLoadItemJS(search, params, controller, links, control, formAppendTableView);
 		}
 		var sections = content.sections;
 		var rows = content.rows;
@@ -2527,20 +2682,19 @@ function formControlTableView(content, params, controller, parent, callback) {
 			var data = control.data;
 			var count = sections.length;
 			for (var i = 0; i < count; i++) {
-				data.push(formLoadItemJS(sections[i], params, controller, control));
+				data.push(formLoadItemJS(sections[i], params, controller, links, control));
 			}
 			control.data = data;
 		} else if (coreIsArray(rows) == true) {
 			var data = [];
 			var count = rows.length;
 			for (var i = 0; i < count; i++) {
-				data.push(formLoadItemJS(rows[i], params, controller, control));
+				data.push(formLoadItemJS(rows[i], params, controller, links, control));
 			}
 			control.appendRow(data);
 		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
+		if (coreIsFunction(callback) == true) {
+			callback(parent, control);
 		}
 	}
 	return control;
@@ -2578,39 +2732,30 @@ function formAppendTableViewHeader(parent, child) {
 }
 
 function formAppendTableViewFooter(parent, child) {
-	switch(child.tiClassName) {
-		default:
-			child.superview = parent;
-			parent.footerView = child;
-			break;
-	}
+	child.superview = parent;
+	parent.footerView = child;
 }
 
-function formControlTableViewSection(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
+function formControlTableViewSection(content, style, params, controller, links, parent, callback) {
 	var control = uiCreateTableViewSection(content.preset, style);
 	if (control != undefined) {
-		if (coreIsFunction(callback) == true) {
-			callback(parent, control);
-		}
 		var header = content.header;
 		if (coreIsObject(header) == true) {
-			formLoadItemJS(header, params, controller, control, formAppendTableViewSectionHeader);
+			formLoadItemJS(header, params, controller, links, control, formAppendTableViewSectionHeader);
 		}
 		var footer = content.footer;
 		if (coreIsObject(footer) == true) {
-			formLoadItemJS(footer, params, controller, control, formAppendTableViewSectionFooter);
+			formLoadItemJS(footer, params, controller, links, control, formAppendTableViewSectionFooter);
 		}
 		var rows = content.rows;
 		if (coreIsArray(rows) == true) {
 			var count = rows.length;
 			for (var i = 0; i < count; i++) {
-				formLoadItemJS(rows[i], params, controller, control, formAppendTableViewSection);
+				formLoadItemJS(rows[i], params, controller, links, control, formAppendTableViewSection);
 			}
 		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
+		if (coreIsFunction(callback) == true) {
+			callback(parent, control);
 		}
 	}
 	return control;
@@ -2638,38 +2783,28 @@ function formAppendTableViewSectionHeader(parent, child) {
 }
 
 function formAppendTableViewSectionFooter(parent, child) {
-	switch(child.tiClassName) {
-		default:
-			child.superview = parent;
-			parent.footerView = child;
-			break;
-	}
+	child.superview = parent;
+	parent.footerView = child;
 }
 
-function formControlTableViewRow(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
+function formControlTableViewRow(content, style, params, controller, links, parent, callback) {
 	var control = uiCreateTableViewRow(content.preset, style);
 	if (control != undefined) {
 		var subviews = content.subviews;
 		if (coreIsArray(subviews) == true) {
 			var count = subviews.length;
 			for (var i = 0; i < count; i++) {
-				formLoadItemJS(subviews[i], params, controller, control, formAppendOther);
+				formLoadItemJS(subviews[i], params, controller, links, control, formAppendOther);
 			}
 		}
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
 		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
-		}
 	}
 	return control;
 }
 
-function formControlListView(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
+function formControlListView(content, style, params, controller, links, parent, callback) {
 	var control = uiCreateListView(content.preset, style);
 	if (control != undefined) {
 		var sections = content.sections;
@@ -2677,16 +2812,12 @@ function formControlListView(content, params, controller, parent, callback) {
 			var data = [];
 			var count = sections.length;
 			for (var i = 0; i < count; i++) {
-				data.push(formLoadItemJS(sections[i], params, controller, control));
+				data.push(formLoadItemJS(sections[i], params, controller, links, control));
 			}
 			control.setSections(data);
 		}
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
-		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
 		}
 	}
 	return control;
@@ -2704,8 +2835,7 @@ function formAppendListView(parent, child) {
 	}
 }
 
-function formControlListSection(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
+function formControlListSection(content, style, params, controller, links, parent, callback) {
 	var control = uiCreateListSection(content.preset, style);
 	if (control != undefined) {
 		var datasets = content.datasets;
@@ -2717,10 +2847,6 @@ function formControlListSection(content, params, controller, parent, callback) {
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
 		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
-		}
 	}
 	return control;
 }
@@ -2729,8 +2855,7 @@ function formAppendListSection(parent, child) {
 	parent.appendItems([ child ]);
 }
 
-function formControlPicker(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
+function formControlPicker(content, style, params, controller, links, parent, callback) {
 	var control = uiCreatePicker(content.preset, style);
 	if (control != undefined) {
 		var columns = content.columns;
@@ -2738,20 +2863,16 @@ function formControlPicker(content, params, controller, parent, callback) {
 		if (coreIsArray(columns) == true) {
 			var count = columns.length;
 			for (var i = 0; i < count; i++) {
-				formLoadItemJS(columns[i], params, controller, control, formAppendPicker);
+				formLoadItemJS(columns[i], params, controller, links, control, formAppendPicker);
 			}
 		} else if (coreIsArray(rows) == true) {
 			var count = rows.length;
 			for (var i = 0; i < count; i++) {
-				formLoadItemJS(rows[i], params, controller, control, formAppendPicker);
+				formLoadItemJS(rows[i], params, controller, links, control, formAppendPicker);
 			}
 		}
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
-		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
 		}
 	}
 	return control;
@@ -2773,23 +2894,18 @@ function formAppendPicker(parent, child) {
 	}
 }
 
-function formControlPickerColumn(content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
+function formControlPickerColumn(content, style, params, controller, links, parent, callback) {
 	var control = uiCreatePickerColumn(content.preset, style);
 	if (control != undefined) {
 		var rows = content.rows;
 		if (coreIsArray(rows) == true) {
 			var count = rows.length;
 			for (var i = 0; i < count; i++) {
-				formLoadItemJS(rows[i], params, controller, control, formAppendPickerColumn);
+				formLoadItemJS(rows[i], params, controller, links, control, formAppendPickerColumn);
 			}
 		}
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
-		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
 		}
 	}
 	return control;
@@ -2807,16 +2923,29 @@ function formAppendPickerColumn(parent, child) {
 	}
 }
 
-function formControlOther(createFunction, content, params, controller, parent, callback) {
-	var style = formControlBindStyle(content.style, params);
-	var control = createFunction(content.preset, style);
+function formControlToolbar(content, style, params, controller, links, parent, callback) {
+	var views = [];
+	var subviews = content.subviews;
+	if (coreIsArray(subviews) == true) {
+		var count = subviews.length;
+		for (var i = 0; i < count; i++) {
+			views.push(formLoadItemJS(subviews[i], params, controller, links));
+		}
+	}
+	var control = uiCreateToolbar(content.preset, style, views);
 	if (control != undefined) {
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
 		}
-		var bind = content.bind;
-		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, params, control);
+	}
+	return control;
+}
+
+function formControlOther(createFunction, content, style, params, controller, links, parent, callback) {
+	var control = createFunction(content.preset, style);
+	if (control != undefined) {
+		if (coreIsFunction(callback) == true) {
+			callback(parent, control);
 		}
 	}
 	return control;
@@ -2827,7 +2956,7 @@ function formAppendOther(parent, child) {
 	parent.add(child);
 }
 
-function formControlHttpClient(content, params, controller, parent) {
+function formControlHttpClient(content, params, controller, links, parent) {
 	function formControlHttpClientBind(names) {
 		for(var i in names) {
 			var name = names[i];
@@ -2841,7 +2970,7 @@ function formControlHttpClient(content, params, controller, parent) {
 
 	var args = {
 		queue: content.queue,
-		options : content.options
+		options: content.options
 	}
 	var binds = content.bind;
 	if (coreIsObject(binds) == true) {
@@ -2859,7 +2988,7 @@ function formControlHttpClient(content, params, controller, parent) {
 //---------------------------------------------//
 
 var _project = {
-	controllers : {}
+	controllers: {}
 };
 
 //---------------------------------------------//
@@ -2995,18 +3124,18 @@ function projectCreateWindowStyle(controller, params) {
 		var cnt = _project.controllers[controller];
 		if (coreIsString(cnt) == true) {
 			result = presetMerge(undefined, style, {
-				main : cnt
+				main: cnt
 			});
 		} else {
 			projectCreateWindowStyle(cnt, params);
 		}
 	} else if (coreIsObject(controller) == true) {
 		result = presetMerge(undefined, style, {
-			main : controller
+			main: controller
 		});
 	} else if (coreIsFunction(controller) == true) {
 		result = presetMerge(undefined, style, {
-			main : controller
+			main: controller
 		});
 	}
 	return result;
@@ -3040,7 +3169,11 @@ var utilsUnigueID = thirdPartyUnderscore.uniqueId;
 var utilsClone = thirdPartyUnderscore.clone;
 
 function utilsCombine(a, b) {
-	return thirdPartyUnderscore.extend(utilsClone(a), b);
+	var ta = {};
+	if(a != undefined) {
+		ta = utilsClone(a);
+	}
+	return thirdPartyUnderscore.extend(ta, b);
 }
 
 function utilsSleep(ms) {
@@ -3346,8 +3479,7 @@ function utilsStringToConst(string, callbackDefault) {
 				case "Ti.UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND":
 					return Ti.UI.iOS.COLOR_VIEW_FLIPSIDE_BACKGROUND;
 			}
-		}
-		if (stringIsPrefix(string, "Ti.UI.iPad.") == true) {
+		} else if (stringIsPrefix(string, "Ti.UI.iPad.") == true) {
 			switch(string) {
 				case "Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UNKNOWN":
 					return Ti.UI.iPad.POPOVER_ARROW_DIRECTION_UNKNOWN;
@@ -3362,8 +3494,7 @@ function utilsStringToConst(string, callbackDefault) {
 				case "Ti.UI.iPad.POPOVER_ARROW_DIRECTION_ANY":
 					return Ti.UI.iPad.POPOVER_ARROW_DIRECTION_ANY;
 			}
-		}
-		if (stringIsPrefix(string, "Ti.UI.iPhone.") == true) {
+		} else if (stringIsPrefix(string, "Ti.UI.iPhone.") == true) {
 			switch(string) {
 				case "Ti.UI.iPhone.MODAL_PRESENTATION_CURRENT_CONTEXT":
 					return Ti.UI.iPhone.MODAL_PRESENTATION_CURRENT_CONTEXT;
@@ -3514,8 +3645,7 @@ function utilsStringToConst(string, callbackDefault) {
 				case "Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE":
 					return Ti.UI.iPhone.TableViewSeparatorStyle.SINGLE_LINE;
 			}
-		}
-		if (stringIsPrefix(string, "Ti.UI.Android.") == true) {
+		} else if (stringIsPrefix(string, "Ti.UI.Android.") == true) {
 			switch(string) {
 				case "Ti.UI.Android.LINKIFY_ALL":
 					return Ti.UI.Android.LINKIFY_ALL;
@@ -3639,7 +3769,7 @@ function pluginLoad(plugin, namespace) {
 function pluginLoadWithPath(plugin, path) {
 	var instance = TiTools;
 	var count = path.length - 1;
-	for (var i = 1; i < count; i++) {
+	for (var i = 0; i < count; i++) {
 		if (instance[path[i]] == undefined) {
 			instance[path[i]] = {};
 		}
@@ -3654,10 +3784,11 @@ function pluginLoadWithPath(plugin, path) {
 }
 
 function pluginInvokeMethod(name, args, defaults) {
-	for (var i = 0; i < _plugin.length; i++) {
+	for (var i in _plugin) {
 		var plugin = _plugin[i];
-		if (coreIsFunction(plugin[name]) == false) {
-			var result = plugin[name].apply(this, args);
+		var func = plugin[name];
+		if (coreIsFunction(func) == true) {
+			var result = func.apply(this, args);
 			if (result != defaults) {
 				return result;
 			}
@@ -3735,291 +3866,300 @@ function errorThisNotFunction(func, name) {
 //---------------------------------------------//
 
 var TiTools = {
-	tr : coreTr,
-	loadJS : coreLoadJS,
-	isSimulator : coreIsSimulator,
-	isAndroid : coreIsAndroid,
-	isIOS : coreIsIOS,
-	isIPhone : coreIsIPhone,
-	isIPad : coreIsIPad,
-	isBoolean : coreIsBoolean,
-	isNumber : coreIsNumber,
-	isString : coreIsString,
-	isDate : coreIsDate,
-	isObject : coreIsObject,
-	isArray : coreIsArray,
-	isRegExp : coreIsRegExp,
-	isFunction : coreIsFunction,
-	isEqual : coreIsEqual,
-	isEmpty : coreIsEmpty,
-	isNaN : coreIsNaN,
-	String : {
-		isInt : stringIsInt,
-		isFloat : stringIsFloat,
-		replace : stringReplace,
-		isPrefix : stringIsPrefix,
-		isSuffix : stringIsSuffix,
-		trim : stringTrim,
-		trimLeft : stringTrimLeft,
-		trimRight : stringTrimRight,
-		paddingLeft : stringPaddingLeft,
-		paddingRight : stringPaddingRight,
-		repeat : stringRepeat,
-		format : stringFormat,
-		lines : stringLines
+	tr: coreTr,
+	loadJS: coreLoadJS,
+	isSimulator: coreIsSimulator,
+	isAndroid: coreIsAndroid,
+	isIOS: coreIsIOS,
+	isIPhone: coreIsIPhone,
+	isIPad: coreIsIPad,
+	isBoolean: coreIsBoolean,
+	isNumber: coreIsNumber,
+	isString: coreIsString,
+	isDate: coreIsDate,
+	isObject: coreIsObject,
+	isArray: coreIsArray,
+	isRegExp: coreIsRegExp,
+	isFunction: coreIsFunction,
+	isEqual: coreIsEqual,
+	isEmpty: coreIsEmpty,
+	isNaN: coreIsNaN,
+	String: {
+		isInt: stringIsInt,
+		toInt: stringToInt,
+		isFloat: stringIsFloat,
+		toFloat: stringToFloat,
+		replace: stringReplace,
+		isPrefix: stringIsPrefix,
+		isSuffix: stringIsSuffix,
+		trim: stringTrim,
+		trimLeft: stringTrimLeft,
+		trimRight: stringTrimRight,
+		paddingLeft: stringPaddingLeft,
+		paddingRight: stringPaddingRight,
+		repeat: stringRepeat,
+		format: stringFormat,
+		lines: stringLines
 	},
-	Date : {
-		now : dateNow,
-		make : dateMake,
-		format : dateFormat
+	Date: {
+		now: dateNow,
+		make: dateMake,
+		format: dateFormat
 	},
-	Global : {
-		set : globalSet,
-		get : globalGet
+	Global: {
+		set: globalSet,
+		get: globalGet
 	},
-	Screen : {
-		UNKNOWN : SCREEN_UNKNOWN,
-		SMALL : SCREEN_SMALL,
-		NORMAL : SCREEN_NORMAL,
-		LARGE : SCREEN_LARGE,
-		EXTRA_LARGE : SCREEN_EXTRA_LARGE,
-		width : screenWidth,
-		height : screenHeight,
-		resolution : screenResolution,
-		dpi : screenDpi,
-		mode : screenMode
+	Screen: {
+		UNKNOWN: SCREEN_UNKNOWN,
+		SMALL: SCREEN_SMALL,
+		NORMAL: SCREEN_NORMAL,
+		LARGE: SCREEN_LARGE,
+		EXTRA_LARGE: SCREEN_EXTRA_LARGE,
+		width: screenWidth,
+		height: screenHeight,
+		resolution: screenResolution,
+		dpi: screenDpi,
+		mode: screenMode,
+		isRetina: screenIsRetina
 	},
-	Geo : {
-		configure : geoConfigure,
-		currentPosition : geoCurrentPosition,
-		distance : geoDistance
+	Geo: {
+		configure: geoConfigure,
+		currentPosition: geoCurrentPosition,
+		distance: geoDistance
 	},
-	Path : {
-		resources : pathResources(),
-		controllers : pathControllers(),
-		preprocess : pathPreprocess
+	Path: {
+		resources: pathResources(),
+		controllers: pathControllers(),
+		preprocess: pathPreprocess
 	},
-	FileSystem : {
-		getFile : fileSystemGetFile
+	FileSystem: {
+		getFile: fileSystemGetFile
 	},
-	Network : {
-		createUri : networkCreateUri,
-		isOnline : Ti.Network.online,
-		createClientHttp : networkCreateHttpClient,
-		decodeURIComponent : networkDecodeURIComponent,
-		encodeURIComponent : networkEncodeURIComponent
+	Network: {
+		createUri: networkCreateUri,
+		isOnline: Ti.Network.online,
+		createClientHttp: networkCreateHttpClient,
+		decodeURIComponent: networkDecodeURIComponent,
+		encodeURIComponent: networkEncodeURIComponent
 	},
-	JSON : {
-		serialize : jsonSerialize,
-		deserialize : jsonDeserialize
+	JSON: {
+		serialize: jsonSerialize,
+		deserialize: jsonDeserialize
 	},
-	XML : {
-		Private : {
-			deserializeNode : xmlDeserializeNode
+	XML: {
+		Private: {
+			deserializeNode: xmlDeserializeNode
 		},
-		serialize : xmlSerialize,
-		deserialize : xmlDeserialize,
-		getNode : xmlGetNode,
-		findNode : xmlFindNode,
-		mergeNodeAttributes : xmlMergeNodeAttributes
+		serialize: xmlSerialize,
+		deserialize: xmlDeserialize,
+		getNode: xmlGetNode,
+		findNode: xmlFindNode,
+		mergeNodeAttributes: xmlMergeNodeAttributes
 	},
-	CSV : {
-		serialize : csvSerialize,
-		deserialize : csvDeserialize
+	CSV: {
+		serialize: csvSerialize,
+		deserialize: csvDeserialize
 	},
-	UI : {
-		Private : {
-			createParams : uiCreateParams
+	UI: {
+		Private: {
+			createParams: uiCreateParams
 		},
-		currentTab : undefined,
-		createTabGroup : uiCreateTabGroup,
-		createTab : uiCreateTab,
-		createNavigationGroup : uiCreateNavigationGroup,
-		createWindow : uiCreateWindow,
-		createView : uiCreateView,
-		createScrollView : uiCreateScrollView,
-		createScrollableView : uiCreateScrollableView,
-		createImageView : uiCreateImageView,
-		createMaskedImage : uiCreateMaskedImage,
-		createButton : uiCreateButton,
-		createButtonBar : uiCreateButtonBar,
-		createLabel : uiCreateLabel,
-		createSwitch : uiCreateSwitch,
-		createSlider : uiCreateSlider,
-		createSearchBar : uiCreateSearchBar,
-		createProgressBar : uiCreateProgressBar,
-		createTextField : uiCreateTextField,
-		createTextArea : uiCreateTextArea,
-		createTableView : uiCreateTableView,
-		createTableViewSection : uiCreateTableViewSection,
-		createTableViewRow : uiCreateTableViewRow,
-		createListView : uiCreateListView,
-		createListSection : uiCreateListSection,
-		createPicker : uiCreatePicker,
-		createPickerColumn : uiCreatePicker,
-		createPickerRow : uiCreatePicker,
-		createWebView : uiCreateWebView,
-		createMapView : uiCreateMapView,
-		createMapViewAnnotation : uiCreateMapViewAnnotation,
-		createFacebookLoginButton : uiCreateFacebookLoginButton,
-		createAlertDialog : uiCreateAlertDialog,
-		createEmailDialog : uiCreateEmailDialog,
-		createOptionDialog : uiCreateOptionDialog,
-		createPhoneCallDialog : uiCreatePhoneCallDialog,
-		createActivityIndicator : uiCreateActivityIndicator,
-		ThirdParty : {
-			createPaintView : uiThirdPartyCreatePaintView
+		currentTab: undefined,
+		currentFocus: undefined,
+		createTabGroup: uiCreateTabGroup,
+		createTab: uiCreateTab,
+		createNavigationGroup: uiCreateNavigationGroup,
+		createWindow: uiCreateWindow,
+		createView: uiCreateView,
+		createScrollView: uiCreateScrollView,
+		createScrollableView: uiCreateScrollableView,
+		createImageView: uiCreateImageView,
+		createMaskedImage: uiCreateMaskedImage,
+		createButton: uiCreateButton,
+		createButtonBar: uiCreateButtonBar,
+		createToolbar: uiCreateToolbar,
+		createLabel: uiCreateLabel,
+		createSwitch: uiCreateSwitch,
+		createSlider: uiCreateSlider,
+		createSearchBar: uiCreateSearchBar,
+		createProgressBar: uiCreateProgressBar,
+		createTextField: uiCreateTextField,
+		createTextArea: uiCreateTextArea,
+		createTableView: uiCreateTableView,
+		createTableViewSection: uiCreateTableViewSection,
+		createTableViewRow: uiCreateTableViewRow,
+		createListView: uiCreateListView,
+		createListSection: uiCreateListSection,
+		createPicker: uiCreatePicker,
+		createPickerColumn: uiCreatePickerColumn,
+		createPickerRow: uiCreatePickerRow,
+		createWebView: uiCreateWebView,
+		createMapView: uiCreateMapView,
+		createMapViewAnnotation: uiCreateMapViewAnnotation,
+		createFacebookLoginButton: uiCreateFacebookLoginButton,
+		createAlertDialog: uiCreateAlertDialog,
+		createEmailDialog: uiCreateEmailDialog,
+		createOptionDialog: uiCreateOptionDialog,
+		createPhoneCallDialog: uiCreatePhoneCallDialog,
+		createActivityIndicator: uiCreateActivityIndicator,
+		ThirdParty: {
+			createPaintView: uiThirdPartyCreatePaintView
 		}
 	},
-	Loader : {
-		Private : {
-			withParams : loaderWithParams,
-			withFileName : loaderWithFileName,
-			withString : loaderWithString
+	Loader: {
+		Private: {
+			withParams: loaderWithParams,
+			withFileName: loaderWithFileName,
+			withString: loaderWithString
 		}
 	},
-	Preset : {
-		Private : {
-			preprocess : presetPreprocess,
-			loadJS : presetLoadJS,
-			loadXML : presetLoadXML,
-			loadItemXML : presetLoadItemXML,
-			loadX : presetLoadX
+	Preset: {
+		Private: {
+			preprocess: presetPreprocess,
+			loadJS: presetLoadJS,
+			loadXML: presetLoadXML,
+			loadItemXML: presetLoadItemXML,
+			loadX: presetLoadX
 		},
-		set : presetSet,
-		get : presetGet,
-		remove : presetRemove,
-		merge : presetMerge,
-		applyByName : presetApplyByName,
-		apply : presetApply,
-		load : presetLoad,
-		parse : presetParse
+		set: presetSet,
+		get: presetGet,
+		remove: presetRemove,
+		merge: presetMerge,
+		applyByName: presetApplyByName,
+		apply: presetApply,
+		load: presetLoad,
+		parse: presetParse
 	},
-	Prefab : {
-		Private : {
-			loadJS : prefabLoadJS,
-			loadXML : prefabLoadXML,
-			loadItemXML : prefabLoadItemXML,
-			loadX : prefabLoadX
+	Prefab: {
+		Private: {
+			loadJS: prefabLoadJS,
+			loadXML: prefabLoadXML,
+			loadItemXML: prefabLoadItemXML,
+			loadX: prefabLoadX
 		},
-		set : prefabSet,
-		get : prefabGet,
-		remove : prefabRemove,
-		load : prefabLoad,
-		parse : prefabParse
+		set: prefabSet,
+		get: prefabGet,
+		remove: prefabRemove,
+		load: prefabLoad,
+		parse: prefabParse
 	},
-	Form : {
-		Private : {
-			loadAppendCallback : formLoadAppendCallback,
-			loadJS : formLoadJS,
-			loadItemJS : formLoadItemJS,
-			Control : {
-				controlBindStyle : formControlBindStyle,
-				controlBindFunction : formControlBindFunction,
-				controlTabGroup : formControlTabGroup,
-				appendTabGroup : formAppendTabGroup,
-				controlTab : formControlTab,
-				appendTab : formAppendTab,
-				controlNavigationGroup : formControlNavigationGroup,
-				appendNavigationGroup : formAppendNavigationGroup,
-				controlWindow : formControlWindow,
-				appendWindow : formAppendWindow,
-				controlView : formControlView,
-				controlScrollView : formControlScrollView,
-				controlScrollableView : formControlScrollableView,
-				appendScrollableView : formAppendScrollableView,
-				controlTableView : formControlTableView,
-				appendTableView : formAppendTableView,
-				appendTableViewHeader : formAppendTableViewHeader,
-				appendTableViewFooter : formAppendTableViewFooter,
-				controlTableViewSection : formControlTableViewSection,
-				appendTableViewSection : formAppendTableViewSection,
-				appendTableViewSectionHeader : formAppendTableViewSectionHeader,
-				appendTableViewSectionFooter : formAppendTableViewSectionFooter,
-				controlTableViewRow : formControlTableViewRow,
-				controlListView : formControlListView,
-				appendListView : formAppendListView,
-				controlListSection : formControlListSection,
-				appendListSection : formAppendListSection,
-				controlPicker : formControlPicker,
-				appendPicker : formAppendPicker,
-				controlPickerColumn : formControlPickerColumn,
-				appendPickerColumn : formAppendPickerColumn,
-				controlOther : formControlOther,
-				appendOther : formAppendOther,
-				controlHttpClient : formControlHttpClient
+	Form: {
+		Private: {
+			loadAppendCallback: formLoadAppendCallback,
+			loadJS: formLoadJS,
+			loadLink: formLoadLink,
+			loadImplicitLink: formLoadImplicitLink,
+			loadExplicitLink: formLoadExplicitLink,
+			loadExplicitControlLink: formLoadExplicitControlLink,
+			loadItemJS: formLoadItemJS,
+			Control: {
+				controlBindStyle: formControlBindStyle,
+				controlBindFunction: formControlBindFunction,
+				controlTabGroup: formControlTabGroup,
+				appendTabGroup: formAppendTabGroup,
+				controlTab: formControlTab,
+				appendTab: formAppendTab,
+				controlNavigationGroup: formControlNavigationGroup,
+				appendNavigationGroup: formAppendNavigationGroup,
+				controlWindow: formControlWindow,
+				appendWindow: formAppendWindow,
+				controlView: formControlView,
+				controlScrollView: formControlScrollView,
+				controlScrollableView: formControlScrollableView,
+				appendScrollableView: formAppendScrollableView,
+				controlTableView: formControlTableView,
+				appendTableView: formAppendTableView,
+				appendTableViewHeader: formAppendTableViewHeader,
+				appendTableViewFooter: formAppendTableViewFooter,
+				controlTableViewSection: formControlTableViewSection,
+				appendTableViewSection: formAppendTableViewSection,
+				appendTableViewSectionHeader: formAppendTableViewSectionHeader,
+				appendTableViewSectionFooter: formAppendTableViewSectionFooter,
+				controlTableViewRow: formControlTableViewRow,
+				controlListView: formControlListView,
+				appendListView: formAppendListView,
+				controlListSection: formControlListSection,
+				appendListSection: formAppendListSection,
+				controlPicker: formControlPicker,
+				appendPicker: formAppendPicker,
+				controlPickerColumn: formControlPickerColumn,
+				appendPickerColumn: formAppendPickerColumn,
+				controlOther: formControlOther,
+				appendOther: formAppendOther,
+				controlHttpClient: formControlHttpClient
 			}
 		},
-		Cache : {
-			Private : {
-				loadJS : formCacheLoadJS,
-				loadItemJS : formCacheLoadItemJS,
-				loadXML : formCacheLoadXML,
-				loadItemXML : formCacheLoadItemXML,
-				loadX : formCacheLoadX
+		Cache: {
+			Private: {
+				loadJS: formCacheLoadJS,
+				loadItemJS: formCacheLoadItemJS,
+				loadXML: formCacheLoadXML,
+				loadItemXML: formCacheLoadItemXML,
+				loadX: formCacheLoadX
 			},
-			set : formCacheSet,
-			get : formCacheGet,
-			remove : formCacheRemove,
-			load : formCacheLoad,
-			parse : formCacheParse
+			set: formCacheSet,
+			get: formCacheGet,
+			remove: formCacheRemove,
+			load: formCacheLoad,
+			parse: formCacheParse
 		},
-		load : formLoad,
-		parse : formParse
+		load: formLoad,
+		parse: formParse
 	},
-	Project : {
-		Private : {
-			createWindowStyle : projectCreateWindowStyle
+	Project: {
+		Private: {
+			createWindowStyle: projectCreateWindowStyle
 		},
-		initialize : projectInitialize,
-		loadPreset : projectLoadPreset,
-		loadPrefab : projectLoadPrefab,
-		loadController : projectLoadController,
-		loadForm : projectLoadForm,
-		createTabGroup : projectCreateTabGroup,
-		createNavigationGroup : projectCreateNavigationGroup,
-		createWindow : projectCreateWindow
+		initialize: projectInitialize,
+		loadPreset: projectLoadPreset,
+		loadPrefab: projectLoadPrefab,
+		loadController: projectLoadController,
+		loadForm: projectLoadForm,
+		createTabGroup: projectCreateTabGroup,
+		createNavigationGroup: projectCreateNavigationGroup,
+		createWindow: projectCreateWindow
 	},
-	Utils : {
-		info : utilsInfo,
-		sleep : utilsSleep,
-		unigueID : utilsUnigueID,
-		clone : utilsClone,
-		combine : utilsCombine,
-		appropriateAny : utilsAppropriateAny,
-		appropriatePlatform : utilsAppropriatePlatform,
-		appropriateScreen : utilsAppropriateScreen,
-		stringToConst : utilsStringToConst
+	Utils: {
+		info: utilsInfo,
+		sleep: utilsSleep,
+		unigueID: utilsUnigueID,
+		clone: utilsClone,
+		combine: utilsCombine,
+		appropriateAny: utilsAppropriateAny,
+		appropriatePlatform: utilsAppropriatePlatform,
+		appropriateScreen: utilsAppropriateScreen,
+		stringToConst: utilsStringToConst
 	},
-	Plugin : {
-		Private : {
-			loadWithPath : pluginLoadWithPath,
-			invokeMethod : pluginInvokeMethod
+	Plugin: {
+		Private: {
+			loadWithPath: pluginLoadWithPath,
+			invokeMethod: pluginInvokeMethod
 		},
-		isLoad : pluginIsLoad,
-		load : pluginLoad
+		isLoad: pluginIsLoad,
+		load: pluginLoad
 	},
-	Error : {
-		notFound : errorNotFound,
-		unknownExtension : errorUnknownExtension,
-		unsupportedPlatform : errorUnsupportedPlatform,
-		unknownPlatform : errorUnknownPlatform,
-		unsupportedScreen : errorUnsupportedScreen,
-		unsupportedClassName : errorUnsupportedClassName,
-		unknownClassName : errorUnknownClassName,
-		unknownScreen : errorUnknownScreen,
-		unknownMethod : errorUnknownMethod,
-		presetNotFound : errorPresetNotFound,
-		presetUnsupportedFormat : errorPresetUnsupportedFormat,
-		prefabNotFound : errorPrefabNotFound,
-		prefabUnsupportedFormat : errorPrefabUnsupportedFormat,
-		thisNotValue : errorThisNotValue,
-		thisNotFunction : errorThisNotFunction
+	Error: {
+		notFound: errorNotFound,
+		unknownExtension: errorUnknownExtension,
+		unsupportedPlatform: errorUnsupportedPlatform,
+		unknownPlatform: errorUnknownPlatform,
+		unsupportedScreen: errorUnsupportedScreen,
+		unsupportedClassName: errorUnsupportedClassName,
+		unknownClassName: errorUnknownClassName,
+		unknownScreen: errorUnknownScreen,
+		unknownMethod: errorUnknownMethod,
+		presetNotFound: errorPresetNotFound,
+		presetUnsupportedFormat: errorPresetUnsupportedFormat,
+		prefabNotFound: errorPrefabNotFound,
+		prefabUnsupportedFormat: errorPrefabUnsupportedFormat,
+		thisNotValue: errorThisNotValue,
+		thisNotFunction: errorThisNotFunction
 	},
-	ThirdParty : {
-		underscore : thirdPartyUnderscore,
-		underscoreString : thirdPartyUnderscoreString,
-		moment : thirdPartyMoment
+	ThirdParty: {
+		underscore: thirdPartyUnderscore,
+		underscoreString: thirdPartyUnderscoreString,
+		moment: thirdPartyMoment
 	}
 };
 

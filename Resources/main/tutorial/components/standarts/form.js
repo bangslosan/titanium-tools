@@ -8,16 +8,17 @@ module.exports = {
 		{
 			class: "View",
 			style: {
-				layout: "vertical",
+				top: 20,
 				left: 20,
 				right: 20,
-				height: Ti.UI.SIZE
+				bottom: 20,
+				height: Ti.UI.SIZE,
+				layout: "vertical",
 			},
 			subviews: [
 				{
 					class: "Button",
 					style: {
-						layout: "vertical",
 						top: 20,
 						width: Ti.UI.FILL,
 						height: 40,
@@ -27,7 +28,6 @@ module.exports = {
 				{
 					class: "Label",
 					style: {
-						layout: "vertical",
 						top: 20,
 						width: Ti.UI.FILL,
 						height: 40,
