@@ -73,9 +73,18 @@ var coreIsEqual = thirdPartyUnderscore.isEqual;
 var coreIsEmpty = thirdPartyUnderscore.isEmpty;
 var coreIsNaN = thirdPartyUnderscore.isNaN;
 
-function coreIsObject(params) {
-	if (thirdPartyUnderscore.isObject(params) == true) {
-		if ((coreIsArray(params) == false) && (coreIsFunction(params) == false)) {
+function coreIsObject(object) {
+	if(object != undefined) {
+		if(object.toString() == "[object Object]") {
+			return true;
+		}
+	}
+	return false;
+}
+
+function coreIsTiObject(object) {
+	if(object != undefined) {
+		if(/\[object Ti[A-Za-z0-9_]+\]/g.test(object.toString()) == true) {
 			return true;
 		}
 	}
@@ -112,24 +121,34 @@ var stringRepeat = thirdPartyUnderscoreString.repeat;
 var stringFormat = thirdPartyUnderscoreString.sprintf;
 var stringLines = thirdPartyUnderscoreString.lines;
 
-function stringIsInt(str) {
-	return /^\d+$/.test(str);
+function stringIsInt(value) {
+	if(coreIsString(value) == true) {
+		return /^\d+$/.test(value);
+	}
+	return coreIsNumber(value);
 }
 
-function stringToInt(str) {
-	if(coreIsString(str) == true) {
-		return parseInt(str);
+function stringToInt(value) {
+	if(coreIsString(value) == true) {
+		return parseInt(value);
+	} else if(coreIsNumber(value) == true) {
+		return value;
 	}
 	return 0;
 }
 
-function stringIsFloat(str) {
-	return /^\d*\.\d+$|^\d+\.\d*$/.test(str);
+function stringIsFloat(value) {
+	if(coreIsString(value) == true) {
+		return /^\d+|\d*,\d+$|^\d+,\d*|\d*\.\d+$|^\d+\.\d*$/.test(value);
+	}
+	return coreIsNumber(value);
 }
 
-function stringToFloat(str) {
-	if(coreIsString(str) == true) {
-		return parseFloat(str.replace(',', '.'));
+function stringToFloat(value) {
+	if(coreIsString(value) == true) {
+		return parseFloat(value.replace(',', '.'));
+	} else if(coreIsNumber(value) == true) {
+		return value;
 	}
 	return 0;
 }
@@ -916,8 +935,7 @@ function xmlMergeNodeAttributes(nodes) {
 
 function csvSerialize(csv) {
 	function needsQuoting(str) {
-		var regExp = /^\s|\s$|,|"|\n/;
-		return regExp.test(str);
+		return /^\s|\s$|,|"|\n/.test(str);
 	}
 
 	var out = "";
@@ -1035,6 +1053,19 @@ function uiCreateParams(preset, params, tiClassName) {
 		uid: utilsUnigueID(),
 		tiClassName: tiClassName
 	});
+}
+
+function uiRegExpValidate(control, value) {
+	var result = false;
+	if(control.regex != undefined) {
+		var regexp = new RegExp(control.regex, "g");
+		if (regexp.test(value) == true) {
+			result = true;
+		}
+	} else {
+		result = true;
+	}
+	return result;
 }
 
 function uiCreateTabGroup(preset, params) {
@@ -1178,23 +1209,41 @@ function uiCreateProgressBar(preset, params) {
 
 function uiCreateTextField(preset, params) {
 	var self = Ti.UI.createTextField(uiCreateParams(preset, params, "TextField"));
-	self.addEventListener("focus", function(event) {
-		TiTools.UI.currentFocus = event.source;
-	});
-	self.addEventListener("blur", function(event) {
-		TiTools.UI.currentFocus = undefined;
-	});
+	if(self != undefined) {
+		self.validate = function() {
+			self.valid = uiRegExpValidate(self, self.value);
+			return self.valid;
+		}
+		self.addEventListener("focus", function(event) {
+			TiTools.UI.currentFocus = event.source;
+		});
+		self.addEventListener("change", function(event) {
+			self.validate();
+		});
+		self.addEventListener("blur", function(event) {
+			TiTools.UI.currentFocus = undefined;
+		});
+	}
 	return self;
 }
 
 function uiCreateTextArea(preset, params) {
 	var self = Ti.UI.createTextArea(uiCreateParams(preset, params, "TextArea"));
-	self.addEventListener("focus", function(event) {
-		TiTools.UI.currentFocus = event.source;
-	});
-	self.addEventListener("blur", function(event) {
-		TiTools.UI.currentFocus = undefined;
-	});
+	if(self != undefined) {
+		self.validate = function() {
+			self.valid = uiRegExpValidate(self, self.value);
+			return self.valid;
+		}
+		self.addEventListener("focus", function(event) {
+			TiTools.UI.currentFocus = event.source;
+		});
+		self.addEventListener("change", function(event) {
+			self.validate();
+		});
+		self.addEventListener("blur", function(event) {
+			TiTools.UI.currentFocus = undefined;
+		});
+	}
 	return self;
 }
 
@@ -1477,9 +1526,9 @@ function presetMerge(preset, paramsA, paramsB) {
 			for (var i = 0; i < count; i++) {
 				var name = preset[i];
 				if (coreIsString(name) == true) {
-					var temp = presetGet(name);
-					if (temp != undefined) {
-						storage = utilsCombine(temp, storage);
+					var item = presetGet(name);
+					if (item != undefined) {
+						storage = utilsCombine(item, storage);
 					} else {
 						errorPresetNotFound("presetMerge", name);
 					}
@@ -1488,9 +1537,6 @@ function presetMerge(preset, paramsA, paramsB) {
 			result = utilsCombine(storage, result);
 		} else if (coreIsString(preset) == true) {
 			var storage = presetGet(preset);
-			if(preset == "Label.XS") {
-				storage = presetGet(preset);
-			}
 			if (storage != undefined) {
 				result = utilsCombine(storage, result);
 			} else {
@@ -1505,21 +1551,6 @@ function presetMerge(preset, paramsA, paramsB) {
 }
 
 function presetPreprocess(params) {
-	function preprocessArgument(arg) {
-		if (coreIsString(arg) == true) {
-			arg = arg.replace(/tr\(([A-Za-z0-9_\.]*)\)/g, function(str, p1, p2, offset, s) {
-				return coreTr(p1, p1);
-			});
-			if(stringIsInt(arg) == true) {
-				return stringToInt(arg);
-			} else if(stringIsFloat(arg) == true) {
-				return stringToFloat(arg);
-			}
-			return utilsStringToConst(arg, pathPreprocess);
-		}
-		return arg;
-	}
-
 	var ids = {
 		textid: "text",
 		titleid: "title",
@@ -1538,11 +1569,21 @@ function presetPreprocess(params) {
 				params[ids[i]] = t2.tr(value);
 				delete params[i];
 			} else {
-				params[i] = preprocessArgument(value);
+				params[i] = presetPreprocessValue(value);
 			}
 		}
 	}
 	return params;
+}
+
+function presetPreprocessValue(arg) {
+	if (coreIsString(arg) == true) {
+		arg = arg.replace(/tr\(([A-Za-z0-9_\.]*)\)/g, function(str, p1, p2, offset, s) {
+			return coreTr(p1, p1);
+		});
+		return utilsStringToConst(arg, pathPreprocess);
+	}
+	return arg;
 }
 
 function presetApplyByName(object, name) {
@@ -1585,10 +1626,16 @@ function presetLoadJS(content) {
 			presetLoadJS(content[i]);
 		}
 	} else if (coreIsObject(content) == true) {
-		if ((coreIsString(content.name) == false) || (coreIsObject(content.style) == false)) {
+		var name = content.name;
+		var parent = content.parent;
+		var style = content.style;
+		if ((coreIsString(name) == false) || ((parent == undefined) && (coreIsObject(style) == false))) {
 			errorPresetUnsupportedFormat("presetLoadJS", content);
 		}
-		presetSet(content.name, presetPreprocess(content.style));
+		if(parent != undefined) {
+			style = presetMerge(parent, style);
+		}
+		presetSet(name, style);
 	} else {
 		errorPresetUnsupportedFormat("presetLoadJS", content);
 	}
@@ -1601,14 +1648,22 @@ function presetLoadXML(content) {
 			for (var i = 0; i < items.length; i++) {
 				var item = presetLoadItemXML(items[i]);
 				if (item != undefined) {
-					presetLoadJS(item.name, item.style);
+					presetLoadJS({
+						name: item.name,
+						parent: item.parent,
+						style: item.style
+					});
 				}
 			}
 			break;
 		case "Preset":
 			var item = presetLoadItemXML(content);
 			if (item != undefined) {
-				presetLoadJS(item.name, item.style);
+				presetLoadJS({
+					name: item.name,
+					parent: item.parent,
+					style: item.style
+				});
 			}
 			break;
 	}
@@ -1620,7 +1675,8 @@ function presetLoadItemXML(content) {
 		if (styles.length > 0) {
 			return {
 				name: content.attributes.name,
-				style: presetPreprocess(xmlMergeNodeAttributes(styles))
+				parent: content.attributes.parent,
+				style: xmlMergeNodeAttributes(styles)
 			};
 		} else {
 			errorPresetUnsupportedFormat("presetLoadItemXML", preset);
@@ -1847,68 +1903,59 @@ function formCacheLoadItemJS(content) {
 		}
 		return content;
 	}
+	function cacheItem(name) {
+		var source = content[name];
+		if (source != undefined) {
+			content[name] = formCacheLoadItemJS(source);
+		}
+	}
+	function cacheItems(name) {
+		var source = content[name];
+		if (source != undefined) {
+			var dest = [];
+			var count = source.length;
+			for (var i = 0; i < count; i++) {
+				dest.push(formCacheLoadItemJS(source[i]));
+			}
+			content[name] = dest;
+		}
+	}
 	
 	if (coreIsObject(content) == true) {
-		if (content.prefab != undefined) {
-			if (coreIsObject(content.prefab) == true) {
-				content = prefabWithName(content.prefab.name);
-				content.params = content.prefab.params;
-			} else if (coreIsString(content.prefab) == true) {
-				content = prefabWithName(content.prefab);
+		var prefab = content.prefab;
+		if (prefab != undefined) {
+			if (coreIsObject(prefab) == true) {
+				content = prefabWithName(prefab.name);
+				content.params = prefab.params;
+			} else if (coreIsString(prefab) == true) {
+				content = prefabWithName(prefab);
 			} else {
-				errorPrefabUnsupportedFormat("formCacheLoadItemJS", content.prefab);
+				errorPrefabUnsupportedFormat("formCacheLoadItemJS", prefab);
 			}
 			delete content.prefab;
 		}
-		if (content.style != undefined) {
-			content.style = presetPreprocess(content.style);
+		var style = content.style;
+		if (style != undefined) {
+			content.style = presetPreprocess(style);
 		}
-		if (content.preset != undefined) {
-			content.style = presetMerge(content.preset, content.style);
-			delete content.preset;
-		}
-		if (content.root != undefined) {
-			content.root = formCacheLoadItemJS(content.root);
-		}
-		if (content.header != undefined) {
-			content.header = formCacheLoadItemJS(content.header);
-		}
-		if (content.footer != undefined) {
-			content.footer = formCacheLoadItemJS(content.footer);
-		}
-		if (content.search != undefined) {
-			content.search = formCacheLoadItemJS(content.search);
-		}
-		if (content.tabs != undefined) {
-			for (var i = 0; i < content.tabs.length; i++) {
-				content.tabs[i] = formCacheLoadItemJS(content.tabs[i]);
+		var preset = content.preset;
+		if (preset != undefined) {
+			if(formIsBindString(preset) == false) {
+				content.style = presetMerge(preset, content.style);
+				delete content.preset;
 			}
 		}
-		if (content.sections != undefined) {
-			for (var i = 0; i < content.sections.length; i++) {
-				content.sections[i] = formCacheLoadItemJS(content.sections[i]);
-			}
-		}
-		if (content.columns != undefined) {
-			for (var i = 0; i < content.columns.length; i++) {
-				content.columns[i] = formCacheLoadItemJS(content.columns[i]);
-			}
-		}
-		if (content.rows != undefined) {
-			for (var i = 0; i < content.rows.length; i++) {
-				content.rows[i] = formCacheLoadItemJS(content.rows[i]);
-			}
-		}
-		if (content.datasets != undefined) {
-			for (var i = 0; i < content.datasets.length; i++) {
-				content.datasets[i] = formCacheLoadItemJS(content.datasets[i]);
-			}
-		}
-		if (content.subviews != undefined) {
-			for (var i = 0; i < content.subviews.length; i++) {
-				content.subviews[i] = formCacheLoadItemJS(content.subviews[i]);
-			}
-		}
+		cacheItem("root");
+		cacheItem("header");
+		cacheItem("footer");
+		cacheItem("search");
+		cacheItems("tabs");
+		cacheItems("sections");
+		cacheItems("columns");
+		cacheItems("rows");
+		cacheItems("datasets");
+		cacheItems("subviews");
+		
 		pluginInvokeMethod("formCacheItem", [content]);
 	}
 	return content;
@@ -2129,30 +2176,36 @@ function formLoadAppendCallback(parent) {
 	return result;
 }
 
-function formLoad(parent, data, params) {
-	var controller = {};
+function formLoad(parent, data, params, controller) {
+	var result = {};
+	if(controller != undefined) {
+		result = controller;
+	}
 	var content = formCacheLoad(data, params);
 	if (content != undefined) {
 		var links = [];
-		formLoadJS(content, params, controller, links, parent, formLoadAppendCallback(parent));
-		formLoadExplicitLink(controller, links, parent);
+		formLoadJS(content, params, result, links, parent, formLoadAppendCallback(parent));
+		formLoadExplicitLink(result, links, parent);
 	} else {
 		errorNotFound("formLoad", filename);
 	}
-	return controller;
+	return result;
 }
 
-function formParse(parent, key, data, format, params) {
-	var controller = {};
+function formParse(parent, key, data, format, params, controller) {
+	var result = {};
+	if(controller != undefined) {
+		result = controller;
+	}
 	var content = formCacheParse(key, data, format, params);
 	if (content != undefined) {
 		var links = [];
-		formLoadJS(content, params, controller, links, parent, formLoadAppendCallback(parent));
-		formLoadExplicitLink(controller, links, parent);
+		formLoadJS(content, params, result, links, parent, formLoadAppendCallback(parent));
+		formLoadExplicitLink(result, links, parent);
 	} else {
 		errorNotFound("formParse", data);
 	}
-	return controller;
+	return result;
 }
 
 function formLoadJS(content, params, controller, links, parent, callback) {
@@ -2181,7 +2234,7 @@ function formLoadLink(store, name, control) {
 	} else if (coreIsArray(store[name]) == true) {
 		store[name].push(control);
 	} else {
-		store[name] = [controller[name], control];
+		store[name] = [store[name], control];
 	}
 }
 
@@ -2270,125 +2323,131 @@ function formLoadExplicitControlLink(controller, links, owner, link) {
 
 function formLoadItemJS(content, params, controller, links, parent, callback) {
 	var control = undefined;
+	var finalStyle = content.style;
 	var finalParams = params;
 	if (content.params != undefined) {
 		finalParams = utilsCombine(params, content.params);
 	}
-	var style = formControlBindStyle(content.style, params);
+	var preset = content.preset;
+	if (preset != undefined) {
+		preset = formBindString(preset, finalParams);
+		finalStyle = presetMerge(preset, finalStyle);
+	}
+	finalStyle = formBindStyle(finalStyle, finalParams);
 	switch(content.class) {
 		case "TabGroup":
-			control = formControlTabGroup(content, style, finalParams, controller, links, parent, callback);
+			control = formControlTabGroup(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "Tab":
-			control = formControlTab(content, style, finalParams, controller, links, parent, callback);
+			control = formControlTab(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "NavigationGroup":
-			control = formControlNavigationGroup(content, style, finalParams, controller, links, parent, callback);
+			control = formControlNavigationGroup(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "Window":
-			control = formControlWindow(content, style, finalParams, controller, links, parent, callback);
+			control = formControlWindow(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "View":
-			control = formControlView(content, style, finalParams, controller, links, parent, callback);
+			control = formControlView(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "ScrollView":
-			control = formControlScrollView(content, style, finalParams, controller, links, parent, callback);
+			control = formControlScrollView(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "ScrollableView":
-			control = formControlScrollableView(content, style, finalParams, controller, links, parent, callback);
+			control = formControlScrollableView(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "TableView":
-			control = formControlTableView(content, style, finalParams, controller, links, parent, callback);
+			control = formControlTableView(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "TableViewSection":
-			control = formControlTableViewSection(content, style, finalParams, controller, links, parent, callback);
+			control = formControlTableViewSection(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "TableViewRow":
-			control = formControlTableViewRow(content, style, finalParams, controller, links, parent, callback);
+			control = formControlTableViewRow(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "ListView":
-			control = formControlListView(content, style, finalParams, controller, links, parent, callback);
+			control = formControlListView(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "ListSection":
-			control = formControlListSection(content, style, finalParams, controller, links, parent, callback);
+			control = formControlListSection(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "Picker":
-			control = formControlPicker(content, style, finalParams, controller, links, parent, callback);
+			control = formControlPicker(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "PickerColumn":
-			control = formControlPickerColumn(content, style, finalParams, controller, links, parent, callback);
+			control = formControlPickerColumn(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "PickerRow":
-			control = formControlOther(uiCreatePickerRow, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreatePickerRow, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "Label":
-			control = formControlOther(uiCreateLabel, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateLabel, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "TextField":
-			control = formControlOther(uiCreateTextField, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateTextField, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "TextArea":
-			control = formControlOther(uiCreateTextArea, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateTextArea, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "ImageView":
-			control = formControlOther(uiCreateImageView, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateImageView, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "MaskedImage":
-			control = formControlOther(uiCreateMaskedImage, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateMaskedImage, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "Button":
-			control = formControlOther(uiCreateButton, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateButton, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "ButtonBar":
-			control = formControlOther(uiCreateButtonBar, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateButtonBar, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "Toolbar":
-			control = formControlToolbar(content, style, finalParams, controller, links, parent, callback);
+			control = formControlToolbar(content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "Switch":
-			control = formControlOther(uiCreateSwitch, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateSwitch, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "Slider":
-			control = formControlOther(uiCreateSlider, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateSlider, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "SearchBar":
-			control = formControlOther(uiCreateSearchBar, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateSearchBar, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "ProgressBar":
-			control = formControlOther(uiCreateProgressBar, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateProgressBar, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "WebView":
-			control = formControlOther(uiCreateWebView, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateWebView, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "MapView":
-			control = formControlOther(uiCreateMapView, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateMapView, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "ActivityIndicator":
-			control = formControlOther(uiCreateActivityIndicator, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateActivityIndicator, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "FacebookLoginButton":
-			control = formControlOther(uiCreateFacebookLoginButton, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateFacebookLoginButton, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "PaintView":
-			control = formControlOther(uiThirdPartyCreatePaintView, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiThirdPartyCreatePaintView, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "AlertDialog":
-			control = formControlOther(uiCreateAlertDialog, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateAlertDialog, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "EmailDialog":
-			control = formControlOther(uiCreateEmailDialog, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateEmailDialog, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "OptionDialog":
-			control = formControlOther(uiCreateOptionDialog, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreateOptionDialog, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "PhoneCallDialog":
-			control = formControlOther(uiCreatePhoneCallDialog, content, style, finalParams, controller, links, parent, callback);
+			control = formControlOther(uiCreatePhoneCallDialog, content, finalStyle, finalParams, controller, links, parent, callback);
 			break;
 		case "HttpClient":
-			control = formControlHttpClient(content, style, finalParams, controller, links, parent);
+			control = formControlHttpClient(content, finalStyle, finalParams, controller, links, parent);
 			break;
 		default:
-			var temp = pluginInvokeMethod("formLoadItem", [content, style, finalParams, controller, links, parent, callback]);
+			var temp = pluginInvokeMethod("formLoadItem", [content, finalStyle, finalParams, controller, links, parent, callback]);
 			if (temp != undefined) {
 				control = temp;
 			} else {
@@ -2399,7 +2458,7 @@ function formLoadItemJS(content, params, controller, links, parent, callback) {
 	if(control != undefined) {
 		var bind = content.bind;
 		if (coreIsObject(bind) == true) {
-			formControlBindFunction(bind, finalParams, control);
+			formBindFunction(bind, finalParams, control);
 		}
 		var items = content.items;
 		if (coreIsArray(items) == true) {
@@ -2415,26 +2474,85 @@ function formLoadItemJS(content, params, controller, links, parent, callback) {
 }
 
 //---------------------------------------------//
-// TODO:NAMESPACE:FORM:CONTROL
-//---------------------------------------------//
 
-function formControlBindStyle(styles, params) {
-	function bindString(string) {
-		return string.replace(/<%\s*([A-Za-z0-9_\.]*)\s*%>/g, function(str, p1, p2, offset, s) {
-			var value = params[p1];
-			if (value != undefined) {
-				if (coreIsFunction(value) == true) {
-					value = value(params);
-				} else if (coreIsString(value) == true) {
-					value = bindString(value);
-				}
-				return value;
-			} else {
-				errorThisNotValue("formControlBindStyle", p1);
-			}
-			return p1;
-		});
+function formIsBindString(string) {
+	if(string != undefined) {
+		var tagRegExp = /^<%\s+([A-Za-z0-9_,"'\.\(\)\|\s]*)\s+%>$/g;
+		return tagRegExp.test(string);
 	}
+	return false;
+}
+
+function formBindString(string, params) {
+	function findValue(name) {
+		var value = params[name];
+		if (value != undefined) {
+			if (coreIsFunction(value) == true) {
+				value = value(params);
+			} else if (coreIsString(value) == true) {
+				value = findValue(value);
+			}
+		} else {
+			value = name;
+		}
+		return presetPreprocessValue(value);
+	}
+	
+	if(string != undefined) {
+		var tagRegExp = /^<%\s+([A-Za-z0-9_,"'\.\(\)\|\s]*)\s+%>$/g;
+		var tags = tagRegExp.exec(string);
+		if(tags != null) {
+			var tag = tags[1];
+			var stmtRegExp = /\s*\|\s*/g;
+			var stmts = tag.split(stmtRegExp);
+			for(var i in stmts) {
+				var stmt = stmts[i];
+				var funcRegExp = /([A-Za-z0-9_]*)\(([A-Za-z0-9_,"'\.\s]*)\)/g;
+				var func = funcRegExp.exec(stmt);
+				if(coreIsArray(func) == false) {
+					var value = findValue(stmt);
+					if(value != undefined) {
+						return value;
+					}
+				} else {
+					var name = func[1];
+					var args = func[2];
+					if((name != undefined) && (args != undefined)) {
+						var value = findValue(args);
+						if(value == undefined) {
+							value = args;
+						}
+						switch(name) {
+							case "int":
+								if(stringIsInt(value) == true) {
+									return stringToInt(value);
+								}
+							break;
+							case "float":
+								if(stringIsFloat(value) == true) {
+									return stringToFloat(value);
+								}
+							break;
+							case "string":
+								return String(value);
+							break;
+							default:
+								errorUnknownMethod("formBindString", name, tag);
+							break;
+						}
+					}
+				}
+			}
+			errorThisNotValue("formBindString", tag);
+			string = undefined;
+		} else {
+			string = presetPreprocessValue(string);
+		}
+	}
+	return string;
+}
+
+function formBindStyle(styles, params) {
 	var result = undefined;
 	if (coreIsObject(params) == true) {
 		if (coreIsArray(styles) == true) {
@@ -2446,9 +2564,9 @@ function formControlBindStyle(styles, params) {
 			for (var i in styles) {
 				var style = styles[i];
 				if ((coreIsArray(style) == true) || (coreIsObject(style) == true)) {
-					result[i] = formControlBindStyle(style, params);
+					result[i] = formBindStyle(style, params);
 				} else if (coreIsString(style) == true) {
-					result[i] = bindString(style);
+					result[i] = formBindString(style, params);
 				} else {
 					result[i] = style;
 				}
@@ -2460,27 +2578,39 @@ function formControlBindStyle(styles, params) {
 	return result;
 }
 
-function formControlBindFunction(binds, params, control) {
-	if (coreIsEmpty(binds) == false) {
+function formBindFunction(binds, params, control) {
+	function bindFunction(name, bind) {
+		while(bind != undefined) {
+			if ((coreIsArray(bind) == true) || (coreIsObject(bind) == true) || (coreIsFunction(bind) == true)) {
+				break;
+			}
+			bind = params[bind];
+		}
+		if (coreIsFunction(bind) == true) {
+			control.addEventListener(name, bind);
+		} else if ((coreIsArray(bind) == true) || (coreIsObject(bind) == true)) {
+			for (var j in bind) {
+				bindFunction(name, bind[j]);
+			}
+		} else {
+			errorThisNotFunction("formBindFunction::bindFunction", bind);
+		}
+		return bind;
+	}
+	
+	if (binds != undefined) {
 		for (var i in binds) {
-			var bind = binds[i];
-			while(bind != undefined) {
-				if (coreIsFunction(bind) == true) {
-					break;
-				}
-				bind = params[bind];
-			}
-			if (coreIsFunction(bind) == true) {
-				control.addEventListener(i, bind);
-			} else {
-				errorThisNotFunction("formControlBindFunction", bind);
-			}
+			bindFunction(i, binds[i]);
 		}
 	}
 }
 
+//---------------------------------------------//
+// TODO:NAMESPACE:FORM:CONTROL
+//---------------------------------------------//
+
 function formControlTabGroup(content, style, params, controller, links, parent, callback) {
-	var control = uiCreateTabGroup(content.preset, style);
+	var control = uiCreateTabGroup(undefined, style);
 	if (control != undefined) {
 		var tabs = content.tabs;
 		if (coreIsArray(tabs) == true) {
@@ -2521,7 +2651,7 @@ function formControlTab(content, style, params, controller, links, parent, callb
 	if (coreIsObject(window) == true) {
 		window = formLoadItemJS(root, params, controller, links);
 	}
-	var control = uiCreateTab(content.preset, style, window);
+	var control = uiCreateTab(undefined, style, window);
 	if (control != undefined) {
 		var subviews = content.subviews;
 		if (coreIsArray(subviews) == true) {
@@ -2555,7 +2685,7 @@ function formControlNavigationGroup(content, style, params, controller, links, p
 	if (coreIsObject(window) == true) {
 		window = formLoadItemJS(root, params, controller, links);
 	}
-	var control = uiCreateNavigationGroup(content.preset, style, window);
+	var control = uiCreateNavigationGroup(undefined, style, window);
 	if (control != undefined) {
 		if(window != undefined) {
 			window.superview = control;
@@ -2584,7 +2714,7 @@ function formAppendNavigationGroup(parent, child) {
 }
 
 function formControlWindow(content, style, params, controller, links, parent, callback) {
-	var control = uiCreateWindow(content.preset, style);
+	var control = uiCreateWindow(undefined, style);
 	if (control != undefined) {
 		var subviews = content.subviews;
 		if (coreIsArray(subviews) == true) {
@@ -2606,7 +2736,7 @@ function formAppendWindow(parent, child) {
 }
 
 function formControlView(content, style, params, controller, links, parent, callback) {
-	var control = uiCreateView(content.preset, style);
+	var control = uiCreateView(undefined, style);
 	if (control != undefined) {
 		var subviews = content.subviews;
 		if (coreIsArray(subviews) == true) {
@@ -2623,7 +2753,7 @@ function formControlView(content, style, params, controller, links, parent, call
 }
 
 function formControlScrollView(content, style, params, controller, links, parent, callback) {
-	var control = uiCreateScrollView(content.preset, style);
+	var control = uiCreateScrollView(undefined, style);
 	if (control != undefined) {
 		var subviews = content.subviews;
 		if (coreIsArray(subviews) == true) {
@@ -2640,7 +2770,7 @@ function formControlScrollView(content, style, params, controller, links, parent
 }
 
 function formControlScrollableView(content, style, params, controller, links, parent, callback) {
-	var control = uiCreateScrollableView(content.preset, style);
+	var control = uiCreateScrollableView(undefined, style);
 	if (control != undefined) {
 		var subviews = content.subviews;
 		if (coreIsArray(subviews) == true) {
@@ -2662,7 +2792,7 @@ function formAppendScrollableView(parent, child) {
 }
 
 function formControlTableView(content, style, params, controller, links, parent, callback) {
-	var control = uiCreateTableView(content.preset, style);
+	var control = uiCreateTableView(undefined, style);
 	if (control != undefined) {
 		var header = content.header;
 		if (coreIsObject(header) == true) {
@@ -2737,7 +2867,7 @@ function formAppendTableViewFooter(parent, child) {
 }
 
 function formControlTableViewSection(content, style, params, controller, links, parent, callback) {
-	var control = uiCreateTableViewSection(content.preset, style);
+	var control = uiCreateTableViewSection(undefined, style);
 	if (control != undefined) {
 		var header = content.header;
 		if (coreIsObject(header) == true) {
@@ -2788,7 +2918,7 @@ function formAppendTableViewSectionFooter(parent, child) {
 }
 
 function formControlTableViewRow(content, style, params, controller, links, parent, callback) {
-	var control = uiCreateTableViewRow(content.preset, style);
+	var control = uiCreateTableViewRow(undefined, style);
 	if (control != undefined) {
 		var subviews = content.subviews;
 		if (coreIsArray(subviews) == true) {
@@ -2805,7 +2935,7 @@ function formControlTableViewRow(content, style, params, controller, links, pare
 }
 
 function formControlListView(content, style, params, controller, links, parent, callback) {
-	var control = uiCreateListView(content.preset, style);
+	var control = uiCreateListView(undefined, style);
 	if (control != undefined) {
 		var sections = content.sections;
 		if (coreIsArray(sections) == true) {
@@ -2836,11 +2966,11 @@ function formAppendListView(parent, child) {
 }
 
 function formControlListSection(content, style, params, controller, links, parent, callback) {
-	var control = uiCreateListSection(content.preset, style);
+	var control = uiCreateListSection(undefined, style);
 	if (control != undefined) {
 		var datasets = content.datasets;
 		if (coreIsArray(datasets) == true) {
-			datasets = formControlBindStyle(datasets, params);
+			datasets = formBindStyle(datasets, params);
 			datasets = presetMerge(undefined, datasets);
 			control.setItems(datasets);
 		}
@@ -2856,7 +2986,7 @@ function formAppendListSection(parent, child) {
 }
 
 function formControlPicker(content, style, params, controller, links, parent, callback) {
-	var control = uiCreatePicker(content.preset, style);
+	var control = uiCreatePicker(undefined, style);
 	if (control != undefined) {
 		var columns = content.columns;
 		var rows = content.rows;
@@ -2895,7 +3025,7 @@ function formAppendPicker(parent, child) {
 }
 
 function formControlPickerColumn(content, style, params, controller, links, parent, callback) {
-	var control = uiCreatePickerColumn(content.preset, style);
+	var control = uiCreatePickerColumn(undefined, style);
 	if (control != undefined) {
 		var rows = content.rows;
 		if (coreIsArray(rows) == true) {
@@ -2932,7 +3062,7 @@ function formControlToolbar(content, style, params, controller, links, parent, c
 			views.push(formLoadItemJS(subviews[i], params, controller, links));
 		}
 	}
-	var control = uiCreateToolbar(content.preset, style, views);
+	var control = uiCreateToolbar(undefined, style, views);
 	if (control != undefined) {
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
@@ -2942,7 +3072,7 @@ function formControlToolbar(content, style, params, controller, links, parent, c
 }
 
 function formControlOther(createFunction, content, style, params, controller, links, parent, callback) {
-	var control = createFunction(content.preset, style);
+	var control = createFunction(undefined, style);
 	if (control != undefined) {
 		if (coreIsFunction(callback) == true) {
 			callback(parent, control);
@@ -3168,12 +3298,33 @@ function projectCreateWindow(controller, params) {
 var utilsUnigueID = thirdPartyUnderscore.uniqueId;
 var utilsClone = thirdPartyUnderscore.clone;
 
-function utilsCombine(a, b) {
-	var ta = {};
-	if(a != undefined) {
-		ta = utilsClone(a);
+function utilsCombine(objectA, objectB) {
+	objectA = utilsClone(objectA);
+	if(objectB != undefined) {
+		if(objectA == undefined) {
+			if(coreIsArray(objectB) == true) {
+				objectA = [];
+			} else if(coreIsObject(objectB) == true) {
+				objectA = {};
+			}
+		}
+		for(var i in objectB) {
+			var valueA = objectA[i];
+			var valueB = objectB[i];
+			if(coreIsArray(valueB) == true) {
+				objectA[i] = utilsCombine(valueA, valueB);
+			} else if(coreIsObject(valueB) == true) {
+				if(coreIsTiObject(valueB) == true) {
+					objectA[i] = valueB;
+				} else {
+					objectA[i] = utilsCombine(valueA, valueB);
+				}
+			} else {
+				objectA[i] = valueB;
+			}
+		}
 	}
-	return thirdPartyUnderscore.extend(ta, b);
+	return objectA;
 }
 
 function utilsSleep(ms) {
@@ -3877,6 +4028,7 @@ var TiTools = {
 	isNumber: coreIsNumber,
 	isString: coreIsString,
 	isDate: coreIsDate,
+	isTiObject: coreIsTiObject,
 	isObject: coreIsObject,
 	isArray: coreIsArray,
 	isRegExp: coreIsRegExp,
@@ -4053,9 +4205,11 @@ var TiTools = {
 			loadExplicitLink: formLoadExplicitLink,
 			loadExplicitControlLink: formLoadExplicitControlLink,
 			loadItemJS: formLoadItemJS,
+			isBindString: formIsBindString,
+			bindString: formBindString,
+			bindStyle: formBindStyle,
+			bindFunction: formBindFunction,
 			Control: {
-				controlBindStyle: formControlBindStyle,
-				controlBindFunction: formControlBindFunction,
 				controlTabGroup: formControlTabGroup,
 				appendTabGroup: formAppendTabGroup,
 				controlTab: formControlTab,

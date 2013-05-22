@@ -163,6 +163,7 @@ function convertNodeXMLUI(content) {
 				touchEnabled: xmluiGetValue(atts.enabled, true),
 				maxLength: xmluiGetValue(atts.maxLength),
 				hintText: xmluiGetValue(atts.tip),
+				regexp: xmluiGetValue(atts.regexp),
 				value: xmluiGetValue(atts.value),
 				font: {
 					color: xmluiGetColor(atts.color, "black")
@@ -418,23 +419,7 @@ function xmluiDefaultHookTextField(content, style) {
 		class: "TextField",
 		name: style.xmlui.name,
 		preset: "xmlui::textfield",
-		style: utilsCombine(style, {
-			validate: function() {
-				var result = false;
-				if(self != undefined) {
-					var xmlui = style.xmlui;
-					if(xmlui.regex != undefined) {
-						var regexp = new RegExp(xmlui.regex, "g");
-						if (regexp.test(self.value) == true) {
-							result = true;
-						}
-					} else {
-						result = true;
-					}
-				}
-				return result;
-			}
-		}),
+		style: style,
 		bind: {
 			"titools::create": function(event) {
 				self = event.source;
