@@ -5,11 +5,23 @@ var TiTools2 = require("TiTools2/TiTools");
 function googleMapCurrentLocation(params) {
 	var lang = "ru";
 	var sensor = "false";
-	if(TiTools2.isString(params.lang) == true) {
-		lang = params.lang;
-	}
-	if(TiTools2.isString(params.sensor) == true) {
-		sensor = params.sensor;
+	var latlng = "";
+	if(params != undefined) {
+		if(params.lang != undefined) {
+			lang = params.lang;
+		}
+		if(params.sensor != undefined) {
+			sensor = params.sensor;
+		}
+		if(params.position != undefined) {
+			if(params.position.latitude != undefined) {
+				latlng += String(params.position.latitude);
+			}
+			latlng += ",";
+			if(params.position.longitude != undefined) {
+				latlng += String(params.position.longitude);
+			}
+		}
 	}
 	var http = TiTools2.Network.createClientHttp({
 		options: {
@@ -20,7 +32,7 @@ function googleMapCurrentLocation(params) {
 				"Cache-Control": "no-cache, must-revalidate"
 			},
 			args: {
-				latlng: params.position.latitude + "," + params.position.longitude,
+				latlng: latlng,
 				sensor: sensor,
 				language: lang
 			}
@@ -32,15 +44,19 @@ function googleMapCurrentLocation(params) {
 			switch(json.status) {
 				case "OK":
 					var location = {};
-					if(json.results != undefined) {
-						if(json.results.length > 0) {
+					var results = json.results;
+					if(results != undefined) {
+						if(results.length > 0) {
+							var row = json.results[0];
 							location = {
-								address: json.results[0].formatted_address,
+								address: row.formatted_address,
 								componet: {}
 							};
-							for(var i = 0; i < json.results[0].address_components.length; i++) {
-								if(json.results[0].address_components[i].types.length > 0) {
-									location.componet[json.results[0].address_components[i].types[0]] = json.results[0].address_components[i].long_name;
+							var addresses = row.address_components;
+							for(var i = 0; i < addresses.length; i++) {
+								var address = addresses[i];
+								if(address.types.length > 0) {
+									location.componet[address.types[0]] = address.long_name;
 								}
 							}
 						}
@@ -68,25 +84,41 @@ function googleMapPaveRoute(params) {
 	var doflg = "ptk";
 	var dirflg = "w";
 	var hl = "en";
-	if(TiTools2.isString(params.output) == true) {
-		output = params.output;
-	}
-	if(TiTools2.isString(params.doflg) == true) {
-		doflg = params.doflg;
-	}
-	if(TiTools2.isString(params.dirflg) == true) {
-		dirflg = params.dirflg;
-	}
-	if(TiTools2.isString(params.hl) == true) {
-		hl = params.hl;
+	var latitudeA = 0;
+	var longitudeA = 0;
+	var latitudeB = 0;
+	var longitudeB = 0;
+	if(params != undefined) {
+		if(params.output != undefined) {
+			output = params.output;
+		}
+		if(params.doflg != undefined) {
+			doflg = params.doflg;
+		}
+		if(params.dirflg != undefined) {
+			dirflg = params.dirflg;
+		}
+		if(params.hl != undefined) {
+			hl = params.hl;
+		}
+		if(params.a != undefined) {
+			var position = params.position;
+			latitudeA = position.latitude;
+			longitudeA = position.longitude;
+		}
+		if(params.b != undefined) {
+			var position = params.b;
+			latitudeB = position.latitude;
+			longitudeB = position.longitude;
+		}
 	}
 	var http = TiTools2.Network.createClientHttp({
 		options: {
 			method: "GET",
 			url: "http://maps.google.com/",
 			args: {
-				saddr: params.a.latitude + "," + params.a.longitude,
-				daddr: params.b.latitude + "," + params.b.longitude,
+				saddr: String(latitudeA) + "," + String(longitudeA),
+				daddr: String(latitudeB) + "," + String(longitudeB),
 				output: output,
 				doflg: doflg,
 				dirflg: dirflg,

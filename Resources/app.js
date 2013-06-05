@@ -15,14 +15,9 @@ TiTools2.Project.initialize(
 			ipad: [
 				"presets/ipad/standart.js"
 			],
-			android: {
-				small: [
-					"presets/small/standart.js"
-				],
-				any: [
-					"presets/standart.js"
-				]
-			}
+			android: [
+				"presets/standart.js"
+			]
 		},
 		controllers: {
 			"main": "main/cont.js",

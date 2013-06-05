@@ -583,9 +583,13 @@ networkUriQuery.prototype.parse = function(query) {
 }
 networkUriQuery.prototype.set = function(key, value, index) {
 	var params = this.params;
-	if ((arguments.length == 3) && (index != -1)) {
-		index = Math.min(index, params.length);
-		params.splice(index, 0, [key, value]);
+	if (arguments.length == 3) {
+		if(index != -1) {
+			index = Math.min(index, params.length);
+			params.splice(index, 0, [key, value]);
+		} else {
+			params.push([key, value]);
+		}
 	} else if (arguments.length > 0) {
 		params.push([key, value]);
 	}
@@ -685,19 +689,24 @@ networkHttpClient.prototype.request = function() {
 			}
 		}
 	}
+	function getValue(value, def) {
+		if(value != undefined) {
+			return value;
+		}
+		return def;
+	}
 	
 	self.handle = Ti.Network.createHTTPClient({
-		cache: options.cache,
-		timeout: options.timeout,
-		tlsVersion: options.tlsVersion,
-		autoEncodeUrl: options.autoEncodeUrl,
-		autoRedirect: options.autoRedirect,
-		bubbleParent: options.bubbleParent,
-		enableKeepAlive: options.enableKeepAlive,
-		validatesSecureCertificate: options.validatesSecureCertificate,
-		withCredentials: options.withCredentials,
-		username: options.username,
-		password: options.password,
+		cache: getValue(options.cache, false),
+		timeout: getValue(options.timeout, 30000),
+		tlsVersion: getValue(options.tlsVersion),
+		autoEncodeUrl: getValue(options.autoEncodeUrl, true),
+		autoRedirect: getValue(options.autoRedirect, true),
+		enableKeepAlive: getValue(options.enableKeepAlive, false),
+		validatesSecureCertificate: getValue(options.validatesSecureCertificate, false),
+		withCredentials: getValue(options.withCredentials, false),
+		username: getValue(options.username, ""),
+		password: getValue(options.password, ""),
 		onload: function(event) {
 			try {
 				if (coreIsFunction(self.loaded) == true) {
