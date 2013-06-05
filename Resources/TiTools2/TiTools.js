@@ -84,7 +84,8 @@ function coreIsObject(object) {
 
 function coreIsTiObject(object) {
 	if(object != undefined) {
-		if(/\[object Ti[A-Za-z0-9_]+\]/g.test(object.toString()) == true) {
+		var string = object.toString();
+		if((stringIsPrefix(string, "[object Ti") == true) && (stringIsSuffix(string, "]") == true)) {
 			return true;
 		}
 	}
@@ -103,7 +104,10 @@ function coreTr(key, defaults) {
 }
 
 function coreLoadJS(filename) {
-	return require(filename.replace(/\.js$/g, ""));
+	if(stringIsSuffix(filename, ".js") == true) {
+		filename = filename.replace(".js", "");
+	}
+	return require(filename);
 }
 
 //---------------------------------------------//
@@ -160,6 +164,14 @@ function stringReplace(str, search, replace) {
 //---------------------------------------------//
 // TODO:NAMESPACE:DATE
 //---------------------------------------------//
+
+function dateInterval(base) {
+	var interval = new Date().getTime();
+	if(base != undefined) {
+		return (interval - base);
+	}
+	return interval;
+}
 
 function dateNow(offset) {
 	var date = thirdPartyMoment();
@@ -241,9 +253,10 @@ function geoCurrentPosition(params) {
 		try {
 			if (event.success == true) {
 				if (params.success != undefined) {
+					var coords = event.coords;
 					params.success({
-						longitude: event.coords.longitude,
-						latitude: event.coords.latitude
+						longitude: coords.longitude,
+						latitude: coords.latitude
 					});
 				}
 			} else if (event.error != undefined) {
@@ -301,17 +314,20 @@ function pathControllers() {
 }
 
 function pathPreprocess(path) {
-	var keys = {
-		"ResourcesPath": pathResources(),
-		"ControllersPath": pathControllers()
-	};
-	return path.replace(/%([A-Za-z_]*)%/g, function(str, p1, p2, offset, s) {
-		var value = keys[p1];
-		if(value != undefined) {
-			return value;
-		}
-		return p1;
-	});
+	if(stringIsPrefix(path, "%") == true) {
+		var keys = {
+			"ResourcesPath": TiTools.Path.resources,
+			"ControllersPath": TiTools.Path.controllers
+		};
+		return path.replace(/%([A-Za-z_]*)%/g, function(str, p1, p2, offset, s) {
+			var value = keys[p1];
+			if(value != undefined) {
+				return value;
+			}
+			return p1;
+		});
+	}
+	return path;
 }
 
 //---------------------------------------------//
@@ -683,13 +699,13 @@ networkHttpClient.prototype.request = function() {
 		username: options.username,
 		password: options.password,
 		onload: function(event) {
-			if (coreIsFunction(self.loaded) == true) {
-				self.loaded(self);
-			}
 			try {
 				if (coreIsFunction(self.loaded) == true) {
 					self.loaded(self);
 				}
+			} catch(error) {
+			}
+			try {
 				if (coreIsFunction(self.success) == true) {
 					self.success(self);
 				}
@@ -703,6 +719,9 @@ networkHttpClient.prototype.request = function() {
 				if (coreIsFunction(self.loaded) == true) {
 					self.loaded(self);
 				}
+			} catch(error) {
+			}
+			try {
 				if (coreIsFunction(self.failure) == true) {
 					self.failure(self);
 				}
@@ -1057,8 +1076,8 @@ function uiCreateParams(preset, params, tiClassName) {
 
 function uiRegExpValidate(control, value) {
 	var result = false;
-	if(control.regex != undefined) {
-		var regexp = new RegExp(control.regex, "g");
+	if(control.regexp != undefined) {
+		var regexp = new RegExp(control.regexp, "g");
 		if (regexp.test(value) == true) {
 			result = true;
 		}
@@ -1547,7 +1566,7 @@ function presetMerge(preset, paramsA, paramsB) {
 	if (paramsB != undefined) {
 		result = utilsCombine(paramsB, result);
 	}
-	return result;
+	return presetPreprocess(result);
 }
 
 function presetPreprocess(params) {
@@ -1576,14 +1595,16 @@ function presetPreprocess(params) {
 	return params;
 }
 
-function presetPreprocessValue(arg) {
-	if (coreIsString(arg) == true) {
-		arg = arg.replace(/tr\(([A-Za-z0-9_\.]*)\)/g, function(str, p1, p2, offset, s) {
-			return coreTr(p1, p1);
-		});
-		return utilsStringToConst(arg, pathPreprocess);
+function presetPreprocessValue(string) {
+	if (coreIsString(string) == true) {
+		if((stringIsPrefix(string, "tr(") == true) && (stringIsSuffix(string, ")") == true)) {
+			string = string.replace(/tr\(([A-Za-z0-9_\.]*)\)/g, function(str, p1, p2, offset, s) {
+				return coreTr(p1, p1);
+			});
+		}
+		return utilsStringToConst(string, pathPreprocess);
 	}
-	return arg;
+	return string;
 }
 
 function presetApplyByName(object, name) {
@@ -2178,6 +2199,7 @@ function formLoadAppendCallback(parent) {
 
 function formLoad(parent, data, params, controller) {
 	var result = {};
+	// var interval = dateInterval();
 	if(controller != undefined) {
 		result = controller;
 	}
@@ -2189,11 +2211,13 @@ function formLoad(parent, data, params, controller) {
 	} else {
 		errorNotFound("formLoad", filename);
 	}
+	// utilsInfo("FormLoad: " + dateInterval(interval) + " ms");
 	return result;
 }
 
 function formParse(parent, key, data, format, params, controller) {
 	var result = {};
+	// var interval = dateInterval();
 	if(controller != undefined) {
 		result = controller;
 	}
@@ -2205,6 +2229,7 @@ function formParse(parent, key, data, format, params, controller) {
 	} else {
 		errorNotFound("formParse", data);
 	}
+	// utilsInfo("FormParse: " + dateInterval(interval) + " ms");
 	return result;
 }
 
@@ -2325,6 +2350,12 @@ function formLoadItemJS(content, params, controller, links, parent, callback) {
 	var control = undefined;
 	var finalStyle = content.style;
 	var finalParams = params;
+	if (content.enabled != undefined) {
+		var enabled = formBindString(content.enabled, params);
+		if(enabled == false) {
+			return control;
+		}
+	}
 	if (content.params != undefined) {
 		finalParams = utilsCombine(params, content.params);
 	}
@@ -2476,29 +2507,30 @@ function formLoadItemJS(content, params, controller, links, parent, callback) {
 //---------------------------------------------//
 
 function formIsBindString(string) {
-	if(string != undefined) {
-		var tagRegExp = /^<%\s+([A-Za-z0-9_,"'\.\(\)\|\s]*)\s+%>$/g;
-		return tagRegExp.test(string);
+	if(coreIsString(string) == true) {
+		if((stringIsPrefix(string, "<% ") == true) && (stringIsSuffix(string, " %>") == true)) {
+			return true;
+		}
 	}
 	return false;
 }
 
-function formBindString(string, params) {
-	function findValue(name) {
-		var value = params[name];
-		if (value != undefined) {
-			if (coreIsFunction(value) == true) {
-				value = value(params);
-			} else if (coreIsString(value) == true) {
-				value = findValue(value);
-			}
-		} else {
-			value = name;
+function formBindValue(name, params) {
+	var value = params[name];
+	if ((value != undefined) && (value != name)) {
+		if (coreIsFunction(value) == true) {
+			value = value(params);
+		} else if (coreIsString(value) == true) {
+			value = formBindValue(value, params);
 		}
-		return presetPreprocessValue(value);
+	} else {
+		value = name;
 	}
-	
-	if(string != undefined) {
+	return presetPreprocessValue(value);
+}
+
+function formBindString(string, params) {
+	if(coreIsString(string) == true) {
 		var tagRegExp = /^<%\s+([A-Za-z0-9_,"'\.\(\)\|\s]*)\s+%>$/g;
 		var tags = tagRegExp.exec(string);
 		if(tags != null) {
@@ -2510,7 +2542,7 @@ function formBindString(string, params) {
 				var funcRegExp = /([A-Za-z0-9_]*)\(([A-Za-z0-9_,"'\.\s]*)\)/g;
 				var func = funcRegExp.exec(stmt);
 				if(coreIsArray(func) == false) {
-					var value = findValue(stmt);
+					var value = formBindValue(stmt, params);
 					if(value != undefined) {
 						return value;
 					}
@@ -2518,7 +2550,7 @@ function formBindString(string, params) {
 					var name = func[1];
 					var args = func[2];
 					if((name != undefined) && (args != undefined)) {
-						var value = findValue(args);
+						var value = formBindValue(args, params);
 						if(value == undefined) {
 							value = args;
 						}
@@ -3228,6 +3260,7 @@ function projectCreateNavigationGroup(params) {
 	var preset = undefined;
 	var style = {};
 	var window = undefined;
+	var navigationGroup = undefined;
 	if (coreIsObject(params) == true) {
 		if (params.preset != undefined) {
 			preset = params.preset;
@@ -3239,7 +3272,8 @@ function projectCreateNavigationGroup(params) {
 			window = projectCreateWindow(params.window.controller, params.window.params)
 		}
 	}
-	return uiCreateNavigationGroup(preset, style, window);
+	navigationGroup = uiCreateNavigationGroup(preset, style, window);
+	return navigationGroup;
 }
 
 function projectCreateWindowStyle(controller, params) {
@@ -3272,6 +3306,7 @@ function projectCreateWindowStyle(controller, params) {
 }
 
 function projectCreateWindow(controller, params) {
+	var window = undefined;
 	var style = projectCreateWindowStyle(controller, params);
 	if (coreIsEmpty(style) == false) {
 		var preset = undefined;
@@ -3284,11 +3319,10 @@ function projectCreateWindow(controller, params) {
 				args = params.args;
 			}
 		}
-		var window = uiCreateWindow(preset, style);
+		window = uiCreateWindow(preset, style);
 		window.initialize(args);
-		return window;
 	}
-	return undefined;
+	return window;
 }
 
 //---------------------------------------------//
@@ -3319,7 +3353,7 @@ function utilsCombine(objectA, objectB) {
 				} else {
 					objectA[i] = utilsCombine(valueA, valueB);
 				}
-			} else {
+			} else if(valueB !== undefined) {
 				objectA[i] = valueB;
 			}
 		}
@@ -4054,6 +4088,7 @@ var TiTools = {
 		lines: stringLines
 	},
 	Date: {
+		interval: dateInterval,
 		now: dateNow,
 		make: dateMake,
 		format: dateFormat
@@ -4206,6 +4241,7 @@ var TiTools = {
 			loadExplicitControlLink: formLoadExplicitControlLink,
 			loadItemJS: formLoadItemJS,
 			isBindString: formIsBindString,
+			bindValue: formBindValue,
 			bindString: formBindString,
 			bindStyle: formBindStyle,
 			bindFunction: formBindFunction,

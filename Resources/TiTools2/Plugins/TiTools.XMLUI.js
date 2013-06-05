@@ -72,6 +72,38 @@ function formCacheLoad(data, format) {
 	return result;
 }
 
+function xmluiIstallHook(name, hook) {
+	switch(name) {
+		case "vbox":
+			xmluiHookVBox = hook;
+		break;
+		case "hbox":
+			xmluiHookHBox = hook;
+		break;
+		case "tbox":
+			xmluiHookTBox = hook;
+		break;
+		case "label":
+			xmluiHookLabel = hook;
+		break;
+		case "date":
+			xmluiHookDate = hook;
+		break;
+		case "textField":
+			xmluiHookTextField = hook;
+		break;
+		case "checkBox":
+			xmluiHookCheckBox = hook;
+		break;
+		case "listBox":
+			xmluiHookListBox = hook;
+		break;
+		case "dropDownList":
+			xmluiHookDropDownList = hook;
+		break;
+	}
+}
+
 //---------------------------------------------//
 // TODO:NAMESPACE:XMLUI:PRIVATE
 //---------------------------------------------//
@@ -89,7 +121,8 @@ function convertNodeXMLUI(content) {
 		case "vbox":
 			result = xmluiHookVBox(content, {
 				xmlui: {
-					name: content.name
+					type: content.name,
+					name: xmluiGetValue(atts.name, undefined)
 				},
 				width: xmluiGetValue(atts.width, Ti.UI.FILL),
 				height: xmluiGetValue(atts.height, Ti.UI.SIZE),
@@ -99,7 +132,8 @@ function convertNodeXMLUI(content) {
 		case "hbox":
 			result = xmluiHookHBox(content, {
 				xmlui: {
-					name: content.name
+					type: content.name,
+					name: xmluiGetValue(atts.name, undefined)
 				},
 				width: xmluiGetValue(atts.width, Ti.UI.FILL),
 				height: xmluiGetValue(atts.height, Ti.UI.SIZE),
@@ -110,7 +144,8 @@ function convertNodeXMLUI(content) {
 		case "tbox":
 			result = xmluiHookTBox(content, {
 				xmlui: {
-					name: content.name,
+					type: content.name,
+					name: xmluiGetValue(atts.name, undefined),
 					columns: atts.columns
 				},
 				width: xmluiGetValue(atts.width, Ti.UI.FILL),
@@ -121,14 +156,15 @@ function convertNodeXMLUI(content) {
 		case "label":
 			result = xmluiHookLabel(content, {
 				xmlui: {
-					name: content.name,
-					interactive: content.interactive,
-					required: content.required
+					type: content.name,
+					name: xmluiGetValue(atts.name, undefined),
+					interactive: xmluiGetBool(atts.interactive, false),
+					required: xmluiGetBool(atts.required, false)
 				},
-				width: xmluiGetValue(atts.width),
-				height: xmluiGetValue(atts.height),
-				touchEnabled: xmluiGetValue(atts.enabled, true),
-				text: xmluiGetValue(atts.value),
+				width: xmluiGetValue(atts.width, null),
+				height: xmluiGetValue(atts.height, null),
+				touchEnabled: xmluiGetBool(atts.enabled, false),
+				text: xmluiGetValue(atts.value, ""),
 				font: {
 					color: xmluiGetColor(atts.color, "black")
 				}
@@ -137,15 +173,16 @@ function convertNodeXMLUI(content) {
 		case "date":
 			result = xmluiHookDate(content, {
 				xmlui: {
-					name: content.name,
-					interactive: content.interactive,
-					required: content.required
+					type: content.name,
+					name: xmluiGetValue(atts.name, undefined),
+					interactive: xmluiGetBool(atts.interactive, false),
+					required: xmluiGetBool(atts.required, false)
 				},
-				width: xmluiGetValue(atts.width),
-				height: xmluiGetValue(atts.height),
-				touchEnabled: xmluiGetValue(atts.enabled, true),
-				hintText: xmluiGetValue(atts.tip),
-				text: xmluiGetValue(atts.value),
+				width: xmluiGetValue(atts.width, undefined),
+				height: xmluiGetValue(atts.height, undefined),
+				touchEnabled: xmluiGetBool(atts.enabled, true),
+				hintText: xmluiGetValue(atts.tip, undefined),
+				value: xmluiGetValue(atts.value, new Date()),
 				font: {
 					color: xmluiGetColor(atts.color, "black")
 				}
@@ -154,17 +191,18 @@ function convertNodeXMLUI(content) {
 		case "textField":
 			result = xmluiHookTextField(content, {
 				xmlui: {
-					name: content.name,
-					interactive: content.interactive,
-					required: content.required
+					type: content.name,
+					name: xmluiGetValue(atts.name, undefined),
+					interactive: xmluiGetBool(atts.interactive, false),
+					required: xmluiGetBool(atts.required, false)
 				},
-				width: xmluiGetValue(atts.width),
-				height: xmluiGetValue(atts.height),
-				touchEnabled: xmluiGetValue(atts.enabled, true),
-				maxLength: xmluiGetValue(atts.maxLength),
-				hintText: xmluiGetValue(atts.tip),
-				regexp: xmluiGetValue(atts.regexp),
-				value: xmluiGetValue(atts.value),
+				width: xmluiGetValue(atts.width, undefined),
+				height: xmluiGetValue(atts.height, undefined),
+				touchEnabled: xmluiGetBool(atts.enabled, true),
+				maxLength: xmluiGetValue(atts.maxLength, 300),
+				hintText: xmluiGetValue(atts.tip, undefined),
+				regexp: xmluiGetValue(atts.regex, undefined),
+				value: xmluiGetValue(atts.value, undefined),
 				font: {
 					color: xmluiGetColor(atts.color, "black")
 				}
@@ -173,14 +211,15 @@ function convertNodeXMLUI(content) {
 		case "checkBox":
 			result = xmluiHookCheckBox(content, {
 				xmlui: {
-					name: content.name,
-					interactive: content.interactive,
-					required: content.required
+					type: content.name,
+					name: xmluiGetValue(atts.name, undefined),
+					interactive: xmluiGetBool(atts.interactive, false),
+					required: xmluiGetBool(atts.required, false)
 				},
-				width: xmluiGetValue(atts.width),
-				height: xmluiGetValue(atts.height),
-				touchEnabled: xmluiGetValue(atts.enabled, true),
-				title: xmluiGetValue(atts.tip, ""),
+				width: xmluiGetValue(atts.width, undefined),
+				height: xmluiGetValue(atts.height, undefined),
+				touchEnabled: xmluiGetBool(atts.enabled, true),
+				title: xmluiGetValue(atts.tip, undefined),
 				value: xmluiGetBool(atts.value, false),
 				font: {
 					color: xmluiGetColor(atts.color, "black")
@@ -190,16 +229,17 @@ function convertNodeXMLUI(content) {
 		case "listBox":
 			result = xmluiHookListBox(content, {
 				xmlui: {
-					name: content.name,
-					interactive: content.interactive,
-					required: content.required,
-					items: xmluiListChild(content)
+					type: content.name,
+					name: xmluiGetValue(atts.name, undefined),
+					interactive: xmluiGetBool(atts.interactive, false),
+					required: xmluiGetBool(atts.required, false),
+					items: xmluiListChild(content),
+					value: xmluiGetValue(atts.value, undefined)
 				},
-				width: xmluiGetValue(atts.width),
-				height: xmluiGetValue(atts.height),
-				touchEnabled: xmluiGetValue(atts.enabled, true),
-				hintText: xmluiGetValue(atts.tip),
-				items: xmluiListChild(content),
+				width: xmluiGetValue(atts.width, undefined),
+				height: xmluiGetValue(atts.height, undefined),
+				touchEnabled: xmluiGetBool(atts.enabled, true),
+				hintText: xmluiGetValue(atts.tip, undefined),
 				font: {
 					color: xmluiGetColor(atts.color, "black")
 				}
@@ -208,16 +248,17 @@ function convertNodeXMLUI(content) {
 		case "dropDownList":
 			result = xmluiHookDropDownList(content, {
 				xmlui: {
-					name: content.name,
-					interactive: content.interactive,
-					required: content.required,
-					items: xmluiListChild(content)
+					type: content.name,
+					name: xmluiGetValue(atts.name, undefined),
+					interactive: xmluiGetBool(atts.interactive, false),
+					required: xmluiGetBool(atts.required, false),
+					items: xmluiListChild(content),
+					value: xmluiGetValue(atts.value, undefined)
 				},
-				width: xmluiGetValue(atts.width),
-				height: xmluiGetValue(atts.height),
-				touchEnabled: xmluiGetValue(atts.enabled, true),
-				hintText: xmluiGetValue(atts.tip),
-				items: xmluiListChild(content),
+				width: xmluiGetValue(atts.width, undefined),
+				height: xmluiGetValue(atts.height, undefined),
+				touchEnabled: xmluiGetBool(atts.enabled, true),
+				hintText: xmluiGetValue(atts.tip, undefined),
 				font: {
 					color: xmluiGetColor(atts.color, "black")
 				}
@@ -475,16 +516,6 @@ module.exports = {
 		listBox: xmluiDefaultHookListBox,
 		dropDownList: xmluiDefaultHookDropDownList
 	},
-	Hook: {
-		vbox: xmluiHookVBox,
-		hbox: xmluiHookHBox,
-		tbox: xmluiHookTBox,
-		label: xmluiHookLabel,
-		date: xmluiHookDate,
-		textField: xmluiHookTextField,
-		checkBox: xmluiHookCheckBox,
-		listBox: xmluiHookListBox,
-		dropDownList: xmluiHookDropDownList
-	},
-	formCacheLoad: formCacheLoad
+	formCacheLoad: formCacheLoad,
+	installHook: xmluiIstallHook
 };
